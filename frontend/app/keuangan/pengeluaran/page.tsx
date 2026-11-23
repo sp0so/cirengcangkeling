@@ -31,81 +31,13 @@ export default function PengeluaranUsahaOwnerPage() {
   const [formDate, setFormDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [formTime, setFormTime] = useState<string>('14:30');
 
-  // Extended mock expenses
-  const allExpenses = [
-    ...expenses.map((e, idx) => ({
-      ...e,
-      code: `#EXP-202610-0${42 + idx}`,
-      source: idx % 2 === 0 ? 'Bank BRI' : 'Kas Tunai Gerai',
-      hasReceipt: true,
-    })),
-    {
-      id: 'exp-figma-1',
-      code: '#EXP-202410-042',
-      date: '2026-10-24 09:15',
-      category: 'Bahan Baku' as const,
-      description: 'Tepung Tapioka Cap Tani (50 kg) dari Pemasok Jaya',
-      amount: 550000,
-      recordedBy: 'Astriana (Owner)',
-      source: 'Bank BRI',
-      hasReceipt: true,
-    },
-    {
-      id: 'exp-figma-2',
-      code: '#EXP-202410-041',
-      date: '2026-10-23 16:40',
-      category: 'Operasional' as const,
-      description: 'Gas LPG 12kg Refill (2 Tabung Dapur Gerai)',
-      amount: 420000,
-      recordedBy: 'Astriana (Owner)',
-      source: 'Kas Tunai Gerai',
-      hasReceipt: true,
-    },
-    {
-      id: 'exp-figma-3',
-      code: '#EXP-202410-040',
-      date: '2026-10-23 11:20',
-      category: 'Operasional' as const,
-      description: 'Plastik Pouch Vakum Nylon 150µ (500 Pcs)',
-      amount: 350000,
-      recordedBy: 'Astriana (Owner)',
-      source: 'Bank BRI',
-      hasReceipt: true,
-    },
-    {
-      id: 'exp-figma-4',
-      code: '#EXP-202410-039',
-      date: '2026-10-22 05:45',
-      category: 'Bahan Baku' as const,
-      description: 'Bawang Putih Kating & Cabai Rawit Merah Segar Pasar',
-      amount: 185000,
-      recordedBy: 'Dika (Staf)',
-      source: 'Kas Tunai Gerai',
-      hasReceipt: false,
-    },
-    {
-      id: 'exp-figma-5',
-      code: '#EXP-202410-037',
-      date: '2026-10-20 14:10',
-      category: 'Bahan Baku' as const,
-      description: 'Minyak Goreng Sawit Curah Higienis (40 Liter)',
-      amount: 640000,
-      recordedBy: 'Astriana (Owner)',
-      source: 'Bank BRI',
-      hasReceipt: true,
-    },
-    {
-      id: 'exp-figma-6',
-      code: '#EXP-202410-036',
-      date: '2026-10-19 10:00',
-      category: 'Operasional' as const,
-      description: 'Token Listrik PLN Gerai & Deep Freezer (5500 VA)',
-      amount: 500000,
-      recordedBy: 'Astriana (Owner)',
-      source: 'Bank BRI',
-      hasReceipt: true,
-    },
-  ];
+  // Dynamic user-entered expenses
+  const allExpenses = expenses.map((e, idx) => ({
+    ...e,
+    code: `#EXP-${e.date.substring(0, 7).replace('-', '')}-0${String(idx + 1).padStart(3, '0')}`,
+    source: e.category === 'Bahan Baku' ? 'Kas Tunai Gerai' : 'Rekening Bank BRI',
+    hasReceipt: true,
+  }));
 
   const totalExpense = allExpenses.reduce((sum, e) => sum + e.amount, 0);
   const bahanBakuExpense = allExpenses
@@ -116,7 +48,7 @@ export default function PengeluaranUsahaOwnerPage() {
     .reduce((sum, e) => sum + e.amount, 0);
   const gajiExpense = allExpenses
     .filter((e) => e.category === 'Gaji Karyawan')
-    .reduce((sum, e) => sum + e.amount, 0) || 4000000;
+    .reduce((sum, e) => sum + e.amount, 0);
 
   const filteredExpenses = allExpenses.filter((e) => {
     const matchSearch =
@@ -315,42 +247,53 @@ export default function PengeluaranUsahaOwnerPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#F1F5F9]">
-                    {filteredExpenses.map((exp) => (
-                      <tr key={exp.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
-                        <td className="py-3.5 px-4 font-mono font-bold text-[12px] text-[#A24F9D]">
-                          {exp.code}
-                        </td>
-                        <td className="py-3.5 px-4 text-[12px] text-[#5B403D]">
-                          {exp.date.replace('T', ' ').substring(0, 16)}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="font-bold text-[#0B1C30]">{exp.description}</div>
-                          <div className="text-[11px] text-[#5B403D]/70">Pencatat: {exp.recordedBy}</div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#475569]">
-                            {exp.category}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-[12px] font-medium text-[#0B1C30]">
-                          {exp.source}
-                        </td>
-                        <td className="py-3.5 px-4 text-right font-extrabold text-[#BA1A1A]">
-                          Rp {exp.amount.toLocaleString('id-ID')}
-                        </td>
-                        <td className="py-3.5 px-4 text-center">
-                          {exp.hasReceipt ? (
-                            <span className="text-[11px] font-bold text-[#16A34A] bg-[#DCFCE7] px-2 py-0.5 rounded-md">
-                              Ada Nota
+                    {filteredExpenses.length > 0 ? (
+                      filteredExpenses.map((exp) => (
+                        <tr key={exp.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
+                          <td className="py-3.5 px-4 font-mono font-bold text-[12px] text-[#A24F9D]">
+                            {exp.code}
+                          </td>
+                          <td className="py-3.5 px-4 text-[12px] text-[#5B403D]">
+                            {exp.date.replace('T', ' ').substring(0, 16)}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-[#0B1C30]">{exp.description}</div>
+                            <div className="text-[11px] text-[#5B403D]/70">Pencatat: {exp.recordedBy}</div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#475569]">
+                              {exp.category}
                             </span>
-                          ) : (
-                            <span className="text-[11px] text-[#94A3B8]">
-                              -
-                            </span>
-                          )}
+                          </td>
+                          <td className="py-3.5 px-4 text-[12px] font-medium text-[#0B1C30]">
+                            {exp.source}
+                          </td>
+                          <td className="py-3.5 px-4 text-right font-extrabold text-[#BA1A1A]">
+                            Rp {exp.amount.toLocaleString('id-ID')}
+                          </td>
+                          <td className="py-3.5 px-4 text-center">
+                            {exp.hasReceipt ? (
+                              <span className="text-[11px] font-bold text-[#16A34A] bg-[#DCFCE7] px-2 py-0.5 rounded-md">
+                                Ada Nota
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-[#94A3B8]">
+                                -
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={7} className="py-10 text-center text-[#5B403D]">
+                          <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada pencatatan pengeluaran</p>
+                          <p className="text-[12px] text-[#5B403D] mt-1 max-w-sm mx-auto">
+                            Gunakan formulir cepat di samping untuk mencatat belanja bahan baku, operasional harian, atau kas kecil gerai.
+                          </p>
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>

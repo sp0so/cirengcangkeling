@@ -91,48 +91,76 @@ export default function DataSupplierPage() {
         </div>
 
         {/* Supplier Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((sup) => (
-            <div
-              key={sup.id}
-              className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card card-hover flex flex-col justify-between space-y-4"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#732662] bg-[#FBF4F9] px-2 py-0.5 rounded-full border border-[#732662]/20">
-                    Mitra Terdaftar
-                  </span>
-                </div>
-                <h3 className="font-extrabold text-base text-[#0B1C30]">{sup.name}</h3>
-                <p className="text-xs text-[#5B403D] mt-1">
-                  Kontak Person: <strong>{sup.contactPerson}</strong>
-                </p>
-                <p className="text-xs text-[#5B403D]">
-                  Telepon: <span className="font-mono text-[#0B1C30] font-semibold">{sup.phone}</span>
-                </p>
-                <p className="text-xs text-[#5B403D] mt-2 line-clamp-2">
-                  Alamat: {sup.address}
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#F1F5F9]">
-                <span className="text-[11px] font-bold text-[#334155] block mb-1.5">
-                  Bahan Pasokan:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {sup.materials.map((mat, i) => (
-                    <span
-                      key={i}
-                      className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FFF7ED] text-[#833E17] border border-[#FFDBCC]"
-                    >
-                      {mat}
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((sup) => (
+              <div
+                key={sup.id}
+                className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card card-hover flex flex-col justify-between space-y-4"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#732662] bg-[#FBF4F9] px-2 py-0.5 rounded-full border border-[#732662]/20">
+                      Mitra Terdaftar
                     </span>
-                  ))}
+                  </div>
+                  <h3 className="font-extrabold text-base text-[#0B1C30]">{sup.name}</h3>
+                  <p className="text-xs text-[#5B403D] mt-1">
+                    Kontak Person: <strong>{sup.contactPerson}</strong>
+                  </p>
+                  <p className="text-xs text-[#5B403D]">
+                    Telepon: <span className="font-mono text-[#0B1C30] font-semibold">{sup.phone}</span>
+                  </p>
+                  <p className="text-xs text-[#5B403D] mt-2 line-clamp-2">
+                    Alamat: {sup.address}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-[#F1F5F9]">
+                  <span className="text-[11px] font-bold text-[#334155] block mb-1.5">
+                    Bahan Pasokan:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {sup.materials.map((mat, i) => (
+                      <span
+                        key={i}
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FFF7ED] text-[#833E17] border border-[#FFDBCC]"
+                      >
+                        {mat}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-12 rounded-2xl bg-white border border-[#CBD5E1] shadow-card text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-[#FAF7F2] text-[#833E17] inline-flex items-center justify-center">
+              <IconSupplier size={32} />
             </div>
-          ))}
-        </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-[#0B1C30]">Belum Ada Mitra Supplier</h3>
+              <p className="text-xs text-[#5B403D] max-w-sm mx-auto">
+                Daftarkan data supplier, distributor bahan mentah, kemasan, atau toko langganan Anda untuk mempermudah pencatatan pembelian.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setName('');
+                setContactPerson('');
+                setPhone('');
+                setAddress('');
+                setMaterialsStr('');
+                setIsModalOpen(true);
+              }}
+              className="btn-primary text-xs sm:text-sm inline-flex items-center gap-1.5"
+            >
+              <IconPlus size={16} />
+              <span>Tambah Supplier Pertama</span>
+            </button>
+          </div>
+        )}
 
         {/* Modal Add Supplier */}
         {isModalOpen && (

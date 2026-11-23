@@ -448,7 +448,8 @@ export default function StokBahanBakuOwnerPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {filteredMaterials.map((m) => (
+                {filteredMaterials.length > 0 ? (
+                  filteredMaterials.map((m) => (
                   <tr key={m.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
                     {/* Name & Code */}
                     <td className="py-3.5 px-4">
@@ -540,7 +541,29 @@ export default function StokBahanBakuOwnerPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-[#5B403D]">
+                      <div className="flex flex-col items-center justify-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-[#FFDAD6] text-[#BA1A1A] flex items-center justify-center">
+                          <IconRawMaterial size={24} />
+                        </div>
+                        <p className="font-bold text-[16px] text-[#0B1C30]">Belum ada bahan baku yang terdaftar</p>
+                        <p className="text-[13px] text-[#5B403D] max-w-sm">
+                          Mulai daftarkan bahan baku seperti tepung, minyak, bumbu, dan kemasan untuk mengontrol persediaan dapur.
+                        </p>
+                        <button
+                          onClick={handleOpenAdd}
+                          className="mt-2 bg-[#A24F9D] hover:bg-[#8F3D8A] text-white text-[13px] font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-sm"
+                        >
+                          <IconPlus size={16} />
+                          <span>Tambah Bahan Baku Pertama</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
