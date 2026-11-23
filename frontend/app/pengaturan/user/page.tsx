@@ -47,9 +47,9 @@ export default function UserManagementOwnerPage() {
   const [userList, setUserList] = useState<SystemUser[]>([
     {
       id: 'usr-1',
-      name: 'Astriana',
-      username: 'astriana.owner',
-      email: 'astriana@cirengcangkeling.id',
+      name: 'Owner Cireng',
+      username: 'admin.owner',
+      email: 'admin@cirengcangkeling.id',
       role: 'Owner',
       outlet: 'Semua Gerai & Sentral',
       permissions: ['Full Access', 'Keuangan', 'Audit Log', 'Katalog', 'User Management'],
@@ -69,31 +69,21 @@ export default function UserManagementOwnerPage() {
       isOnline: !!activeShift,
       status: 'Aktif',
     },
-    {
-      id: 'usr-3',
-      name: 'Dina Ayu',
-      username: 'dina.kasir2',
-      email: 'dina@cirengcangkeling.id',
-      role: 'Kasir Gerai',
-      outlet: 'Outlet Kaliurang KM 5.2',
-      permissions: ['POS Kasir', 'Catat Penjualan', 'Cetak Struk'],
-      lastActive: 'Kemarin 21:00 WIB',
-      isOnline: false,
-      status: 'Aktif',
-    },
-    {
-      id: 'usr-4',
-      name: 'Dika Permana',
-      username: 'dika.dapur',
-      email: 'dika@cirengcangkeling.id',
-      role: 'Staf Dapur',
-      outlet: 'Dapur Sentral KM 5.2',
-      permissions: ['Catat Hasil Produksi', 'Cek Bahan Baku', 'Log Pemakaian'],
-      lastActive: 'Hari ini 09:30 WIB',
-      isOnline: false,
-      status: 'Aktif',
-    },
   ]);
+
+  // LocalStorage persistence for user list
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('cc_system_users');
+      if (saved) setUserList(JSON.parse(saved));
+    } catch {}
+  }, []);
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('cc_system_users', JSON.stringify(userList));
+    } catch {}
+  }, [userList]);
 
   const filteredUsers = userList.filter((u) => {
     const matchSearch =

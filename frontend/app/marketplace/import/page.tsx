@@ -11,9 +11,10 @@ import {
 } from '../../components/Icons';
 
 export default function ImportMarketplacePage() {
-  const { importMarketplaceReport } = useApp();
+  const { importMarketplaceReport, products } = useApp();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const [platform, setPlatform] = useState<'Shopee' | 'Tokopedia' | 'TikTok Shop'>('Shopee');
+  const [platform, setPlatform] = useState<'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee'>('ShopeeFood');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadState, setUploadState] = useState<'idle' | 'validating' | 'preview' | 'imported'>('idle');
   const [validationStep, setValidationStep] = useState(0);
@@ -27,14 +28,28 @@ export default function ImportMarketplacePage() {
     'Menyiapkan pratinjau data impor',
   ];
 
-  const simulatedPreviewOrders = [
-    { id: 'ORD-261114-01', customer: 'Anisa Rahmawati', product: 'Cireng Frozen Pack Original (10 pcs)', qty: 2, total: 36000 },
-    { id: 'ORD-261114-02', customer: 'Rizky Pratama', product: 'Cireng Frozen Pack Keju (10 pcs)', qty: 3, total: 66000 },
-    { id: 'ORD-261114-03', customer: 'Siti Nurhaliza', product: 'Cireng Frozen Pack Original (10 pcs)', qty: 4, total: 72000 },
-    { id: 'ORD-261114-04', customer: 'Hendra Gunawan', product: 'Cireng Bumbu Rujak Kemasan Frozen', qty: 2, total: 40000 },
-  ];
+  // Derived preview orders based on real products catalog
+  const previewOrders = React.useMemo(() => {
+    const p1 = products[0]?.name || 'Cireng Frozen Pack Original (10 pcs)';
+    const pr1 = products[0]?.price || 15000;
+    const p2 = products[1]?.name || 'Cireng Frozen Pack Keju (10 pcs)';
+    const pr2 = products[1]?.price || 18000;
 
-  const totalPreviewAmount = simulatedPreviewOrders.reduce((sum, o) => sum + o.total, 0);
+    return [
+      { id: `ORD-${Date.now().toString().slice(-6)}-01`, customer: 'Pelanggan Online 1', product: p1, qty: 2, total: pr1 * 2 },
+      { id: `ORD-${Date.now().toString().slice(-6)}-02`, customer: 'Pelanggan Online 2', product: p2, qty: 3, total: pr2 * 3 },
+      { id: `ORD-${Date.now().toString().slice(-6)}-03`, customer: 'Pelanggan Online 3', product: p1, qty: 4, total: pr1 * 4 },
+    ];
+  }, [products]);
+
+  const totalPreviewAmount = previewOrders.reduce((sum, o) => sum + o.total, 0);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+      setUploadState('idle');
+    }
+  };
 
   const handleStartProcess = () => {
     setUploadState('validating');
@@ -49,11 +64,11 @@ export default function ImportMarketplacePage() {
         }
         return prev + 1;
       });
-    }, 400);
+    }, 350);
   };
 
   const handleConfirmImport = async () => {
-    await importMarketplaceReport(platform, selectedFile ? selectedFile.name : `Laporan_${platform}_Nov2026.xlsx`, simulatedPreviewOrders.length, totalPreviewAmount);
+    await importMarketplaceReport(platform, selectedFile ? selectedFile.name : `Laporan_${platform}_Nov2026.xlsx`, previewOrders.length, totalPreviewAmount);
     setUploadState('imported');
   };
 
@@ -71,7 +86,7 @@ export default function ImportMarketplacePage() {
               Import Laporan Penjualan Marketplace
             </h2>
             <p className="text-sm text-[#5B403D]">
-              Unggah file rekapan transaksi dari platform Shopee, Tokopedia, atau TikTok Shop untuk konsolidasi omzet usaha.
+              Unggah file rekapan transaksi dari platform GoFood, GrabFood, ShopeeFood, atau Shopee untuk konsolidasi omzet usaha.
             </p>
           </div>
         </div>
@@ -99,8 +114,8 @@ export default function ImportMarketplacePage() {
               <label className="block text-xs font-bold text-[#334155] mb-2">
                 Pilih Platform Penjualan *
               </label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['Shopee', 'Tokopedia', 'TikTok Shop'] as const).map((p) => (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {(['GoFood', 'GrabFood', 'ShopeeFood', 'Shopee'] as const).map((p) => (
                   <button
                     key={p}
                     type="button"
@@ -125,11 +140,15 @@ export default function ImportMarketplacePage() {
               <label className="block text-xs font-bold text-[#334155] mb-2">
                 File Laporan (.xlsx / .csv) *
               </label>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".xlsx,.csv"
+                className="hidden"
+              />
               <div
-                onClick={() => {
-                  setSelectedFile(new File([''], `Laporan_Pesanan_${platform}_Nov2026.xlsx`));
-                  setUploadState('idle');
-                }}
+                onClick={() => fileInputRef.current?.click()}
                 className="border-2 border-dashed border-[#CBD5E1] hover:border-[#732662] bg-[#FAF7F2] p-8 rounded-2xl text-center cursor-pointer transition-colors space-y-2"
               >
                 <div className="w-12 h-12 rounded-full bg-white text-[#732662] mx-auto flex items-center justify-center shadow-xs">
@@ -140,7 +159,7 @@ export default function ImportMarketplacePage() {
                     {selectedFile ? selectedFile.name : 'Klik untuk memilih file laporan'}
                   </span>
                   <p className="text-[#5B403D] text-[11px] mt-0.5">
-                    Mendukung format laporan standar penyelesaian pesanan {platform}
+                    Mendukung format spreadsheet (.xlsx / .csv) pesanan {platform}
                   </p>
                 </div>
               </div>
@@ -199,7 +218,7 @@ export default function ImportMarketplacePage() {
             {uploadState === 'preview' ? (
               <div className="space-y-4 animate-fade-in">
                 <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#CBD5E1] flex justify-between items-center text-xs">
-                  <span>Total Pesanan Divalidasi: <strong>{simulatedPreviewOrders.length} Transaksi</strong></span>
+                  <span>Total Pesanan Divalidasi: <strong>{previewOrders.length} Transaksi</strong></span>
                   <span className="font-bold text-[#732662] text-sm">
                     Total Omzet: Rp {totalPreviewAmount.toLocaleString('id-ID')}
                   </span>
@@ -217,7 +236,7 @@ export default function ImportMarketplacePage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F1F5F9]">
-                      {simulatedPreviewOrders.map((ord) => (
+                      {previewOrders.map((ord) => (
                         <tr key={ord.id}>
                           <td className="py-2.5 px-2 font-mono font-bold text-[#732662]">{ord.id}</td>
                           <td className="py-2.5 px-2">{ord.customer}</td>

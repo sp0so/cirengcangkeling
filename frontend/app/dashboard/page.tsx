@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import AppShell from '../components/AppShell';
 import { useApp } from '../lib/context';
 import {
@@ -22,92 +21,232 @@ export default function DashboardPage() {
     rawMaterials,
     transactions,
     expenses,
+    stockMovements,
   } = useApp();
 
-  const [periodFilter, setPeriodFilter] = useState<'today' | '7days' | 'month'>('today');
+  const [periodFilter, setPeriodFilter] = useState<'today' | '7days' | 'month'>('7days');
 
-  // Chart data for 7 days per Figma Spec (18 Okt to Hari Ini)
-  const figmaChartData = [
-    { label: '18 Okt', sales: 1200000, expense: 500000, sH: 60, eH: 25 },
-    { label: '19 Okt', sales: 1450000, expense: 400000, sH: 72, eH: 20 },
-    { label: '20 Okt', sales: 1100000, expense: 800000, sH: 55, eH: 40 },
-    { label: '21 Okt', sales: 1600000, expense: 600000, sH: 80, eH: 30 },
-    { label: '22 Okt', sales: 1750000, expense: 900000, sH: 88, eH: 45 },
-    { label: '23 Okt', sales: 1950000, expense: 1100000, sH: 98, eH: 55 },
-    { label: 'Hari Ini', sales: 1450000, expense: 350000, sH: 72, eH: 18, isToday: true },
-  ];
+  // Today's date strings
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const currentMonthStr = useMemo(() => todayStr.substring(0, 7), [todayStr]);
+
+  // 1. Critical Materials Calculation
+  const criticalMaterials = useMemo(
+    () => rawMaterials.filter((m) => m.stock < m.minStock),
+    [rawMaterials]
+  );
+  const warningMaterials = useMemo(
+    () => rawMaterials.filter((m) => m.stock >= m.minStock && m.stock <= m.minStock * 1.5),
+    [rawMaterials]
+  );
+  const safeMaterialsCount = useMemo(
+    () => rawMaterials.filter((m) => m.stock > m.minStock * 1.5).length,
+    [rawMaterials]
+  );
+
+  // 2. Low-stock products calculation
+  const lowStockProducts = useMemo(
+    () => products.filter((p) => p.stock <= p.minStock),
+    [products]
+  );
+
+  // 3. Today's sales calculation
+  const todayTransactions = useMemo(
+    () => transactions.filter((tx) => tx.date && tx.date.startsWith(todayStr) && tx.status !== 'dibatalkan'),
+    [transactions, todayStr]
+  );
+  const todaySalesTotal = useMemo(
+    () => todayTransactions.reduce((sum, tx) => sum + tx.total, 0),
+    [todayTransactions]
+  );
+  const todayPacksSold = useMemo(
+    () =>
+      todayTransactions.reduce(
+        (sum, tx) => sum + tx.items.reduce((iSum, it) => iSum + it.quantity, 0),
+        0
+      ),
+    [todayTransactions]
+  );
+
+  // 4. Monthly expenses calculation
+  const monthlyExpenses = useMemo(
+    () => expenses.filter((exp) => exp.date && exp.date.startsWith(currentMonthStr)),
+    [expenses, currentMonthStr]
+  );
+  const monthlyExpenseTotal = useMemo(
+    () => monthlyExpenses.reduce((sum, exp) => sum + exp.amount, 0),
+    [monthlyExpenses]
+  );
+
+  // 5. Dynamic 7-day trend chart
+  const dynamicChartData = useMemo(() => {
+    const days: { label: string; dateStr: string; sales: number; expense: number; isToday: boolean }[] = [];
+    const now = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const dayName = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      const isToday = i === 0;
+
+      const daySales = transactions
+        .filter((tx) => tx.date && tx.date.startsWith(dateStr) && tx.status !== 'dibatalkan')
+        .reduce((sum, tx) => sum + tx.total, 0);
+
+      const dayExpense = expenses
+        .filter((exp) => exp.date && exp.date.startsWith(dateStr))
+        .reduce((sum, exp) => sum + exp.amount, 0);
+
+      days.push({
+        label: isToday ? 'Hari Ini' : dayName,
+        dateStr,
+        sales: daySales,
+        expense: dayExpense,
+        isToday,
+      });
+    }
+
+    const maxVal = Math.max(
+      ...days.map((d) => Math.max(d.sales, d.expense)),
+      100000 // minimum baseline
+    );
+
+    return days.map((d) => ({
+      ...d,
+      sH: Math.round((d.sales / maxVal) * 90) + (d.sales > 0 ? 5 : 0),
+      eH: Math.round((d.expense / maxVal) * 90) + (d.expense > 0 ? 5 : 0),
+    }));
+  }, [transactions, expenses]);
+
+  const total7DaySales = useMemo(
+    () => dynamicChartData.reduce((sum, d) => sum + d.sales, 0),
+    [dynamicChartData]
+  );
+  const total7DayExpense = useMemo(
+    () => dynamicChartData.reduce((sum, d) => sum + d.expense, 0),
+    [dynamicChartData]
+  );
+  const grossMarginPercent = useMemo(() => {
+    if (total7DaySales === 0) return 0;
+    return Math.round(((total7DaySales - total7DayExpense) / total7DaySales) * 100);
+  }, [total7DaySales, total7DayExpense]);
+
+  // 6. Dynamic Top Selling Products
+  const bestSellers = useMemo(() => {
+    const counts: { [name: string]: { count: number; revenue: number } } = {};
+    transactions.forEach((tx) => {
+      if (tx.status !== 'dibatalkan') {
+        tx.items.forEach((item) => {
+          if (!counts[item.productName]) {
+            counts[item.productName] = { count: 0, revenue: 0 };
+          }
+          counts[item.productName].count += item.quantity;
+          counts[item.productName].revenue += item.subtotal;
+        });
+      }
+    });
+
+    const sorted = Object.entries(counts)
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.count - a.count);
+
+    const maxCount = sorted.length > 0 ? sorted[0].count : 1;
+    return sorted.slice(0, 3).map((item, idx) => ({
+      rank: idx + 1,
+      name: item.name,
+      revenue: item.revenue,
+      packsSold: item.count,
+      barWidth: Math.min(100, Math.max(15, Math.round((item.count / maxCount) * 100))),
+      color: idx === 0 ? '#A24F9D' : idx === 1 ? '#C92A2A' : '#A1552D',
+      badgeBg: idx === 0 ? 'bg-[#FBBF24] text-[#0B1C30]' : idx === 1 ? 'bg-[#CBD5E1] text-[#0B1C30]' : 'bg-[#B45309] text-white',
+      icon: idx === 0 ? '🥟' : idx === 1 ? '🌶️' : '🧀',
+    }));
+  }, [transactions]);
+
+  // 7. Recent stock movements (last 5)
+  const recentMovements = useMemo(() => stockMovements.slice(0, 5), [stockMovements]);
 
   return (
     <AppShell>
       <div className="space-y-6 font-sans">
         {/* =========================================================================
-            1. CRITICAL STOCK ALERT BANNER (Figma Frame 6:167)
-            Background: #FFDAD6, Blur Overlay: #BA1A1A/10
-            Alert Title: Bold 16px #93000A, Badge: Bold 11px #BA1A1A
-            Description: Regular 14px rgba(147,0,10,0.9) with bold underlines
-            Action Button: Bold 14px bg-[#A24F9D] hover:bg-[#8F3D8A] text-white
+            1. CRITICAL STOCK ALERT BANNER (Dynamically Driven)
            ========================================================================= */}
-        <div className="bg-[#FFDAD6] rounded-[12px] p-5 sm:p-6 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Decorative ambient blur circle */}
-          <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#BA1A1A]/10 rounded-full blur-[40px] pointer-events-none" />
+        {criticalMaterials.length > 0 ? (
+          <div className="bg-[#FFDAD6] rounded-[12px] p-5 sm:p-6 shadow-alert relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in">
+            <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#BA1A1A]/10 rounded-full blur-[40px] pointer-events-none" />
 
-          {/* Left: Icon, Title, and Description */}
-          <div className="flex items-start gap-4 relative z-10">
-            <div className="w-9 h-9 rounded-[12px] bg-[#BA1A1A] text-white flex items-center justify-center shrink-0 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
-              <IconAlertTriangle size={20} />
+            <div className="flex items-start gap-4 relative z-10">
+              <div className="w-9 h-9 rounded-[12px] bg-[#BA1A1A] text-white flex items-center justify-center shrink-0 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+                <IconAlertTriangle size={20} />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-bold text-[16px] leading-[24px] text-[#93000A] tracking-[-0.4px]">
+                    Perhatian: {criticalMaterials.length} Bahan Baku Mencapai Batas Kritis!
+                  </h3>
+                  <span className="bg-[#BA1A1A] text-white text-[11px] leading-[14px] font-bold px-2 py-0.5 rounded-full tracking-[0.55px] uppercase">
+                    KRITIS
+                  </span>
+                </div>
+
+                <div className="text-[14px] leading-[22px] text-[rgba(147,0,10,0.9)] max-w-2xl">
+                  <p>
+                    {criticalMaterials.map((mat, idx) => (
+                      <span key={mat.id}>
+                        <span className="font-bold underline decoration-[#BA1A1A] decoration-1">
+                          {mat.name} tinggal {mat.stock} {mat.unit}
+                        </span>{' '}
+                        (min. {mat.minStock} {mat.unit})
+                        {idx < criticalMaterials.length - 1 ? ', ' : '. '}
+                      </span>
+                    ))}
+                    Segera lakukan pembelian bahan baku untuk mencegah terhentinya aktivitas dapur produksi!
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-bold text-[16px] leading-[24px] text-[#93000A] tracking-[-0.4px]">
-                  Perhatian 2 Bahan Baku Mencapai Batas Kritis!
-                </h3>
-                <span className="bg-[#BA1A1A] text-white text-[11px] leading-[14px] font-bold px-2 py-0.5 rounded-full tracking-[0.55px] uppercase">
-                  KRITIS
-                </span>
-              </div>
-
-              <div className="text-[14px] leading-[22.75px] text-[rgba(147,0,10,0.9)] max-w-2xl">
-                <p>
-                  <span className="font-bold underline decoration-[#BA1A1A] decoration-1">
-                    Tepung Tapioka tinggal 15 kg
-                  </span>{' '}
-                  (min. 25 kg){' '}
-                  <span className="font-bold underline decoration-[#BA1A1A] decoration-1">
-                    Minyak Goreng tinggal 2 L
-                  </span>{' '}
-                  (min. 10 L). Segera lakukan pembelian untuk mencegah terhentinya aktivitas dapur produksi hari ini!
-                </p>
-              </div>
+            <div className="relative z-10 shrink-0 self-end md:self-center">
+              <Link
+                href="/operasional/pembelian"
+                className="bg-[#A24F9D] hover:bg-[#8F3D8A] text-white text-[14px] leading-[20px] font-bold px-4 py-2.5 rounded-[12px] shadow-card flex items-center gap-2 transition-all active:scale-[0.98]"
+              >
+                <IconPlus size={16} />
+                <span>Beli / Catat Stok Masuk</span>
+              </Link>
             </div>
           </div>
-
-          {/* Right: Action Button in Primary Magenta #A24F9D */}
-          <div className="relative z-10 shrink-0 self-end md:self-center">
+        ) : (
+          <div className="bg-[#DCFCE7] border border-[#16A34A]/30 rounded-[12px] p-4 flex items-center justify-between gap-3 text-[#15803D]">
+            <div className="flex items-center gap-2.5">
+              <IconCheckCircle size={20} className="text-[#16A34A]" />
+              <span className="text-sm font-bold">
+                Semua stok bahan baku saat ini berada di atas batas kritis. Operasional dapur berjalan optimal.
+              </span>
+            </div>
             <Link
               href="/operasional/pembelian"
-              className="bg-[#A24F9D] hover:bg-[#8F3D8A] text-white text-[14px] leading-[20px] font-bold px-4 py-2.5 rounded-[12px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] flex items-center gap-2 transition-all active:scale-[0.98]"
+              className="text-xs font-bold text-[#15803D] hover:underline"
             >
-              <IconPlus size={16} />
-              <span>Beli / Catat Stok Masuk</span>
+              + Pengadaan Baru
             </Link>
           </div>
-        </div>
+        )}
 
         {/* =========================================================================
-            2. CONTEXT & DEMO INFO BAR (Figma Frame 6:187)
-            Dot: #833E17, Text: #0B1C30 SemiBold 12px
-            Badge: #E5EEFF / #5B403D Medium 11px
-            Right: Sync text #5B403D Regular 12px
+            2. CONTEXT INFO BAR
            ========================================================================= */}
         <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#833E17] shrink-0" />
             <span className="font-semibold text-[#0B1C30] text-[12px] leading-[16px] tracking-[0.24px]">
-              Ikhtisar Operasional Dapur & Penjualan Harian
+              Ikhtisar Operasional Dapur & Penjualan Terkini
             </span>
             <span className="bg-[#E5EEFF] text-[#5B403D] text-[11px] leading-[14px] font-medium px-2 py-0.5 rounded-[6px] tracking-[0.33px]">
-              Data Demonstrasi / Kasir Lokal
+              Database Terhubung
             </span>
           </div>
 
@@ -115,22 +254,16 @@ export default function DashboardPage() {
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
             </svg>
-            <span>Sinkronisasi otomatis setiap 5 menit</span>
+            <span>Real-time state & localStorage synchronization</span>
           </div>
         </div>
 
         {/* =========================================================================
-            3. SECTION - 5 KPI SUMMARY CARDS (Figma Frame 6:199)
-            5 Columns, 4px Top color accent, Plus Jakarta Sans typography
-            Card 1: TOTAL PRODUK JADI (Top #A24F9D, Value: 8 Varian, Semua Varian Aktif)
-            Card 2: TOTAL BAHAN BAKU (Top #BA1A1A, Value: 14 Item, 2 Kritis / 3 Menipis / 9 Aman)
-            Card 3: PRODUK MENIPIS (Top #F59E0B, Value: 2 SKU, Keju Pedas, Rujak Jumbo)
-            Card 4: PENJUALAN HARI INI (Top #16A34A, Value: Rp 1.450.000, 116 bks)
-            Card 5: PENGELUARAN BULAN INI (Top #833E17, Value: Rp 8.750.000, Belanja bahan & gas)
+            3. SECTION - 5 KPI SUMMARY CARDS (Fully Database-Driven)
            ========================================================================= */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Card 1: TOTAL PRODUK JADI */}
-          <div className="bg-white rounded-[12px] p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] relative overflow-hidden flex flex-col justify-between">
+          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#A24F9D]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -143,7 +276,7 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-baseline gap-1.5 mb-2">
                 <span className="text-[32px] leading-[40px] font-bold text-[#0B1C30] tracking-[-0.64px]">
-                  {products.length || 8}
+                  {products.length}
                 </span>
                 <span className="text-[12px] leading-[16px] font-medium text-[#5B403D] tracking-[0.24px]">
                   Varian
@@ -151,13 +284,15 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-1.5 text-[12px] leading-[18px] text-[#15803D] font-semibold">
                 <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
-                <span>Semua Varian Aktif</span>
+                <span>
+                  {products.filter((p) => p.isActive).length} Varian Aktif
+                </span>
               </div>
             </div>
           </div>
 
           {/* Card 2: TOTAL BAHAN BAKU */}
-          <div className="bg-white rounded-[12px] p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] relative overflow-hidden flex flex-col justify-between">
+          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#BA1A1A]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -170,7 +305,7 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-baseline gap-1.5 mb-2">
                 <span className="text-[32px] leading-[40px] font-bold text-[#0B1C30] tracking-[-0.64px]">
-                  {rawMaterials.length || 14}
+                  {rawMaterials.length}
                 </span>
                 <span className="text-[12px] leading-[16px] font-medium text-[#5B403D] tracking-[0.24px]">
                   Item
@@ -178,20 +313,20 @@ export default function DashboardPage() {
               </div>
               <div className="flex flex-wrap items-center gap-1.5 text-[11px] leading-[14px] font-bold">
                 <span className="bg-[#FFDAD6] text-[#93000A] px-1.5 py-0.5 rounded-[4px] tracking-[0.33px]">
-                  2 Kritis
+                  {criticalMaterials.length} Kritis
                 </span>
                 <span className="bg-[#FEF3C7] text-[#92400E] px-1.5 py-0.5 rounded-[4px] tracking-[0.33px]">
-                  3 Menipis
+                  {warningMaterials.length} Menipis
                 </span>
                 <span className="bg-[#DCFCE7] text-[#166534] px-1.5 py-0.5 rounded-[4px] tracking-[0.33px]">
-                  9 Aman
+                  {safeMaterialsCount} Aman
                 </span>
               </div>
             </div>
           </div>
 
           {/* Card 3: PRODUK MENIPIS */}
-          <div className="bg-white rounded-[12px] p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] relative overflow-hidden flex flex-col justify-between">
+          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#F59E0B]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -204,20 +339,22 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-baseline gap-1.5 mb-1">
                 <span className="text-[32px] leading-[40px] font-bold text-[#B45309] tracking-[-0.64px]">
-                  2
+                  {lowStockProducts.length}
                 </span>
                 <span className="text-[12px] leading-[16px] font-medium text-[#5B403D] tracking-[0.24px]">
                   SKU Siap Jual
                 </span>
               </div>
               <p className="text-[12px] leading-[18px] text-[#5B403D] truncate">
-                Keju Pedas, Rujak Jumbo
+                {lowStockProducts.length > 0
+                  ? lowStockProducts.map((p) => p.name).join(', ')
+                  : 'Semua stok produk aman'}
               </p>
             </div>
           </div>
 
           {/* Card 4: PENJUALAN HARI INI */}
-          <div className="bg-white rounded-[12px] p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] relative overflow-hidden flex flex-col justify-between">
+          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#16A34A]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -228,18 +365,18 @@ export default function DashboardPage() {
               </div>
             </div>
             <div>
-              <div className="text-[24px] leading-[32px] font-bold text-[#0B1C30] tracking-[-0.6px] mb-1">
-                Rp 1.450.000
+              <div className="text-[22px] leading-[30px] font-bold text-[#0B1C30] tracking-[-0.6px] mb-1 truncate">
+                Rp {todaySalesTotal.toLocaleString('id-ID')}
               </div>
               <div className="flex items-center gap-1 text-[11px] leading-[14px] text-[#15803D] font-semibold tracking-[0.33px]">
                 <IconArrowUp size={13} />
-                <span>116 bks (Target 150)</span>
+                <span>{todayPacksSold} bks ({todayTransactions.length} transaksi)</span>
               </div>
             </div>
           </div>
 
           {/* Card 5: PENGELUARAN BULAN INI */}
-          <div className="bg-white rounded-[12px] p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] relative overflow-hidden flex flex-col justify-between">
+          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#833E17]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -250,25 +387,24 @@ export default function DashboardPage() {
               </div>
             </div>
             <div>
-              <div className="text-[24px] leading-[32px] font-bold text-[#0B1C30] tracking-[-0.6px] mb-1">
-                Rp 8.750.000
+              <div className="text-[22px] leading-[30px] font-bold text-[#0B1C30] tracking-[-0.6px] mb-1 truncate">
+                Rp {monthlyExpenseTotal.toLocaleString('id-ID')}
               </div>
               <p className="text-[12px] leading-[18px] text-[#5B403D] truncate">
-                Belanja bahan & gas LPG
+                {monthlyExpenses.length > 0
+                  ? `${monthlyExpenses.length} transaksi beban tercatat`
+                  : 'Belum ada pengeluaran'}
               </p>
             </div>
           </div>
         </div>
 
         {/* =========================================================================
-            4. SECTION - GRID UTAMA: VISUALISASI TREN & PEMBELIAN SEGERA (Figma Frame 6:281)
-            Left: Panel Kiri Visualisasi Tren Penjualan & Pengeluaran (2/3 lebar)
-            Right: Panel Kanan Kebutuhan Mendesak Bahan Baku Perlu Dibeli (1/3 lebar)
+            4. SECTION - GRID UTAMA: VISUALISASI TREN & PEMBELIAN SEGERA
            ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Panel: Visualisasi Tren Penjualan & Pengeluaran */}
-          <div className="lg:col-span-2 bg-white rounded-[12px] p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
-            {/* Header: Subtitle, Title & Tabs */}
+          {/* Left Panel: Visualisasi Tren Penjualan & Pengeluaran 7 Hari */}
+          <div className="lg:col-span-2 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#A24F9D] block mb-0.5">
@@ -279,14 +415,13 @@ export default function DashboardPage() {
                 </h2>
               </div>
 
-              {/* Tabs: Harian, Mingguan, Bulanan */}
               <div className="bg-[#EFF4FF] p-1 rounded-[12px] flex items-center gap-1 self-start sm:self-center">
                 <button
                   type="button"
                   onClick={() => setPeriodFilter('today')}
                   className={`px-3 py-1 rounded-[8px] text-[11px] leading-[14px] font-semibold tracking-[0.33px] transition-all ${
                     periodFilter === 'today'
-                      ? 'bg-[#A24F9D] text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]'
+                      ? 'bg-[#A24F9D] text-white shadow-xs'
                       : 'text-[#5B403D] hover:text-[#0B1C30]'
                   }`}
                 >
@@ -297,7 +432,7 @@ export default function DashboardPage() {
                   onClick={() => setPeriodFilter('7days')}
                   className={`px-3 py-1 rounded-[8px] text-[11px] leading-[14px] font-semibold tracking-[0.33px] transition-all ${
                     periodFilter === '7days'
-                      ? 'bg-[#A24F9D] text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]'
+                      ? 'bg-[#A24F9D] text-white shadow-xs'
                       : 'text-[#5B403D] hover:text-[#0B1C30]'
                   }`}
                 >
@@ -308,7 +443,7 @@ export default function DashboardPage() {
                   onClick={() => setPeriodFilter('month')}
                   className={`px-3 py-1 rounded-[8px] text-[11px] leading-[14px] font-semibold tracking-[0.33px] transition-all ${
                     periodFilter === 'month'
-                      ? 'bg-[#A24F9D] text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]'
+                      ? 'bg-[#A24F9D] text-white shadow-xs'
                       : 'text-[#5B403D] hover:text-[#0B1C30]'
                   }`}
                 >
@@ -323,45 +458,51 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-[4px] bg-[#A24F9D] shrink-0" />
                   <span className="text-[#5B403D]">
-                    Penjualan: <strong className="text-[#0B1C30] font-bold">Rp 10.820.000</strong>
+                    Penjualan 7 Hari: <strong className="text-[#0B1C30] font-bold">Rp {total7DaySales.toLocaleString('id-ID')}</strong>
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-[4px] bg-[#A1552D] shrink-0" />
                   <span className="text-[#5B403D]">
-                    Pengeluaran: <strong className="text-[#0B1C30] font-bold">Rp 4.150.000</strong>
+                    Pengeluaran 7 Hari: <strong className="text-[#0B1C30] font-bold">Rp {total7DayExpense.toLocaleString('id-ID')}</strong>
                   </span>
                 </div>
               </div>
 
-              <div className="bg-[#F0FDF4] px-2 py-0.5 rounded-full flex items-center gap-1 text-[11px] leading-[14px] font-bold text-[#15803D] tracking-[0.33px]">
+              <div className="bg-[#F0FDF4] px-2.5 py-1 rounded-full flex items-center gap-1 text-[11px] leading-[14px] font-bold text-[#15803D] tracking-[0.33px]">
                 <IconArrowUp size={11} />
-                <span>Margin Kotor +61.6%</span>
+                <span>
+                  Margin Kotor {grossMarginPercent >= 0 ? `+${grossMarginPercent}%` : `${grossMarginPercent}%`}
+                </span>
               </div>
             </div>
 
-            {/* Dual-bar Chart per Figma specs */}
-            <div className="h-56 pt-2 flex items-end justify-between gap-3 sm:gap-6 px-2">
-              {figmaChartData.map((bar) => (
-                <div key={bar.label} className="flex-1 flex flex-col items-center gap-2 group">
-                  <div className="w-full flex items-end justify-center gap-1.5 h-44">
-                    {/* Penjualan Bar in Primary Magenta #A24F9D */}
+            {/* Dual-bar Dynamic Chart */}
+            <div className="h-56 pt-2 flex items-end justify-between gap-2 sm:gap-4 px-2">
+              {dynamicChartData.map((bar) => (
+                <div key={bar.dateStr} className="flex-1 flex flex-col items-center gap-2 group">
+                  <div className="w-full flex items-end justify-center gap-1 h-44">
+                    {/* Penjualan Bar */}
                     <div
-                      style={{ height: `${bar.sH}%` }}
-                      className="w-full max-w-[20px] bg-[#A24F9D] hover:brightness-110 rounded-t-[4px] transition-all cursor-pointer"
-                      title={`Penjualan: Rp ${bar.sales.toLocaleString('id-ID')}`}
+                      style={{ height: `${Math.max(bar.sH, 4)}%` }}
+                      className={`w-full max-w-[18px] rounded-t-[4px] transition-all cursor-pointer ${
+                        bar.sales > 0 ? 'bg-[#A24F9D] hover:brightness-110' : 'bg-slate-200'
+                      }`}
+                      title={`Penjualan (${bar.label}): Rp ${bar.sales.toLocaleString('id-ID')}`}
                     />
-                    {/* Pengeluaran Bar in Brown Accent #A1552D */}
+                    {/* Pengeluaran Bar */}
                     <div
-                      style={{ height: `${bar.eH}%` }}
-                      className="w-full max-w-[20px] bg-[#A1552D] hover:brightness-110 rounded-t-[4px] transition-all cursor-pointer"
-                      title={`Pengeluaran: Rp ${bar.expense.toLocaleString('id-ID')}`}
+                      style={{ height: `${Math.max(bar.eH, 4)}%` }}
+                      className={`w-full max-w-[18px] rounded-t-[4px] transition-all cursor-pointer ${
+                        bar.expense > 0 ? 'bg-[#A1552D] hover:brightness-110' : 'bg-slate-200'
+                      }`}
+                      title={`Pengeluaran (${bar.label}): Rp ${bar.expense.toLocaleString('id-ID')}`}
                     />
                   </div>
 
                   <span
-                    className={`text-[12px] leading-[16px] ${
-                      bar.isToday ? 'font-bold text-[#A24F9D]' : 'font-semibold text-[#625E58]'
+                    className={`text-[11px] leading-[14px] truncate ${
+                      bar.isToday ? 'font-bold text-[#A24F9D]' : 'font-medium text-[#625E58]'
                     }`}
                   >
                     {bar.label}
@@ -370,56 +511,55 @@ export default function DashboardPage() {
               ))}
             </div>
 
-            {/* 3 Detail Arus Masuk Keluar Barang Cepat */}
+            {/* 3 Detail Arus Masuk Keluar Barang */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-[rgba(220,233,255,0.4)]">
-              <div className="bg-[#EFF4FF] p-2 rounded-[12px] flex items-center gap-2.5">
+              <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-[#D3E4FE] text-[#A24F9D] flex items-center justify-center shrink-0">
                   <IconProduct size={16} />
                 </div>
                 <div>
                   <p className="text-[11px] leading-[14px] font-bold text-[#5B403D] tracking-[0.33px]">
-                    Barang Diterima
+                    Total Varian Siap Jual
                   </p>
                   <p className="text-[14px] leading-[20px] font-bold text-[#0B1C30] tracking-[0.14px]">
-                    3 Pesanan (Pagi)
+                    {products.reduce((sum, p) => sum + p.stock, 0)} Porsi Total
                   </p>
                 </div>
               </div>
 
-              <div className="bg-[#EFF4FF] p-2 rounded-[12px] flex items-center gap-2.5">
+              <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-[#D3E4FE] text-[#833E17] flex items-center justify-center shrink-0">
                   <IconRawMaterial size={16} />
                 </div>
                 <div>
                   <p className="text-[11px] leading-[14px] font-bold text-[#5B403D] tracking-[0.33px]">
-                    Terpakai Dapur
+                    Katalog Bahan Baku
                   </p>
                   <p className="text-[14px] leading-[20px] font-bold text-[#0B1C30] tracking-[0.14px]">
-                    32 kg Tepung
+                    {rawMaterials.length} Komponen
                   </p>
                 </div>
               </div>
 
-              <div className="bg-[#EFF4FF] p-2 rounded-[12px] flex items-center gap-2.5">
+              <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-[#D3E4FE] text-[#16A34A] flex items-center justify-center shrink-0">
                   <IconPOS size={16} />
                 </div>
                 <div>
                   <p className="text-[11px] leading-[14px] font-bold text-[#5B403D] tracking-[0.33px]">
-                    Output Kemasan
+                    Transaksi Terverifikasi
                   </p>
                   <p className="text-[14px] leading-[20px] font-bold text-[#0B1C30] tracking-[0.14px]">
-                    140 Pack Siap Jual
+                    {transactions.length} Total Transaksi
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Panel: Daftar Bahan Baku yang Perlu Segera Dibeli */}
-          <div className="lg:col-span-1 bg-white rounded-[12px] p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
+          {/* Right Panel: Kebutuhan Mendesak Bahan Baku Perlu Dibeli */}
+          <div className="lg:col-span-1 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
             <div>
-              {/* Header */}
               <div className="border-b border-[rgba(220,233,255,0.4)] pb-2.5 flex items-center justify-between mb-3">
                 <div>
                   <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#BA1A1A] block">
@@ -430,132 +570,71 @@ export default function DashboardPage() {
                   </h3>
                 </div>
                 <span className="bg-[#FFDAD6] text-[#93000A] text-[11px] leading-[14px] font-bold px-2 py-0.5 rounded-full tracking-[0.33px]">
-                  5 Item
+                  {criticalMaterials.length} Item
                 </span>
               </div>
 
-              {/* 3 Urgent Items */}
-              <div className="space-y-3">
-                {/* Item 1: Tepung Tapioka */}
-                <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#BA1A1A] shrink-0" />
-                      <span className="text-[14px] leading-[20px] font-bold text-[#0B1C30] tracking-[0.14px]">
-                        Tepung Tapioka (Cap Gunung)
-                      </span>
-                    </div>
-                    <span className="bg-[#FFDAD6] text-[#93000A] text-[11px] leading-[14px] font-bold px-2 py-0.5 rounded-full">
-                      Kritis
-                    </span>
-                  </div>
+              {criticalMaterials.length > 0 ? (
+                <div className="space-y-3">
+                  {criticalMaterials.slice(0, 3).map((mat) => (
+                    <div key={mat.id} className="bg-[#EFF4FF] p-2.5 rounded-[12px] space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#BA1A1A] shrink-0" />
+                          <span className="text-[14px] leading-[20px] font-bold text-[#0B1C30] tracking-[0.14px]">
+                            {mat.name}
+                          </span>
+                        </div>
+                        <span className="bg-[#FFDAD6] text-[#93000A] text-[11px] leading-[14px] font-bold px-2 py-0.5 rounded-full">
+                          Kritis
+                        </span>
+                      </div>
 
-                  <div className="bg-white rounded-[8px] py-1.5 px-2 grid grid-cols-3 text-center">
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Sisa Stok</p>
-                      <p className="text-[14px] leading-[20px] font-bold text-[#BA1A1A]">15 kg</p>
-                    </div>
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Min. Stok</p>
-                      <p className="text-[14px] leading-[20px] font-semibold text-[#0B1C30]">50 kg</p>
-                    </div>
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Estimasi/kg</p>
-                      <p className="text-[14px] leading-[20px] font-semibold text-[#0B1C30]">Rp 12.500</p>
-                    </div>
-                  </div>
+                      <div className="bg-white rounded-[8px] py-1.5 px-2 grid grid-cols-3 text-center">
+                        <div>
+                          <p className="text-[12px] leading-[18px] text-[#5B403D]">Sisa Stok</p>
+                          <p className="text-[14px] leading-[20px] font-bold text-[#BA1A1A]">
+                            {mat.stock} {mat.unit}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[12px] leading-[18px] text-[#5B403D]">Min. Stok</p>
+                          <p className="text-[14px] leading-[20px] font-semibold text-[#0B1C30]">
+                            {mat.minStock} {mat.unit}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[12px] leading-[18px] text-[#5B403D]">Estimasi/Satuan</p>
+                          <p className="text-[14px] leading-[20px] font-semibold text-[#0B1C30]">
+                            Rp {mat.unitCost ? mat.unitCost.toLocaleString('id-ID') : '-'}
+                          </p>
+                        </div>
+                      </div>
 
-                  <Link
-                    href="/operasional/pembelian"
-                    className="w-full bg-[#D3E4FE] hover:bg-[#C2DAFD] text-[#A24F9D] py-1.5 rounded-[8px] text-[11px] leading-[14px] font-bold tracking-[0.33px] flex items-center justify-center gap-1 transition-colors"
-                  >
-                    <span>+ Restock Cepat</span>
-                  </Link>
+                      <Link
+                        href="/operasional/pembelian"
+                        className="w-full bg-[#D3E4FE] hover:bg-[#C2DAFD] text-[#A24F9D] py-1.5 rounded-[8px] text-[11px] leading-[14px] font-bold tracking-[0.33px] flex items-center justify-center gap-1 transition-colors"
+                      >
+                        <span>+ Restock Cepat</span>
+                      </Link>
+                    </div>
+                  ))}
                 </div>
-
-                {/* Item 2: Minyak Goreng Curah */}
-                <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#BA1A1A] shrink-0" />
-                      <span className="text-[14px] leading-[20px] font-bold text-[#0B1C30] tracking-[0.14px]">
-                        Minyak Goreng Curah
-                      </span>
-                    </div>
-                    <span className="bg-[#FFDAD6] text-[#93000A] text-[11px] leading-[14px] font-bold px-2 py-0.5 rounded-full">
-                      Kritis
-                    </span>
-                  </div>
-
-                  <div className="bg-white rounded-[8px] py-1.5 px-2 grid grid-cols-3 text-center">
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Sisa Stok</p>
-                      <p className="text-[14px] leading-[20px] font-bold text-[#BA1A1A]">8 Liter</p>
-                    </div>
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Min. Stok</p>
-                      <p className="text-[14px] leading-[20px] font-semibold text-[#0B1C30]">25 Liter</p>
-                    </div>
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Estimasi/L</p>
-                      <p className="text-[14px] leading-[20px] font-semibold text-[#0B1C30]">Rp 16.000</p>
-                    </div>
-                  </div>
-
-                  <Link
-                    href="/operasional/pembelian"
-                    className="w-full bg-[#D3E4FE] hover:bg-[#C2DAFD] text-[#A24F9D] py-1.5 rounded-[8px] text-[11px] leading-[14px] font-bold tracking-[0.33px] flex items-center justify-center gap-1 transition-colors"
-                  >
-                    <span>+ Restock Cepat</span>
-                  </Link>
+              ) : (
+                <div className="p-8 text-center text-xs text-[#5B403D] bg-[#EFF4FF] rounded-xl space-y-2">
+                  <IconCheckCircle size={28} className="mx-auto text-[#16A34A]" />
+                  <p className="font-bold text-[#0B1C30]">Semua Bahan Baku Aman</p>
+                  <p className="text-[11px]">Tidak ada stok bahan baku yang berada di bawah ambang batas minimum saat ini.</p>
                 </div>
-
-                {/* Item 3: Cabai Rawit Merah */}
-                <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B] shrink-0" />
-                      <span className="text-[14px] leading-[20px] font-bold text-[#0B1C30] tracking-[0.14px]">
-                        Cabai Rawit Merah
-                      </span>
-                    </div>
-                    <span className="bg-[#FEF3C7] text-[#92400E] text-[11px] leading-[14px] font-bold px-2 py-0.5 rounded-full">
-                      Menipis
-                    </span>
-                  </div>
-
-                  <div className="bg-white rounded-[8px] py-1.5 px-2 grid grid-cols-3 text-center">
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Sisa Stok</p>
-                      <p className="text-[14px] leading-[20px] font-bold text-[#B45309]">3.5 kg</p>
-                    </div>
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Min. Stok</p>
-                      <p className="text-[14px] leading-[20px] font-semibold text-[#0B1C30]">8 kg</p>
-                    </div>
-                    <div>
-                      <p className="text-[12px] leading-[18px] text-[#5B403D]">Estimasi/kg</p>
-                      <p className="text-[14px] leading-[20px] font-semibold text-[#0B1C30]">Rp 48.000</p>
-                    </div>
-                  </div>
-
-                  <Link
-                    href="/operasional/pembelian"
-                    className="w-full bg-[#D3E4FE] hover:bg-[#C2DAFD] text-[#A24F9D] py-1.5 rounded-[8px] text-[11px] leading-[14px] font-bold tracking-[0.33px] flex items-center justify-center gap-1 transition-colors"
-                  >
-                    <span>+ Restock Cepat</span>
-                  </Link>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Bottom Link: Lihat Semua 14 Bahan Baku */}
             <div className="pt-2">
               <Link
                 href="/data-master/bahan-baku"
                 className="w-full bg-[#E5EEFF] hover:bg-[#D3E4FE] text-[#0B1C30] py-2.5 rounded-[12px] text-[12px] leading-[16px] font-bold tracking-[0.24px] text-center flex items-center justify-center gap-2 transition-colors"
               >
-                <span>Lihat Semua 14 Bahan Baku</span>
+                <span>Lihat Semua {rawMaterials.length} Bahan Baku</span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
@@ -565,15 +644,12 @@ export default function DashboardPage() {
         </div>
 
         {/* =========================================================================
-            5. SECTION - BAGIAN BAWAH: LOG AKTIVITAS STOK & PRODUK TERLARIS (Figma Frame 6:463)
-            Left: Kolom 1 & 2 Tabel Aktivitas Stok & Perubahan Terakhir (2/3 lebar)
-            Right: Kolom 3 Card Ringkasan Produk Terlaris Minggu Ini (1/3 lebar)
+            5. SECTION - BAGIAN BAWAH: LOG AKTIVITAS STOK & PRODUK TERLARIS
            ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: Tabel Aktivitas Stok */}
-          <div className="lg:col-span-2 bg-white rounded-[12px] p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
+          {/* Left: Riwayat Perubahan Stok (Tabel Mutasi Dinamis) */}
+          <div className="lg:col-span-2 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
             <div>
-              {/* Header */}
               <div className="border-b border-[rgba(220,233,255,0.4)] pb-2.5 flex items-center justify-between mb-3">
                 <div>
                   <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#A24F9D] block">
@@ -594,178 +670,93 @@ export default function DashboardPage() {
                 </Link>
               </div>
 
-              {/* Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="bg-[#EFF4FF] text-[#5B403D] text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px]">
                       <th className="py-3 px-3 rounded-l-[8px]">WAKTU</th>
-                      <th className="py-3 px-3">ITEM / SKU</th>
+                      <th className="py-3 px-3">ITEM</th>
                       <th className="py-3 px-3">JENIS MUTASI</th>
                       <th className="py-3 px-3 text-right">JUMLAH</th>
-                      <th className="py-3 px-3">DILAKUKAN OLEH</th>
+                      <th className="py-3 px-3">REFERENSI</th>
                       <th className="py-3 px-3 text-center rounded-r-[8px]">STATUS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[rgba(220,233,255,0.4)] text-[12px] leading-[16px]">
-                    {/* Log 1 */}
-                    <tr className="hover:bg-[#FFF7ED]/50 transition-colors">
-                      <td className="py-3 px-3 text-[#5B403D] whitespace-nowrap">13:45 WIB</td>
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-[#0B1C30] tracking-[0.24px]">Cireng Rujak Original</div>
-                        <div className="text-[#5B403D] text-[11px]">PRD-CR-01</div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="bg-[#FFDAD6] text-[#93000A] text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
-                          Keluar (Kasir)
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-[#BA1A1A] whitespace-nowrap">
-                        -24 pack
-                      </td>
-                      <td className="py-3 px-3 text-[#0B1C30] font-medium whitespace-nowrap">
-                        Rina (Kasir Outlet)
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span className="inline-flex items-center gap-1 bg-[#F0FDF4] text-[#15803D] text-[11px] font-bold px-2 py-0.5 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-                          <span>Sukses</span>
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Log 2 */}
-                    <tr className="hover:bg-[#FFF7ED]/50 transition-colors">
-                      <td className="py-3 px-3 text-[#5B403D] whitespace-nowrap">11:20 WIB</td>
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-[#0B1C30] tracking-[0.24px]">Bawang Putih Kating</div>
-                        <div className="text-[#5B403D] text-[11px]">RAW-BP-04</div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="bg-[#DCFCE7] text-[#166534] text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
-                          Masuk (Beli)
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-[#15803D] whitespace-nowrap">
-                        +10 kg
-                      </td>
-                      <td className="py-3 px-3 text-[#0B1C30] font-medium whitespace-nowrap">
-                        Kang Asep (Owner)
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span className="inline-flex items-center gap-1 bg-[#F0FDF4] text-[#15803D] text-[11px] font-bold px-2 py-0.5 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-                          <span>Terverifikasi</span>
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Log 3 */}
-                    <tr className="hover:bg-[#FFF7ED]/50 transition-colors">
-                      <td className="py-3 px-3 text-[#5B403D] whitespace-nowrap">09:10 WIB</td>
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-[#0B1C30] tracking-[0.24px]">Minyak Goreng Curah</div>
-                        <div className="text-[#5B403D] text-[11px]">RAW-MY-02</div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="bg-[#FEF3C7] text-[#92400E] text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
-                          Keluar (Dapur)
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-[#0B1C30] whitespace-nowrap">
-                        -12 Liter
-                      </td>
-                      <td className="py-3 px-3 text-[#0B1C30] font-medium whitespace-nowrap">
-                        Ujang (Koki Dapur)
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span className="inline-flex items-center gap-1 bg-[#F0FDF4] text-[#15803D] text-[11px] font-bold px-2 py-0.5 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-                          <span>Selesai</span>
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Log 4 */}
-                    <tr className="hover:bg-[#FFF7ED]/50 transition-colors">
-                      <td className="py-3 px-3 text-[#5B403D] whitespace-nowrap">08:30 WIB</td>
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-[#0B1C30] tracking-[0.24px]">Cireng Pedas Jeletot</div>
-                        <div className="text-[#5B403D] text-[11px]">PRD-CP-03</div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="bg-[#DCFCE7] text-[#166534] text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
-                          Masuk (Hasil Olah)
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-[#15803D] whitespace-nowrap">
-                        +60 pack
-                      </td>
-                      <td className="py-3 px-3 text-[#0B1C30] font-medium whitespace-nowrap">
-                        Ujang (Koki Dapur)
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span className="inline-flex items-center gap-1 bg-[#F0FDF4] text-[#15803D] text-[11px] font-bold px-2 py-0.5 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-                          <span>QC Lolos</span>
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Log 5 */}
-                    <tr className="hover:bg-[#FFF7ED]/50 transition-colors">
-                      <td className="py-3 px-3 text-[#5B403D] whitespace-nowrap">Kemarin, 19:40</td>
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-[#0B1C30] tracking-[0.24px]">Tepung Tapioka (Cap Gunung)</div>
-                        <div className="text-[#5B403D] text-[11px]">RAW-TP-01</div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="bg-[#DCE9FF] text-[#0B1C30] text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
-                          Koreksi Audit Opname
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-[#BA1A1A] whitespace-nowrap">
-                        -2 kg (Susut)
-                      </td>
-                      <td className="py-3 px-3 text-[#0B1C30] font-medium whitespace-nowrap">
-                        Kang Asep (Owner)
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <span className="bg-[#FEF3C7] text-[#92400E] text-[11px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-                          Penyesuaian
-                        </span>
-                      </td>
-                    </tr>
+                    {recentMovements.length > 0 ? (
+                      recentMovements.map((m) => (
+                        <tr key={m.id} className="row-hover-satisfying">
+                          <td className="py-3 px-3 text-[#5B403D] whitespace-nowrap">{m.date}</td>
+                          <td className="py-3 px-3">
+                            <div className="font-bold text-[#0B1C30] tracking-[0.24px]">{m.itemName}</div>
+                            <div className="text-[#5B403D] text-[11px] uppercase">{m.itemType}</div>
+                          </td>
+                          <td className="py-3 px-3">
+                            <span
+                              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
+                                m.type === 'masuk'
+                                  ? 'bg-[#DCFCE7] text-[#166534]'
+                                  : m.type === 'keluar'
+                                  ? 'bg-[#FFDAD6] text-[#93000A]'
+                                  : 'bg-[#DCE9FF] text-[#0B1C30]'
+                              }`}
+                            >
+                              {m.type === 'masuk' ? 'Masuk' : m.type === 'keluar' ? 'Keluar' : 'Penyesuaian'}
+                            </span>
+                          </td>
+                          <td
+                            className={`py-3 px-3 text-right font-bold whitespace-nowrap ${
+                              m.type === 'masuk' ? 'text-[#15803D]' : 'text-[#BA1A1A]'
+                            }`}
+                          >
+                            {m.type === 'masuk' ? '+' : '-'}{m.quantity} {m.unit}
+                          </td>
+                          <td className="py-3 px-3 text-[#0B1C30] font-medium max-w-[180px] truncate">
+                            {m.reference}
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <span className="inline-flex items-center gap-1 bg-[#F0FDF4] text-[#15803D] text-[11px] font-bold px-2 py-0.5 rounded-full">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
+                              <span>Tercatat</span>
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-xs text-[#5B403D]">
+                          Belum ada mutasi stok tercatat dalam sistem. Lakukan transaksi, pembelian, atau produksi untuk melihat log.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
 
-            {/* Table Footer */}
             <div className="border-t border-[rgba(220,233,255,0.4)] pt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
               <span className="text-[#5B403D] text-[12px] leading-[18px]">
-                Menampilkan 5 mutasi terkini dari 48 pencatatan minggu ini
+                Menampilkan {recentMovements.length} mutasi terkini dari {stockMovements.length} total pencatatan
               </span>
-              <button
-                type="button"
+              <Link
+                href="/operasional/penyesuaian-stok"
                 className="text-[#A24F9D] hover:underline font-bold text-[12px] leading-[16px] tracking-[0.24px]"
               >
-                Unduh Laporan Audit (.XLS)
-              </button>
+                Buka Log Audit Lengkap →
+              </Link>
             </div>
           </div>
 
-          {/* Right: Card Ringkasan Produk Terlaris Minggu Ini */}
-          <div className="lg:col-span-1 bg-white rounded-[12px] p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
+          {/* Right: Ringkasan Produk Terlaris (Dinamis dari Data Transaksi) */}
+          <div className="lg:col-span-1 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
             <div>
-              {/* Header */}
               <div className="border-b border-[rgba(220,233,255,0.4)] pb-2.5 flex items-center justify-between mb-4">
                 <div>
                   <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#15803D] block">
                     PERFORMA PENJUALAN
                   </span>
                   <h3 className="text-[16px] leading-[24px] font-bold text-[#0B1C30]">
-                    Produk Terlaris Minggu Ini
+                    Produk Terlaris
                   </h3>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-[#DCFCE7] text-[#15803D] flex items-center justify-center">
@@ -775,111 +766,59 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* 3 Best Selling Products */}
-              <div className="space-y-3">
-                {/* Juara 1: Cireng Rujak Original */}
-                <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-[12px] bg-white border border-[#CBD5E1]/40 relative overflow-hidden flex items-center justify-center shrink-0">
-                    <span className="text-xl">🥟</span>
-                    <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-[#FBBF24] text-[#0B1C30] text-[12px] font-bold flex items-center justify-center shadow-xs">
-                      1
-                    </span>
-                  </div>
+              {bestSellers.length > 0 ? (
+                <div className="space-y-3">
+                  {bestSellers.map((item) => (
+                    <div key={item.name} className="bg-[#EFF4FF] p-2.5 rounded-[12px] flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-[12px] bg-white border border-[#CBD5E1]/40 relative overflow-hidden flex items-center justify-center shrink-0">
+                        <span className="text-xl">{item.icon}</span>
+                        <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full ${item.badgeBg} text-[10px] font-bold flex items-center justify-center shadow-xs`}>
+                          {item.rank}
+                        </span>
+                      </div>
 
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center justify-between gap-1">
-                      <h4 className="font-bold text-[14px] leading-[20px] text-[#0B1C30] truncate">
-                        Cireng Rujak Original
-                      </h4>
-                      <span className="font-bold text-[14px] leading-[20px] text-[#A24F9D] shrink-0">
-                        Rp 5.100.000
-                      </span>
-                    </div>
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center justify-between gap-1">
+                          <h4 className="font-bold text-[13px] leading-[18px] text-[#0B1C30] truncate">
+                            {item.name}
+                          </h4>
+                          <span className="font-bold text-[13px] leading-[18px] text-[#A24F9D] shrink-0">
+                            Rp {item.revenue.toLocaleString('id-ID')}
+                          </span>
+                        </div>
 
-                    <div className="flex items-center justify-between text-[11px] leading-[14px]">
-                      <span className="text-[#5B403D]">Terjual 340 Bungkus</span>
-                      <span className="text-[#15803D] font-semibold">+18% vs mgg lalu</span>
-                    </div>
+                        <div className="flex items-center justify-between text-[11px] leading-[14px]">
+                          <span className="text-[#5B403D]">Terjual {item.packsSold} Porsi</span>
+                          <span className="text-[#15803D] font-semibold">Tersedia</span>
+                        </div>
 
-                    {/* Progress Bar with #A24F9D */}
-                    <div className="w-full bg-[#D3E4FE] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#A24F9D] h-full rounded-full" style={{ width: '88%' }} />
+                        <div className="w-full bg-[#D3E4FE] h-1.5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${item.barWidth}%`, backgroundColor: item.color }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-
-                {/* Juara 2: Cireng Pedas Jeletot */}
-                <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-[12px] bg-white border border-[#CBD5E1]/40 relative overflow-hidden flex items-center justify-center shrink-0">
-                    <span className="text-xl">🌶️</span>
-                    <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-[#CBD5E1] text-[#0B1C30] text-[12px] font-bold flex items-center justify-center shadow-xs">
-                      2
-                    </span>
-                  </div>
-
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center justify-between gap-1">
-                      <h4 className="font-bold text-[14px] leading-[20px] text-[#0B1C30] truncate">
-                        Cireng Pedas Jeletot
-                      </h4>
-                      <span className="font-bold text-[14px] leading-[20px] text-[#A24F9D] shrink-0">
-                        Rp 4.240.000
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] leading-[14px]">
-                      <span className="text-[#5B403D]">Terjual 265 Bungkus</span>
-                      <span className="text-[#15803D] font-semibold">+12% vs mgg lalu</span>
-                    </div>
-
-                    {/* Progress Bar with #C92A2A */}
-                    <div className="w-full bg-[#D3E4FE] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#C92A2A] h-full rounded-full" style={{ width: '68%' }} />
-                    </div>
-                  </div>
+              ) : (
+                <div className="p-8 text-center text-xs text-[#5B403D] bg-[#EFF4FF] rounded-xl space-y-1">
+                  <p className="font-bold text-[#0B1C30]">Belum Ada Data Penjualan</p>
+                  <p className="text-[11px]">Setelah kasir mencatat transaksi di POS, produk terlaris akan otomatis terurut di sini.</p>
                 </div>
-
-                {/* Juara 3: Cireng Keju Lumer */}
-                <div className="bg-[#EFF4FF] p-2.5 rounded-[12px] flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-[12px] bg-white border border-[#CBD5E1]/40 relative overflow-hidden flex items-center justify-center shrink-0">
-                    <span className="text-xl">🧀</span>
-                    <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-[#B45309] text-white text-[12px] font-bold flex items-center justify-center shadow-xs">
-                      3
-                    </span>
-                  </div>
-
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center justify-between gap-1">
-                      <h4 className="font-bold text-[14px] leading-[20px] text-[#0B1C30] truncate">
-                        Cireng Keju Lumer
-                      </h4>
-                      <span className="font-bold text-[14px] leading-[20px] text-[#A24F9D] shrink-0">
-                        Rp 3.420.000
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] leading-[14px]">
-                      <span className="text-[#5B403D]">Terjual 190 Bungkus</span>
-                      <span className="text-[#5B403D] font-semibold">Stabil</span>
-                    </div>
-
-                    {/* Progress Bar with #A1552D */}
-                    <div className="w-full bg-[#D3E4FE] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#A1552D] h-full rounded-full" style={{ width: '49%' }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Recommendation Production Card */}
             <div className="bg-[#E5EEFF] rounded-[12px] p-3.5 flex items-center justify-between gap-2">
               <div className="text-[12px]">
                 <p className="font-bold text-[#0B1C30] leading-[16px] tracking-[0.24px]">
-                  Rekomendasi Produksi:
+                  Rekomendasi Dapur:
                 </p>
                 <p className="text-[#5B403D] leading-[18px] mt-0.5">
-                  Fokus adonan Rujak Original & Jeletot jelang akhir pekan!
+                  {bestSellers.length > 0
+                    ? `Prioritaskan produksi adonan "${bestSellers[0].name}" untuk mengantisipasi permintaan!`
+                    : 'Siapkan varian cireng beku & bumbu rujak untuk persiapan jam operasional gerai.'}
                 </p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-[#D3E4FE] text-[#0B1C30] flex items-center justify-center shrink-0">

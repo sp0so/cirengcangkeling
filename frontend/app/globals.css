@@ -261,3 +261,124 @@ body {
 .animate-scale-in {
   animation: scaleIn var(--motion-normal) var(--ease-spring) forwards;
 }
+
+/* Table Row Hover - Warm, Satisfying */
+.row-hover-satisfying {
+  transition:
+    background-color var(--motion-quick) var(--ease-standard),
+    transform var(--motion-quick) var(--ease-spring);
+}
+.row-hover-satisfying:hover {
+  background-color: rgba(255, 247, 237, 0.5);
+}
+
+/* Pulse animations for critical/warm indicators */
+@keyframes pulseWarm {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes pulseCritical {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(186, 26, 26, 0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(186, 26, 26, 0); }
+}
+
+.pulse-warm {
+  animation: pulseWarm 2s var(--ease-standard) infinite;
+}
+
+.pulse-critical {
+  animation: pulseCritical 1.8s var(--ease-standard) infinite;
+}
+
+/* Badge interactive hover */
+.badge-interactive {
+  transition:
+    transform var(--motion-fast) var(--ease-spring),
+    box-shadow var(--motion-fast) var(--ease-standard);
+  cursor: pointer;
+}
+.badge-interactive:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon nudge on parent hover */
+.icon-nudge {
+  transition: transform var(--motion-quick) var(--ease-spring);
+}
+.group:hover .icon-nudge,
+*:hover > .icon-nudge {
+  transform: translateX(2px);
+}
+
+/* Staggered entrance animations */
+.stagger-enter > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-enter > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-enter > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-enter > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-enter > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-enter > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-enter > *:nth-child(7) { animation-delay: 360ms; }
+.stagger-enter > *:nth-child(8) { animation-delay: 420ms; }
+
+.stagger-enter > * {
+  opacity: 0;
+  animation: fadeIn var(--motion-medium) var(--ease-enter) forwards;
+}
+
+/* Toast slide-in from right edge */
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastSlideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
+.animate-toast-in {
+  animation: toastSlideIn var(--motion-enter) var(--ease-spring) forwards;
+}
+
+.animate-toast-out {
+  animation: toastSlideOut var(--motion-normal) var(--ease-exit) forwards;
+}
+
+/* Modal backdrop + entrance */
+@keyframes backdropFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-backdrop {
+  animation: backdropFadeIn var(--motion-normal) var(--ease-enter) forwards;
+}
+
+.animate-modal-in {
+  animation: modalSlideUp var(--motion-enter) var(--ease-spring) forwards;
+}
+
+/* Skeleton shimmer loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 37%,
+    #f0f0f0 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 8px;
+}

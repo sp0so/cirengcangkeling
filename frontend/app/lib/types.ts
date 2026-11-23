@@ -138,7 +138,7 @@ export interface Expense {
 
 export interface MarketplaceOrder {
   orderId: string;
-  platform: 'Shopee' | 'Tokopedia' | 'TikTok Shop';
+  platform: 'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee';
   date: string;
   customerName: string;
   productName: string;
@@ -149,7 +149,7 @@ export interface MarketplaceOrder {
 
 export interface MarketplaceReport {
   id: string;
-  platform: 'Shopee' | 'Tokopedia' | 'TikTok Shop';
+  platform: 'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee';
   fileName: string;
   importDate: string;
   totalOrders: number;

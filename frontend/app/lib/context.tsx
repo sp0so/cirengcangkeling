@@ -58,12 +58,17 @@ interface AppContextType {
   rawMaterials: RawMaterial[];
   addRawMaterial: (material: Omit<RawMaterial, 'id'>) => void;
   updateRawMaterial: (id: string, updates: Partial<RawMaterial>) => void;
+  deleteRawMaterial: (id: string) => void;
   
   suppliers: Supplier[];
   addSupplier: (supplier: Omit<Supplier, 'id'>) => void;
+  updateSupplier: (id: string, updates: Partial<Supplier>) => void;
+  deleteSupplier: (id: string) => void;
   
   recipes: Recipe[];
   addRecipe: (recipe: Omit<Recipe, 'id'>) => void;
+  updateRecipe: (id: string, updates: Partial<Recipe>) => void;
+  deleteRecipe: (id: string) => void;
   stockMovements: StockMovement[];
   addStockAdjustment: (itemName: string, itemType: 'produk' | 'bahan_baku', qty: number, unit: string, reason: string) => void;
   
@@ -86,7 +91,7 @@ interface AppContextType {
   
   // Marketplace
   marketplaceReports: MarketplaceReport[];
-  importMarketplaceReport: (platform: 'Shopee' | 'Tokopedia' | 'TikTok Shop', fileName: string, ordersCount?: number, totalRevenue?: number) => Promise<MarketplaceReport>;
+  importMarketplaceReport: (platform: 'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee', fileName: string, ordersCount?: number, totalRevenue?: number) => Promise<MarketplaceReport>;
   
   // Produksi & Pengadaan
   productionOrders: ProductionOrder[];
@@ -371,6 +376,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast('Data bahan baku berhasil diperbarui', 'success');
   };
 
+  const deleteRawMaterial = (id: string) => {
+    setRawMaterials((prev) => prev.filter((item) => item.id !== id));
+    showToast('Bahan baku telah dihapus', 'info');
+  };
+
   // Suppliers
   const addSupplier = (s: Omit<Supplier, 'id'>) => {
     const id = `sup-${Date.now()}`;
@@ -378,11 +388,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast(`Pemasok "${s.name}" berhasil didaftarkan`, 'success');
   };
 
+  const updateSupplier = (id: string, updates: Partial<Supplier>) => {
+    setSuppliers((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    );
+    showToast('Data pemasok berhasil diperbarui', 'success');
+  };
+
+  const deleteSupplier = (id: string) => {
+    setSuppliers((prev) => prev.filter((item) => item.id !== id));
+    showToast('Pemasok telah dihapus', 'info');
+  };
+
   // Recipes
   const addRecipe = (r: Omit<Recipe, 'id'>) => {
     const id = `rcp-${Date.now()}`;
     setRecipes((prev) => [{ ...r, id }, ...prev]);
     showToast(`Resep untuk "${r.productName}" berhasil disimpan`, 'success');
+  };
+
+  const updateRecipe = (id: string, updates: Partial<Recipe>) => {
+    setRecipes((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    );
+    showToast('Data resep berhasil diperbarui', 'success');
+  };
+
+  const deleteRecipe = (id: string) => {
+    setRecipes((prev) => prev.filter((item) => item.id !== id));
+    showToast('Resep telah dihapus', 'info');
   };
 
   // Stock Adjustment
@@ -564,16 +598,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return newTx;
   };
 
-  // Expenses
+  // Expenses (FR-FIN: Expected Cash = Opening + Cash Sales - Cash Expenses - Cash Refunds)
   const addExpense = (expense: Omit<Expense, 'id'>) => {
     const id = `exp-${Date.now()}`;
     setExpenses((prev) => [{ ...expense, id }, ...prev]);
+
+    // Subtract cash expenses from expectedCash in active shift
+    if (activeShift) {
+      setActiveShift((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          expectedCash: prev.expectedCash - expense.amount,
+        };
+      });
+    }
+
     showToast(`Pengeluaran Rp ${expense.amount.toLocaleString('id-ID')} berhasil dicatat`, 'success');
   };
 
   // Marketplace
   const importMarketplaceReport = async (
-    platform: 'Shopee' | 'Tokopedia' | 'TikTok Shop',
+    platform: 'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee',
     fileName: string,
     ordersCount = 12,
     totalRevenue = 285000
@@ -604,10 +650,65 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return report;
   };
 
-  // Production
+  // Production (FR-PRODCT-07: deducts raw materials based on recipe)
   const addProductionOrder = (productId: string, quantity: number, notes?: string) => {
     const prod = products.find((p) => p.id === productId);
     if (!prod) return;
+
+    // Find recipe for this product to deduct raw materials
+    const recipe = recipes.find((r) => r.productId === productId);
+
+    // If recipe exists, check and deduct raw materials
+    if (recipe) {
+      const portionMultiplier = quantity / (recipe.yieldPortions || 1);
+      
+      // Verify sufficient raw materials before proceeding
+      for (const ing of recipe.ingredients) {
+        const rawMat = rawMaterials.find((m) => m.id === ing.materialId || m.name === ing.materialName);
+        if (rawMat) {
+          const requiredQty = ing.amount * portionMultiplier;
+          if (rawMat.stock < requiredQty) {
+            showToast(
+              `Stok bahan baku "${rawMat.name}" tidak mencukupi (butuh ${requiredQty.toFixed(1)} ${ing.unit}, sisa ${rawMat.stock} ${rawMat.unit})`,
+              'error'
+            );
+            return;
+          }
+        }
+      }
+
+      // Deduct raw materials
+      setRawMaterials((prev) =>
+        prev.map((raw) => {
+          const ing = recipe.ingredients.find((i) => i.materialId === raw.id || i.materialName === raw.name);
+          if (ing) {
+            const deductQty = ing.amount * portionMultiplier;
+            return { ...raw, stock: Math.max(0, raw.stock - deductQty) };
+          }
+          return raw;
+        })
+      );
+
+      // Record raw material outgoing movements
+      const rawMovements: StockMovement[] = recipe.ingredients
+        .map((ing) => {
+          const rawMat = rawMaterials.find((m) => m.id === ing.materialId || m.name === ing.materialName);
+          if (!rawMat) return null;
+          return {
+            id: `sm-${Date.now()}-raw-${ing.materialId}`,
+            date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+            type: 'keluar' as const,
+            itemType: 'bahan_baku' as const,
+            itemName: rawMat.name,
+            quantity: ing.amount * portionMultiplier,
+            unit: ing.unit,
+            reference: `Produksi #PRD-${new Date().toISOString().replace(/\D/g, '').slice(0, 10)} (${prod.name})`,
+          };
+        })
+        .filter((m): m is NonNullable<typeof m> => m !== null) as StockMovement[];
+
+      setStockMovements((prev) => [...rawMovements, ...prev]);
+    }
 
     const code = `PRD-${new Date().toISOString().replace(/\D/g, '').slice(0, 10)}`;
     const newOrder: ProductionOrder = {
@@ -628,7 +729,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       prev.map((p) => (p.id === productId ? { ...p, stock: p.stock + quantity } : p))
     );
 
-    // Record stock movement
+    // Record finished goods stock movement
     const movement: StockMovement = {
       id: `sm-${Date.now()}`,
       date: new Date().toISOString().replace('T', ' ').substring(0, 16),
@@ -708,10 +809,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         rawMaterials,
         addRawMaterial,
         updateRawMaterial,
+        deleteRawMaterial,
         suppliers,
         addSupplier,
+        updateSupplier,
+        deleteSupplier,
         recipes,
         addRecipe,
+        updateRecipe,
+        deleteRecipe,
         stockMovements,
         addStockAdjustment,
         clearAllData,

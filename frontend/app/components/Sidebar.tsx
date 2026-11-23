@@ -9,12 +9,15 @@ import {
   IconDashboard,
   IconProduct,
   IconRawMaterial,
+  IconSupplier,
+  IconRecipe,
   IconPOS,
   IconFinance,
   IconReport,
   IconSettings,
   IconShift,
   IconOperasional,
+  IconMarketplace,
 } from './Icons';
 
 interface NavLinkItem {
@@ -38,69 +41,172 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose?
 
   const ownerSections: NavSection[] = [
     {
-      sectionTitle: 'UTAMA',
+      sectionTitle: '1. DASHBOARD',
       items: [
         {
-          title: 'Dashboard',
+          title: 'Dashboard Utama',
           href: '/dashboard',
           icon: <IconDashboard size={18} />,
         },
-        {
-          title: 'Stok Bahan Baku',
-          href: '/data-master/bahan-baku',
-          icon: <IconRawMaterial size={18} />,
-          badge: criticalMaterialsCount > 0 ? `${criticalMaterialsCount} Kritis` : undefined,
-          badgeBg: 'bg-[#BA1A1A]',
-        },
-        {
-          title: 'Stok Produk Jadi',
-          href: '/operasional/stok-produk',
-          icon: <IconOperasional size={18} />,
-        },
+      ],
+    },
+    {
+      sectionTitle: '2. DATA MASTER',
+      items: [
         {
           title: 'Data Produk',
           href: '/data-master/produk',
           icon: <IconProduct size={18} />,
         },
         {
-          title: 'Riwayat Perubahan Stok',
+          title: 'Data Bahan Baku',
+          href: '/data-master/bahan-baku',
+          icon: <IconRawMaterial size={18} />,
+          badge: criticalMaterialsCount > 0 ? `${criticalMaterialsCount} Kritis` : undefined,
+          badgeBg: 'bg-[#BA1A1A]',
+        },
+        {
+          title: 'Data Supplier',
+          href: '/data-master/supplier',
+          icon: <IconSupplier size={18} />,
+        },
+        {
+          title: 'Manajemen Resep',
+          href: '/data-master/resep',
+          icon: <IconRecipe size={18} />,
+        },
+      ],
+    },
+    {
+      sectionTitle: '3. OPERASIONAL',
+      items: [
+        {
+          title: 'Stok Produk Jadi',
+          href: '/operasional/stok-produk',
+          icon: <IconOperasional size={18} />,
+        },
+        {
+          title: 'Pembelian / Pengadaan',
+          href: '/operasional/pembelian',
+          icon: <IconFinance size={18} />,
+        },
+        {
+          title: 'Produksi',
+          href: '/operasional/produksi',
+          icon: <IconProduct size={18} />,
+        },
+        {
+          title: 'Penyesuaian Stok',
           href: '/operasional/penyesuaian-stok',
           icon: <IconReport size={18} />,
         },
       ],
     },
     {
-      sectionTitle: 'KEUANGAN & BISNIS',
+      sectionTitle: '4. PENJUALAN & KASIR',
       items: [
         {
-          title: 'Penjualan & Kasir',
+          title: 'Transaksi Penjualan',
           href: '/penjualan/transaksi',
           icon: <IconPOS size={18} />,
-          badge: 'Integrasi',
+        },
+        {
+          title: 'Manajemen Kasir',
+          href: '/penjualan/manajemen-kasir',
+          icon: <IconSettings size={18} />,
+        },
+        {
+          title: 'Manajemen Shift',
+          href: '/penjualan/shift',
+          icon: <IconShift size={18} />,
+        },
+        {
+          title: 'Mode Kasir Owner',
+          href: '/penjualan/kasir-owner',
+          icon: <IconPOS size={18} />,
+          badge: 'Owner Mode',
           badgeBg: 'bg-[#A1552D]',
         },
+      ],
+    },
+    {
+      sectionTitle: '5. MARKETPLACE',
+      items: [
+        {
+          title: 'Import Laporan Marketplace',
+          href: '/marketplace/import',
+          icon: <IconMarketplace size={18} />,
+        },
+        {
+          title: 'Riwayat Import',
+          href: '/marketplace/riwayat',
+          icon: <IconReport size={18} />,
+        },
+        {
+          title: 'Master Laporan Penjualan',
+          href: '/marketplace/master-penjualan',
+          icon: <IconPOS size={18} />,
+        },
+      ],
+    },
+    {
+      sectionTitle: '6. KEUANGAN',
+      items: [
         {
           title: 'Pengeluaran Usaha',
           href: '/keuangan/pengeluaran',
           icon: <IconFinance size={18} />,
         },
         {
-          title: 'Laporan Usaha',
+          title: 'Catatan Keuangan',
+          href: '/keuangan/catatan',
+          icon: <IconFinance size={18} />,
+        },
+        {
+          title: 'Perhitungan HPP',
+          href: '/keuangan/hpp',
+          icon: <IconRecipe size={18} />,
+        },
+        {
+          title: 'Estimasi Laba',
+          href: '/keuangan/estimasi-laba',
+          icon: <IconFinance size={18} />,
+        },
+      ],
+    },
+    {
+      sectionTitle: '7. LAPORAN',
+      items: [
+        {
+          title: 'Laporan Penjualan',
           href: '/laporan/penjualan',
+          icon: <IconReport size={18} />,
+        },
+        {
+          title: 'Laporan Pembelian',
+          href: '/laporan/pembelian',
+          icon: <IconReport size={18} />,
+        },
+        {
+          title: 'Laporan Persediaan',
+          href: '/laporan/persediaan',
+          icon: <IconReport size={18} />,
+        },
+        {
+          title: 'Laporan Produksi',
+          href: '/laporan/produksi',
+          icon: <IconReport size={18} />,
+        },
+        {
+          title: 'Laporan Keuangan',
+          href: '/laporan/keuangan',
           icon: <IconReport size={18} />,
         },
       ],
     },
     {
-      sectionTitle: 'PENGATURAN',
+      sectionTitle: '8. PENGATURAN',
       items: [
-        {
-          title: 'Manajemen Pengguna',
-          href: '/penjualan/manajemen-kasir',
-          icon: <IconSettings size={18} />,
-          badge: 'Owner',
-          badgeBg: 'bg-white/20',
-        },
         {
           title: 'Profil Usaha',
           href: '/pengaturan/profil',
@@ -112,7 +218,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose?
 
   const kasirSections: NavSection[] = [
     {
-      sectionTitle: 'UTAMA',
+      sectionTitle: '1. DASHBOARD KASIR',
       items: [
         {
           title: 'Dashboard Kasir',
@@ -122,32 +228,32 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose?
       ],
     },
     {
-      sectionTitle: 'TRANSAKSI',
+      sectionTitle: '2. TRANSAKSI PENJUALAN',
       items: [
         {
-          title: 'Penjualan & Kasir',
+          title: 'Katalog & POS Kasir',
           href: '/kasir/pos',
           icon: <IconPOS size={18} />,
           badge: 'POS',
           badgeBg: 'bg-[#16A34A]',
         },
+      ],
+    },
+    {
+      sectionTitle: '3. RIWAYAT TRANSAKSI',
+      items: [
         {
-          title: 'Riwayat Transaksi',
+          title: 'Riwayat Transaksi Pribadi',
           href: '/kasir/riwayat',
           icon: <IconReport size={18} />,
         },
       ],
     },
     {
-      sectionTitle: 'AKUN',
+      sectionTitle: '4. SHIFT KASIR',
       items: [
         {
-          title: 'Profil Saya',
-          href: '/kasir/profil',
-          icon: <IconSettings size={18} />,
-        },
-        {
-          title: 'Shift Kasir',
+          title: 'Shift & Kas Fisik',
           href: '/kasir/shift',
           icon: <IconShift size={18} />,
         },

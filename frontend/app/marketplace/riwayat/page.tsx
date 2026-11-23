@@ -101,7 +101,7 @@ export default function RiwayatImportPage() {
                     <td colSpan={7} className="py-10 text-center text-[#5B403D]">
                       <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada riwayat impor laporan</p>
                       <p className="text-[12px] text-[#5B403D] mt-1">
-                        Tarik file CSV/Excel dari Shopee, Tokopedia, atau TikTok Shop di menu Impor Laporan.
+                        Tarik file CSV/Excel dari GoFood, GrabFood, ShopeeFood, atau Shopee di menu Impor Laporan.
                       </p>
                     </td>
                   </tr>
