@@ -410,80 +410,101 @@ export default function KelolaProdukOwnerPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {filteredProducts.map((p) => (
-                  <tr key={p.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
-                    {/* Name & SKU */}
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-[#0B1C30]">{p.name}</div>
-                      <div className="text-[11px] font-mono text-[#A24F9D] font-bold">{p.sku}</div>
-                    </td>
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((p) => (
+                        <tr key={p.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
+                          {/* Name & SKU */}
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-[#0B1C30]">{p.name}</div>
+                            <div className="text-[11px] font-mono text-[#A24F9D] font-bold">{p.sku}</div>
+                          </td>
 
-                    {/* Packaging */}
-                    <td className="py-3.5 px-4">
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#475569]">
-                        {p.packaging}
-                      </span>
-                    </td>
+                          {/* Packaging */}
+                          <td className="py-3.5 px-4">
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#475569]">
+                              {p.packaging}
+                            </span>
+                          </td>
 
-                    {/* Selling Price */}
-                    <td className="py-3.5 px-4 text-right font-extrabold text-[#0B1C30]">
-                      Rp {p.price.toLocaleString('id-ID')}
-                    </td>
+                          {/* Selling Price */}
+                          <td className="py-3.5 px-4 text-right font-extrabold text-[#0B1C30]">
+                            Rp {p.price.toLocaleString('id-ID')}
+                          </td>
 
-                    {/* HPP */}
-                    <td className="py-3.5 px-4 text-right text-[#5B403D] font-semibold">
-                      Rp {p.baseCost.toLocaleString('id-ID')}
-                    </td>
+                          {/* HPP */}
+                          <td className="py-3.5 px-4 text-right text-[#5B403D] font-semibold">
+                            Rp {p.baseCost.toLocaleString('id-ID')}
+                          </td>
 
-                    {/* Profit Margin */}
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#DCFCE7] text-[#15803D] border border-[#16A34A]/30">
-                        {p.marginPct}% (Rp {p.marginNom.toLocaleString('id-ID')})
-                      </span>
-                    </td>
+                          {/* Profit Margin */}
+                          <td className="py-3.5 px-4 text-center">
+                            <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-[#DCFCE7] text-[#15803D] border border-[#16A34A]/30">
+                              {p.marginPct}% (Rp {p.marginNom.toLocaleString('id-ID')})
+                            </span>
+                          </td>
 
-                    {/* Stock */}
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="font-extrabold text-[15px] text-[#0B1C30]">
-                        {p.stock}
-                      </span>{' '}
-                      <span className="text-[11px] text-[#5B403D]">{p.unit}</span>
-                    </td>
+                          {/* Stock */}
+                          <td className="py-3.5 px-4 text-center">
+                            <span className="font-extrabold text-[15px] text-[#0B1C30]">
+                              {p.stock}
+                            </span>{' '}
+                            <span className="text-[11px] text-[#5B403D]">{p.unit}</span>
+                          </td>
 
-                    {/* Status */}
-                    <td className="py-3.5 px-4 text-center">
-                      {p.isActive !== false ? (
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#DCFCE7] text-[#15803D]">
-                          Aktif Tayang
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#F1F5F9] text-[#64748B]">
-                          Nonaktif
-                        </span>
-                      )}
-                    </td>
+                          {/* Status */}
+                          <td className="py-3.5 px-4 text-center">
+                            {p.isActive !== false ? (
+                              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#DCFCE7] text-[#15803D]">
+                                Aktif Tayang
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#F1F5F9] text-[#64748B]">
+                                Nonaktif
+                              </span>
+                            )}
+                          </td>
 
-                    {/* Actions */}
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <button
-                          onClick={() => handleOpenEdit(p)}
-                          title="Edit Produk"
-                          className="p-1.5 rounded-lg text-[#5B403D] hover:bg-slate-100 transition-all cursor-pointer"
-                        >
-                          <IconEdit size={15} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(p.id, p.name)}
-                          title="Hapus Produk"
-                          className="p-1.5 rounded-lg text-[#BA1A1A] hover:bg-[#FFDAD6] transition-all cursor-pointer"
-                        >
-                          <IconTrash size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {/* Actions */}
+                          <td className="py-3.5 px-4 text-center">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <button
+                                onClick={() => handleOpenEdit(p)}
+                                title="Edit Produk"
+                                className="p-1.5 rounded-lg text-[#5B403D] hover:bg-slate-100 transition-all cursor-pointer"
+                              >
+                                <IconEdit size={15} />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(p.id, p.name)}
+                                title="Hapus Produk"
+                                className="p-1.5 rounded-lg text-[#BA1A1A] hover:bg-[#FFDAD6] transition-all cursor-pointer"
+                              >
+                                <IconTrash size={15} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={8} className="py-12 text-center text-[#5B403D]">
+                          <div className="flex flex-col items-center justify-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-[#E5EEFF] text-[#A24F9D] flex items-center justify-center">
+                              <IconProduct size={24} />
+                            </div>
+                            <p className="font-bold text-[16px] text-[#0B1C30]">Belum ada produk yang ditambahkan</p>
+                            <p className="text-[13px] text-[#5B403D] max-w-sm">Mulai tambahkan varian produk cireng Anda untuk dapat dijual di kasir dan dipantau inventarisnya.</p>
+                            <button
+                              onClick={handleOpenAdd}
+                              className="mt-2 bg-[#A24F9D] hover:bg-[#8F3D8A] text-white text-[13px] font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-sm"
+                            >
+                              <IconPlus size={16} />
+                              <span>Tambah Produk Pertama</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
               </tbody>
             </table>
           </div>

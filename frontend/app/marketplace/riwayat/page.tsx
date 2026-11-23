@@ -59,42 +59,53 @@ export default function RiwayatImportPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {marketplaceReports.map((rep) => (
-                  <tr key={rep.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
-                    <td className="py-3.5 px-4 font-bold text-[#0B1C30]">
-                      <span className="px-2.5 py-1 rounded-md bg-[#FAF7F2] border border-[#CBD5E1]/40 text-xs font-bold text-[#732662]">
-                        {rep.platform}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-medium text-[#0B1C30]">
-                      {rep.fileName}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#5B403D] text-xs">
-                      {rep.importDate}
-                    </td>
-                    <td className="py-3.5 px-4 text-center font-bold text-[#0B1C30]">
-                      {rep.totalOrders} Pesanan
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-extrabold text-[#15803D]">
-                      Rp {rep.totalRevenue.toLocaleString('id-ID')}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
-                        <IconCheckCircle size={12} />
-                        <span>{rep.status}</span>
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedReport(rep)}
-                        className="px-2.5 py-1 rounded-lg border border-[#CBD5E1] hover:bg-[#FFF7ED] text-[#732662] text-xs font-bold transition-colors"
-                      >
-                        Lihat Data
-                      </button>
+                {marketplaceReports.length > 0 ? (
+                  marketplaceReports.map((rep) => (
+                    <tr key={rep.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
+                      <td className="py-3.5 px-4 font-bold text-[#0B1C30]">
+                        <span className="px-2.5 py-1 rounded-md bg-[#FAF7F2] border border-[#CBD5E1]/40 text-xs font-bold text-[#732662]">
+                          {rep.platform}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 font-medium text-[#0B1C30]">
+                        {rep.fileName}
+                      </td>
+                      <td className="py-3.5 px-4 text-[#5B403D] text-xs">
+                        {rep.importDate}
+                      </td>
+                      <td className="py-3.5 px-4 text-center font-bold text-[#0B1C30]">
+                        {rep.totalOrders} Pesanan
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-extrabold text-[#15803D]">
+                        Rp {rep.totalRevenue.toLocaleString('id-ID')}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
+                          <IconCheckCircle size={12} />
+                          <span>{rep.status}</span>
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedReport(rep)}
+                          className="px-2.5 py-1 rounded-lg border border-[#CBD5E1] hover:bg-[#FFF7ED] text-[#732662] text-xs font-bold transition-colors"
+                        >
+                          Lihat Data
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-[#5B403D]">
+                      <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada riwayat impor laporan</p>
+                      <p className="text-[12px] text-[#5B403D] mt-1">
+                        Tarik file CSV/Excel dari Shopee, Tokopedia, atau TikTok Shop di menu Impor Laporan.
+                      </p>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

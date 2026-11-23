@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import AppShell from '../../components/AppShell';
 import { useApp } from '../../lib/context';
 import {
@@ -91,35 +92,46 @@ export default function PembelianPengadaanPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {procurementOrders.map((po) => (
-                  <tr key={po.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-[#732662]">
-                      {po.code}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#5B403D]">
-                      {po.date}
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold text-[#0B1C30]">
-                      {po.supplierName}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#0B1C30]">
-                      {po.items.map((it, idx) => (
-                        <span key={idx}>
-                          {it.materialName} ({it.quantity} {it.unit} @ Rp {it.price.toLocaleString('id-ID')})
+                {procurementOrders.length > 0 ? (
+                  procurementOrders.map((po) => (
+                    <tr key={po.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#732662]">
+                        {po.code}
+                      </td>
+                      <td className="py-3.5 px-4 text-[#5B403D]">
+                        {po.date}
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-[#0B1C30]">
+                        {po.supplierName}
+                      </td>
+                      <td className="py-3.5 px-4 text-[#0B1C30]">
+                        {po.items.map((it, idx) => (
+                          <span key={idx}>
+                            {it.materialName} ({it.quantity} {it.unit} @ Rp {it.price.toLocaleString('id-ID')})
+                          </span>
+                        ))}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-extrabold text-[#0B1C30]">
+                        Rp {po.totalAmount.toLocaleString('id-ID')}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
+                          <IconCheckCircle size={12} />
+                          <span>{po.status}</span>
                         </span>
-                      ))}
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-extrabold text-[#0B1C30]">
-                      Rp {po.totalAmount.toLocaleString('id-ID')}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
-                        <IconCheckCircle size={12} />
-                        <span>{po.status}</span>
-                      </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="py-10 text-center text-[#5B403D]">
+                      <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada data pengadaan bahan</p>
+                      <p className="text-[12px] text-[#5B403D] mt-1">
+                        Klik tombol &quot;Buat Order Pengadaan&quot; di atas untuk mencatat pembelian bahan baku dari supplier.
+                      </p>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -142,23 +154,50 @@ export default function PembelianPengadaanPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">
-                    Pilih Mitra Supplier *
-                  </label>
-                  <select
-                    value={selectedSupplier}
-                    onChange={(e) => setSelectedSupplier(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] text-xs text-[#0B1C30]"
+              {rawMaterials.length === 0 ? (
+                <div className="py-6 text-center space-y-3">
+                  <p className="text-sm text-[#BA1A1A] font-semibold">
+                    Belum ada bahan baku yang terdaftar di sistem.
+                  </p>
+                  <p className="text-xs text-[#5B403D]">
+                    Silakan tambahkan data bahan baku terlebih dahulu agar dapat dipilih saat pembelian/pengadaan.
+                  </p>
+                  <Link
+                    href="/data-master/bahan-baku"
+                    className="inline-block btn-primary text-xs font-bold"
                   >
-                    {suppliers.map((s) => (
-                      <option key={s.id} value={s.name}>
-                        {s.name} ({s.contactPerson})
-                      </option>
-                    ))}
-                  </select>
+                    Buka Data Bahan Baku
+                  </Link>
                 </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#334155] mb-1">
+                      Pilih Mitra Supplier *
+                    </label>
+                    {suppliers.length > 0 ? (
+                      <select
+                        value={selectedSupplier}
+                        onChange={(e) => setSelectedSupplier(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] text-xs text-[#0B1C30]"
+                      >
+                        {suppliers.map((s) => (
+                          <option key={s.id} value={s.name}>
+                            {s.name} ({s.contactPerson})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        placeholder="Contoh: Toko Pasar Tradisional / Toko Plastik"
+                        value={selectedSupplier}
+                        onChange={(e) => setSelectedSupplier(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] text-xs text-[#0B1C30]"
+                        required
+                      />
+                    )}
+                  </div>
 
                 <div>
                   <label className="block text-xs font-bold text-[#334155] mb-1">
@@ -232,6 +271,7 @@ export default function PembelianPengadaanPage() {
                   </button>
                 </div>
               </form>
+              )}
             </div>
           </div>
         )}

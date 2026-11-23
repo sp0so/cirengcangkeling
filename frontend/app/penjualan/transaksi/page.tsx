@@ -130,55 +130,66 @@ export default function TransaksiPenjualanPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {filtered.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-[#732662]">
-                      {tx.code}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#5B403D] text-xs">
-                      {tx.date.replace('T', ' ').substring(0, 16)}
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold text-[#0B1C30]">
-                      {tx.cashierName}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#0B1C30]">
-                      <span className="font-semibold">{tx.items.length} item</span> (
-                      {tx.items.map((i) => `${i.productName} (${i.quantity}x)`).join(', ')})
-                    </td>
-                    <td className="py-3.5 px-4 uppercase font-bold text-[#5B403D] text-xs">
-                      <span
-                        className={`px-2 py-0.5 rounded-md ${
-                          tx.paymentMethod === 'tunai'
-                            ? 'bg-[#DCFCE7] text-[#15803D]'
-                            : tx.paymentMethod === 'qris'
-                            ? 'bg-[#E5EEFF] text-[#0B1C30]'
-                            : 'bg-[#FEF3C7] text-[#92400E]'
-                        }`}
-                      >
-                        {tx.paymentMethod}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-extrabold text-[#0B1C30]">
-                      Rp {tx.total.toLocaleString('id-ID')}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
-                        <IconCheckCircle size={12} />
-                        <span>Selesai</span>
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedTx(tx)}
-                        className="p-1.5 rounded-lg border border-[#CBD5E1] hover:bg-[#FFF7ED] text-[#732662] transition-colors"
-                        title="Cetak Struk"
-                      >
-                        <IconPrint size={15} />
-                      </button>
+                {filtered.length > 0 ? (
+                  filtered.map((tx) => (
+                    <tr key={tx.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#732662]">
+                        {tx.code}
+                      </td>
+                      <td className="py-3.5 px-4 text-[#5B403D] text-xs">
+                        {tx.date.replace('T', ' ').substring(0, 16)}
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-[#0B1C30]">
+                        {tx.cashierName}
+                      </td>
+                      <td className="py-3.5 px-4 text-[#0B1C30]">
+                        <span className="font-semibold">{tx.items.length} item</span> (
+                        {tx.items.map((i) => `${i.productName} (${i.quantity}x)`).join(', ')})
+                      </td>
+                      <td className="py-3.5 px-4 uppercase font-bold text-[#5B403D] text-xs">
+                        <span
+                          className={`px-2 py-0.5 rounded-md ${
+                            tx.paymentMethod === 'tunai'
+                              ? 'bg-[#DCFCE7] text-[#15803D]'
+                              : tx.paymentMethod === 'qris'
+                              ? 'bg-[#E5EEFF] text-[#0B1C30]'
+                              : 'bg-[#FEF3C7] text-[#92400E]'
+                          }`}
+                        >
+                          {tx.paymentMethod}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-extrabold text-[#0B1C30]">
+                        Rp {tx.total.toLocaleString('id-ID')}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
+                          <IconCheckCircle size={12} />
+                          <span>Selesai</span>
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTx(tx)}
+                          className="p-1.5 rounded-lg border border-[#CBD5E1] hover:bg-[#FFF7ED] text-[#732662] transition-colors"
+                          title="Cetak Struk"
+                        >
+                          <IconPrint size={15} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="py-10 text-center text-[#5B403D]">
+                      <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada riwayat transaksi</p>
+                      <p className="text-[12px] text-[#5B403D] mt-1">
+                        Transaksi pelanggan akan otomatis tercatat di sini setelah kasir memproses pesanan di POS.
+                      </p>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import AppShell from '../../components/AppShell';
 import { useApp } from '../../lib/context';
 import {
@@ -82,31 +83,42 @@ export default function ProduksiPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {productionOrders.map((ord) => (
-                  <tr key={ord.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-[#732662]">
-                      {ord.code}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#5B403D]">
-                      {ord.date}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-[#0B1C30]">
-                      {ord.productName}
-                    </td>
-                    <td className="py-3.5 px-4 text-center font-extrabold text-[#15803D]">
-                      +{ord.targetQuantity} porsi
-                    </td>
-                    <td className="py-3.5 px-4 text-[#5B403D]">
-                      {ord.notes || '-'}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
-                        <IconCheckCircle size={12} />
-                        <span>{ord.status}</span>
-                      </span>
+                {productionOrders.length > 0 ? (
+                  productionOrders.map((ord) => (
+                    <tr key={ord.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#732662]">
+                        {ord.code}
+                      </td>
+                      <td className="py-3.5 px-4 text-[#5B403D]">
+                        {ord.date}
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-[#0B1C30]">
+                        {ord.productName}
+                      </td>
+                      <td className="py-3.5 px-4 text-center font-extrabold text-[#15803D]">
+                        +{ord.targetQuantity} porsi
+                      </td>
+                      <td className="py-3.5 px-4 text-[#5B403D]">
+                        {ord.notes || '-'}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
+                          <IconCheckCircle size={12} />
+                          <span>{ord.status}</span>
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="py-10 text-center text-[#5B403D]">
+                      <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada batch produksi yang dicatat</p>
+                      <p className="text-[12px] text-[#5B403D] mt-1">
+                        Klik tombol &quot;Mulai Batch Produksi&quot; di atas saat dapur selesai mengolah cireng.
+                      </p>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -129,7 +141,23 @@ export default function ProduksiPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              {products.length === 0 ? (
+                <div className="py-6 text-center space-y-3">
+                  <p className="text-sm text-[#BA1A1A] font-semibold">
+                    Belum ada varian produk yang terdaftar.
+                  </p>
+                  <p className="text-xs text-[#5B403D]">
+                    Silakan tambahkan data produk terlebih dahulu agar dapat dijadwalkan dalam batch produksi.
+                  </p>
+                  <Link
+                    href="/data-master/produk"
+                    className="inline-block btn-primary text-xs font-bold"
+                  >
+                    Buka Data Produk
+                  </Link>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[#334155] mb-1">
                     Pilih Menu yang Diproduksi *
@@ -202,6 +230,7 @@ export default function ProduksiPage() {
                   </button>
                 </div>
               </form>
+              )}
             </div>
           </div>
         )}

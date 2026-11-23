@@ -63,8 +63,13 @@ interface AppContextType {
   addSupplier: (supplier: Omit<Supplier, 'id'>) => void;
   
   recipes: Recipe[];
+  addRecipe: (recipe: Omit<Recipe, 'id'>) => void;
   stockMovements: StockMovement[];
   addStockAdjustment: (itemName: string, itemType: 'produk' | 'bahan_baku', qty: number, unit: string, reason: string) => void;
+  
+  // Data State Management
+  clearAllData: () => void;
+  loadSampleData: () => void;
   
   // POS & Transactions
   cart: CartItem[];
@@ -115,45 +120,128 @@ const defaultKasir: User = {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User>(defaultOwner);
-  const [activeShift, setActiveShift] = useState<Shift | null>(initialActiveShift);
+  const [activeShift, setActiveShift] = useState<Shift | null>(null);
   const [shiftHistory, setShiftHistory] = useState<Shift[]>([]);
   
   const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>(initialRawMaterials);
-  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
-  const [recipes, setRecipes] = useState<Recipe[]>(initialRecipes);
-  const [stockMovements, setStockMovements] = useState<StockMovement[]>(initialStockMovements);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
-  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
-  const [marketplaceReports, setMarketplaceReports] = useState<MarketplaceReport[]>(initialMarketplaceReports);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [marketplaceReports, setMarketplaceReports] = useState<MarketplaceReport[]>([]);
   
-  const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>([
-    {
-      id: 'prd-ord-1',
-      code: 'PRD-20261114-01',
-      productId: 'prd-1',
-      productName: 'Cireng Original',
-      targetQuantity: 30,
-      date: '2026-11-14 09:30',
-      status: 'Selesai',
-      notes: 'Produksi batch pagi outlet',
-    },
+  const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>([]);
+  const [procurementOrders, setProcurementOrders] = useState<ProcurementOrder[]>([]);
+
+  // LocalStorage hydration on mount
+  useEffect(() => {
+    try {
+      const savedProducts = localStorage.getItem('cc_products');
+      if (savedProducts) setProducts(JSON.parse(savedProducts));
+
+      const savedMaterials = localStorage.getItem('cc_materials');
+      if (savedMaterials) setRawMaterials(JSON.parse(savedMaterials));
+
+      const savedSuppliers = localStorage.getItem('cc_suppliers');
+      if (savedSuppliers) setSuppliers(JSON.parse(savedSuppliers));
+
+      const savedRecipes = localStorage.getItem('cc_recipes');
+      if (savedRecipes) setRecipes(JSON.parse(savedRecipes));
+
+      const savedMovements = localStorage.getItem('cc_movements');
+      if (savedMovements) setStockMovements(JSON.parse(savedMovements));
+
+      const savedTransactions = localStorage.getItem('cc_transactions');
+      if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
+
+      const savedExpenses = localStorage.getItem('cc_expenses');
+      if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
+
+      const savedShift = localStorage.getItem('cc_active_shift');
+      if (savedShift) setActiveShift(JSON.parse(savedShift));
+
+      const savedShiftHistory = localStorage.getItem('cc_shift_history');
+      if (savedShiftHistory) setShiftHistory(JSON.parse(savedShiftHistory));
+
+      const savedProduction = localStorage.getItem('cc_production_orders');
+      if (savedProduction) setProductionOrders(JSON.parse(savedProduction));
+
+      const savedProcurement = localStorage.getItem('cc_procurement_orders');
+      if (savedProcurement) setProcurementOrders(JSON.parse(savedProcurement));
+    } catch {
+      // Ignore localStorage parse errors
+    }
+  }, []);
+
+  // Sync to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('cc_products', JSON.stringify(products));
+      localStorage.setItem('cc_materials', JSON.stringify(rawMaterials));
+      localStorage.setItem('cc_suppliers', JSON.stringify(suppliers));
+      localStorage.setItem('cc_recipes', JSON.stringify(recipes));
+      localStorage.setItem('cc_movements', JSON.stringify(stockMovements));
+      localStorage.setItem('cc_transactions', JSON.stringify(transactions));
+      localStorage.setItem('cc_expenses', JSON.stringify(expenses));
+      localStorage.setItem('cc_shift_history', JSON.stringify(shiftHistory));
+      localStorage.setItem('cc_production_orders', JSON.stringify(productionOrders));
+      localStorage.setItem('cc_procurement_orders', JSON.stringify(procurementOrders));
+      if (activeShift) {
+        localStorage.setItem('cc_active_shift', JSON.stringify(activeShift));
+      } else {
+        localStorage.removeItem('cc_active_shift');
+      }
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [
+    products,
+    rawMaterials,
+    suppliers,
+    recipes,
+    stockMovements,
+    transactions,
+    expenses,
+    shiftHistory,
+    productionOrders,
+    procurementOrders,
+    activeShift,
   ]);
 
-  const [procurementOrders, setProcurementOrders] = useState<ProcurementOrder[]>([
-    {
-      id: 'po-1',
-      code: 'PO-20261113-01',
-      supplierName: 'Pemasok Tepung Jaya CV',
-      date: '2026-11-13',
-      items: [{ materialName: 'Tepung Tapioka Super', quantity: 50, unit: 'kg', price: 12500, subtotal: 625000 }],
-      totalAmount: 625000,
-      status: 'Selesai',
-    },
-  ]);
+  const clearAllData = () => {
+    setProducts([]);
+    setRawMaterials([]);
+    setSuppliers([]);
+    setRecipes([]);
+    setStockMovements([]);
+    setTransactions([]);
+    setExpenses([]);
+    setProductionOrders([]);
+    setProcurementOrders([]);
+    setActiveShift(null);
+    setCart([]);
+    try {
+      localStorage.clear();
+    } catch {}
+    showToast('Seluruh data operasional berhasil dikosongkan.', 'info');
+  };
+
+  const loadSampleData = () => {
+    setProducts(initialProducts);
+    setRawMaterials(initialRawMaterials);
+    setSuppliers(initialSuppliers);
+    setRecipes(initialRecipes);
+    setStockMovements(initialStockMovements);
+    setTransactions(initialTransactions);
+    setExpenses(initialExpenses);
+    setMarketplaceReports(initialMarketplaceReports);
+    showToast('Data percontohan (sample) berhasil dimuat.', 'success');
+  };
 
   const [toasts, setToasts] = useState<ToastInfo[]>([]);
 
@@ -288,6 +376,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const id = `sup-${Date.now()}`;
     setSuppliers((prev) => [{ ...s, id }, ...prev]);
     showToast(`Pemasok "${s.name}" berhasil didaftarkan`, 'success');
+  };
+
+  // Recipes
+  const addRecipe = (r: Omit<Recipe, 'id'>) => {
+    const id = `rcp-${Date.now()}`;
+    setRecipes((prev) => [{ ...r, id }, ...prev]);
+    showToast(`Resep untuk "${r.productName}" berhasil disimpan`, 'success');
   };
 
   // Stock Adjustment
@@ -616,8 +711,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         suppliers,
         addSupplier,
         recipes,
+        addRecipe,
         stockMovements,
         addStockAdjustment,
+        clearAllData,
+        loadSampleData,
         cart,
         addToCart,
         updateCartQuantity,

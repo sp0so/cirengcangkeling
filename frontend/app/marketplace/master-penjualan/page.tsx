@@ -161,31 +161,42 @@ export default function MasterLaporanPenjualanPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {allOrders.map((ord, idx) => (
-                  <tr key={idx} className="hover:bg-[#FFF7ED]/50 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#732662]">
-                      {ord.code}
-                    </td>
-                    <td className="py-3 px-4 text-[#5B403D]">{ord.date}</td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
-                          ord.type === 'pos'
-                            ? 'bg-[#DCFCE7] text-[#15803D]'
-                            : 'bg-[#FBF4F9] text-[#732662] border border-[#732662]/30'
-                        }`}
-                      >
-                        {ord.channel}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-[#0B1C30] font-medium max-w-xs truncate">
-                      {ord.itemsSummary}
-                    </td>
-                    <td className="py-3 px-4 text-right font-extrabold text-[#0B1C30]">
-                      Rp {ord.total.toLocaleString('id-ID')}
+                {allOrders.length > 0 ? (
+                  allOrders.map((ord, idx) => (
+                    <tr key={idx} className="hover:bg-[#FFF7ED]/50 transition-colors">
+                      <td className="py-3 px-4 font-mono font-bold text-[#732662]">
+                        {ord.code}
+                      </td>
+                      <td className="py-3 px-4 text-[#5B403D]">{ord.date}</td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                            ord.type === 'pos'
+                              ? 'bg-[#DCFCE7] text-[#15803D]'
+                              : 'bg-[#FBF4F9] text-[#732662] border border-[#732662]/30'
+                          }`}
+                        >
+                          {ord.channel}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-[#0B1C30] font-medium max-w-xs truncate">
+                        {ord.itemsSummary}
+                      </td>
+                      <td className="py-3 px-4 text-right font-extrabold text-[#0B1C30]">
+                        Rp {ord.total.toLocaleString('id-ID')}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-10 text-center text-[#5B403D]">
+                      <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada data penjualan tercatat</p>
+                      <p className="text-[12px] text-[#5B403D] mt-1">
+                        Data penjualan akan muncul otomatis setelah transaksi kasir POS atau laporan marketplace diimpor.
+                      </p>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

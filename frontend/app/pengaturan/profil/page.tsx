@@ -11,7 +11,7 @@ import {
 } from '../../components/Icons';
 
 export default function ProfilUsahaOwnerPage() {
-  const { showToast } = useApp();
+  const { showToast, clearAllData, loadSampleData } = useApp();
 
   const [brandName, setBrandName] = useState('Cireng Cangkeling');
   const [tagline, setTagline] = useState('Yang kamu ingin, kita adain!');
@@ -300,6 +300,49 @@ export default function ProfilUsahaOwnerPage() {
                 className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-semibold"
               />
             </div>
+          </div>
+        </div>
+
+        {/* =========================================================================
+            5. DATA STATE CONTROLS (RESET / SAMPLE)
+           ========================================================================= */}
+        <div className="p-6 rounded-2xl bg-white border border-[#CBD5E1] shadow-card space-y-4">
+          <div className="border-b border-[#F1F5F9] pb-3">
+            <span className="text-[11px] font-bold text-[#833E17] uppercase tracking-wider block">
+              MANAJEMEN DATA SISTEM
+            </span>
+            <h3 className="text-base font-extrabold text-[#0B1C30]">
+              Pembersihan &amp; Pengisian Data Operasional
+            </h3>
+            <p className="text-xs text-[#5B403D] mt-0.5">
+              Kontrol penuh atas basis data lokal. Anda dapat mengosongkan data untuk memulai bisnis dari awal, atau memuat data percontohan untuk pelatihan kasir.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm('Apakah Anda yakin ingin mengosongkan seluruh data operasional (produk, bahan baku, transaksi, kas)?')) {
+                  clearAllData();
+                }
+              }}
+              className="px-4 py-2.5 rounded-xl bg-[#FFDAD6] hover:bg-[#ffb4ab] text-[#93000A] text-xs font-bold transition-all border border-[#BA1A1A]/30 flex items-center gap-2 cursor-pointer"
+            >
+              <span>🗑️ Kosongkan Seluruh Data (Mulai dari Nol)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm('Muat data percontohan untuk keperluan simulasi?')) {
+                  loadSampleData();
+                }
+              }}
+              className="px-4 py-2.5 rounded-xl bg-[#EFF4FF] hover:bg-[#dbe7ff] text-[#0B1C30] text-xs font-bold transition-all border border-[#CBD5E1] flex items-center gap-2 cursor-pointer"
+            >
+              <span>📦 Muat Data Percontohan (Demo)</span>
+            </button>
           </div>
         </div>
       </div>

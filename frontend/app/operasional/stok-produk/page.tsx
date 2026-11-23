@@ -69,7 +69,7 @@ export default function InventarisProdukOwnerPage() {
 
   const totalPack = inventoryItems.reduce((sum, item) => sum + item.stock, 0);
   const totalValue = inventoryItems.reduce((sum, item) => sum + item.stock * item.price, 0);
-  const bestSeller = inventoryItems.find((p) => p.name.toLowerCase().includes('rujak')) || inventoryItems[0];
+  const bestSeller = inventoryItems.find((p) => p.name.toLowerCase().includes('rujak')) || inventoryItems[0] || null;
   const frozenCount = inventoryItems
     .filter((p) => p.packagingType.includes('Vakum'))
     .reduce((sum, item) => sum + item.stock, 0);
@@ -239,11 +239,11 @@ export default function InventarisProdukOwnerPage() {
             </span>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-xl sm:text-2xl font-extrabold text-[#A24F9D] truncate">
-                {bestSeller.name}
+                {bestSeller ? bestSeller.name : 'Belum Ada Produk'}
               </span>
             </div>
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
-              Stok saat ini: <strong>{bestSeller.stock} Pack</strong>
+              Stok saat ini: <strong>{bestSeller ? `${bestSeller.stock} Pack` : '0 Pack'}</strong>
             </span>
           </div>
 
@@ -372,7 +372,8 @@ export default function InventarisProdukOwnerPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {filteredItems.map((item) => (
+                {filteredItems.length > 0 ? (
+                  filteredItems.map((item) => (
                   <tr key={item.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
                     {/* SKU & Name */}
                     <td className="py-3.5 px-4">
@@ -453,7 +454,17 @@ export default function InventarisProdukOwnerPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="py-10 text-center text-[#5B403D]">
+                      <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada produk terdaftar</p>
+                      <p className="text-[12px] text-[#5B403D] mt-1">
+                        Daftarkan produk cireng Anda di modul Data Produk untuk memantau stok fisik di freezer dan chiller.
+                      </p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -495,11 +506,15 @@ export default function InventarisProdukOwnerPage() {
                     onChange={(e) => setSelectedProdId(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-bold text-[#0B1C30] focus:outline-none focus:border-[#A24F9D]"
                   >
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.sku}) - Sisa: {p.stock} pack
-                      </option>
-                    ))}
+                    {products.length > 0 ? (
+                      products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} ({p.sku}) - Sisa: {p.stock} pack
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">Belum ada produk - Tambah produk dahulu</option>
+                    )}
                   </select>
                 </div>
 
