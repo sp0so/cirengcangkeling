@@ -571,15 +571,15 @@ export const initialMarketplaceReports: MarketplaceReport[] = [
   },
   {
     id: 'rep-tok-01',
-    platform: 'Tokopedia',
-    fileName: 'Tokopedia_Orders_10Nov2026.csv',
+    platform: 'GrabFood',
+    fileName: 'GrabFood_Orders_10Nov2026.csv',
     importDate: '2026-11-10 11:45',
     totalOrders: 18,
     totalRevenue: 410000,
     status: 'Sukses',
     orders: [
-      { orderId: 'TKP-261110-881', platform: 'Tokopedia', date: '2026-11-10', customerName: 'Fandi A.', productName: 'Cireng Frozen Pack Keju (10 pcs)', quantity: 2, total: 44000, status: 'Selesai' },
-      { orderId: 'TKP-261110-882', platform: 'Tokopedia', date: '2026-11-10', customerName: 'Siti M.', productName: 'Cireng Frozen Pack Original (10 pcs)', quantity: 3, total: 54000, status: 'Selesai' },
+      { orderId: 'GRB-261110-881', platform: 'GrabFood', date: '2026-11-10', customerName: 'Fandi A.', productName: 'Cireng Frozen Pack Keju (10 pcs)', quantity: 2, total: 44000, status: 'Selesai' },
+      { orderId: 'GRB-261110-882', platform: 'GrabFood', date: '2026-11-10', customerName: 'Siti M.', productName: 'Cireng Frozen Pack Original (10 pcs)', quantity: 3, total: 54000, status: 'Selesai' },
     ],
   },
 ];

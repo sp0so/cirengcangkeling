@@ -25,13 +25,13 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
     router.push('/login');
   };
 
-  // Formatted date string matching Figma's "Jumat, 30 Oktober 2026"
+  // Current live formatted date
   const formattedDate = new Intl.DateTimeFormat('id-ID', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-  }).format(new Date(2026, 9, 30));
+  }).format(new Date());
 
   return (
     <header className="h-[80px] bg-white/95 backdrop-blur-[12px] border-b border-[#E2E8F0] px-4 md:px-6 flex items-center justify-between sticky top-0 z-20 shadow-xs">
