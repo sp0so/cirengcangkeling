@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run dev --prefix frontend",
-    "build": "npm run build --prefix frontend",
-    "start": "npm run start --prefix frontend",
-    "lint": "npm run --prefix frontend lint"
+    "dev": "next dev frontend --webpack",
+    "build": "next build frontend --webpack",
+    "start": "next start frontend",
+    "lint": "eslint frontend"
   },
   "dependencies": {
     "@next/swc-wasm-nodejs": "^16.4.6",
