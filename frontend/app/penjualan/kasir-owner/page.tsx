@@ -14,7 +14,7 @@ import {
 export default function ModeKasirOwnerPage() {
   const { activeShift, currentUser } = useApp();
 
-  const isLockedByKasir = activeShift && activeShift.cashierName !== currentUser.name;
+  const isLockedByKasir = activeShift && activeShift.cashierName !== currentUser?.name;
 
   return (
     <AppShell>

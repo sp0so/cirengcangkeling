@@ -54,6 +54,159 @@ export const inventoryService = {
     }));
   },
 
+  async getCategories() {
+    const supabase = getClientSafe();
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+      .from('product_categories')
+      .select('*')
+      .eq('is_active', true)
+      .order('name');
+
+    if (error || !data) return null;
+    return data.map((c) => ({
+      id: c.id,
+      name: c.name,
+      description: c.description || '',
+    }));
+  },
+
+  async addCategory(name: string, description?: string) {
+    const supabase = getClientSafe();
+    if (!supabase) return null;
+
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const { data, error } = await supabase
+      .from('product_categories')
+      .insert({ name, slug, description, is_active: true })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async addProduct(product: Omit<Product, 'id'>) {
+    const supabase = getClientSafe();
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+      .from('products')
+      .insert({
+        name: product.name,
+        code: product.sku,
+        category_id: product.categoryId.includes('-') && product.categoryId.length === 36 ? product.categoryId : null,
+        selling_price: product.price,
+        estimated_hpp: product.baseCost,
+        stock: product.stock,
+        min_stock: product.minStock,
+        unit: product.unit,
+        is_active: product.isActive !== false,
+      })
+      .select()
+      .single();
+
+    if (error) console.warn('Supabase product insert error:', error);
+    return data;
+  },
+
+  async updateProduct(id: string, updates: Partial<Product>) {
+    const supabase = getClientSafe();
+    if (!supabase) return null;
+
+    const payload: Record<string, unknown> = {};
+    if (updates.name !== undefined) payload.name = updates.name;
+    if (updates.sku !== undefined) payload.code = updates.sku;
+    if (updates.price !== undefined) payload.selling_price = updates.price;
+    if (updates.baseCost !== undefined) payload.estimated_hpp = updates.baseCost;
+    if (updates.stock !== undefined) payload.stock = updates.stock;
+    if (updates.minStock !== undefined) payload.min_stock = updates.minStock;
+    if (updates.unit !== undefined) payload.unit = updates.unit;
+    if (updates.isActive !== undefined) payload.is_active = updates.isActive;
+
+    const { data, error } = await supabase
+      .from('products')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) console.warn('Supabase product update error:', error);
+    return data;
+  },
+
+  async deleteProduct(id: string) {
+    const supabase = getClientSafe();
+    if (!supabase) return null;
+
+    const { error } = await supabase
+      .from('products')
+      .update({ is_active: false })
+      .eq('id', id);
+
+    if (error) console.warn('Supabase product delete error:', error);
+    return !error;
+  },
+
+  async addRawMaterial(material: Omit<RawMaterial, 'id'>) {
+    const supabase = getClientSafe();
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+      .from('raw_materials')
+      .insert({
+        name: material.name,
+        code: material.code,
+        unit: material.unit,
+        stock: material.stock,
+        min_stock: material.minStock,
+        cost_per_unit: material.unitCost,
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (error) console.warn('Supabase raw material insert error:', error);
+    return data;
+  },
+
+  async updateRawMaterial(id: string, updates: Partial<RawMaterial>) {
+    const supabase = getClientSafe();
+    if (!supabase) return null;
+
+    const payload: Record<string, unknown> = {};
+    if (updates.name !== undefined) payload.name = updates.name;
+    if (updates.code !== undefined) payload.code = updates.code;
+    if (updates.unit !== undefined) payload.unit = updates.unit;
+    if (updates.stock !== undefined) payload.stock = updates.stock;
+    if (updates.minStock !== undefined) payload.min_stock = updates.minStock;
+    if (updates.unitCost !== undefined) payload.cost_per_unit = updates.unitCost;
+
+    const { data, error } = await supabase
+      .from('raw_materials')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) console.warn('Supabase raw material update error:', error);
+    return data;
+  },
+
+  async deleteRawMaterial(id: string) {
+    const supabase = getClientSafe();
+    if (!supabase) return null;
+
+    const { error } = await supabase
+      .from('raw_materials')
+      .update({ is_active: false })
+      .eq('id', id);
+
+    if (error) console.warn('Supabase raw material delete error:', error);
+    return !error;
+  },
+
   async adjustStock(
     itemId: string,
     itemType: 'produk' | 'bahan_baku',

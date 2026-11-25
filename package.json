@@ -1,34 +1,16 @@
 {
-  "name": "frontend",
+  "name": "cireng-cangkeling-workspace",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "dev": "next dev frontend --webpack",
-    "build": "next build frontend --webpack",
-    "start": "next start frontend",
-    "lint": "eslint frontend"
-  },
-  "dependencies": {
-    "@gsap/react": "^2.1.2",
-    "@next/swc-wasm-nodejs": "^16.4.6",
-    "@supabase/ssr": "^0.12.7",
-    "@supabase/supabase-js": "^2.118.0",
-    "gsap": "^3.15.1",
-    "lenis": "^1.3.28",
-    "motion": "^14.14.0",
-    "next": "^16.4.6",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.5",
-    "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "^16.4.6",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "dev": "npm --workspace=frontend run dev",
+    "build": "npm --workspace=frontend run build",
+    "start": "npm --workspace=frontend run start",
+    "lint": "npm --workspace=frontend run lint",
+    "typecheck": "npm --workspace=frontend run typecheck",
+    "test": "npm --workspace=frontend run test"
   }
 }

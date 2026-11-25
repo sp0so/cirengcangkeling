@@ -112,7 +112,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose?
     },
   ];
 
-  const isKasir = pathname.startsWith('/kasir') || currentUser.role === 'kasir';
+  const isKasir = pathname.startsWith('/kasir') || currentUser?.role === 'kasir';
 
   const kasirSections: NavSection[] = [
     {

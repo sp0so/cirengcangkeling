@@ -129,7 +129,7 @@ export default function DashboardKasirPage() {
         <div className="bg-white rounded-[12px] p-6 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),0px_1px_3px_0px_rgba(15,23,42,0.04)] border border-[#EDEEEF] flex items-center justify-between">
           <div className="space-y-1">
             <WordRevealHeading
-              text={`Halo, Kasir ${currentUser.name || 'Rina'}!`}
+              text={`Halo, Kasir ${currentUser?.name || 'Kasir'}!`}
               as="h1"
               className="text-[24px] font-bold text-[#191C1D] tracking-[-0.6px] leading-[32px]"
             />
@@ -265,7 +265,7 @@ export default function DashboardKasirPage() {
 
                 <div className="bg-[#E7E8E9] px-2.5 py-1 rounded-full text-[11px] font-semibold text-[#191C1D] flex items-center gap-1.5 shrink-0">
                   <IconUser size={12} className="text-[#565E74]" />
-                  <span>Kasir: {currentUser.name || 'Rina'}</span>
+                  <span>Kasir: {currentUser?.name || 'Kasir'}</span>
                 </div>
               </div>
 

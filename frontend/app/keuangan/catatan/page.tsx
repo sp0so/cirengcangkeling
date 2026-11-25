@@ -123,33 +123,41 @@ export default function CatatanKeuanganPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {ledger.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-[#FFF7ED]/50 transition-colors">
-                    <td className="py-3.5 px-4 font-mono text-[#5B403D]">{item.date}</td>
-                    <td className="py-3.5 px-4 font-semibold text-[#0B1C30]">
-                      {item.description}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span
-                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-                          item.type === 'inflow'
-                            ? 'bg-[#DCFCE7] text-[#15803D]'
-                            : 'bg-[#FFDAD6] text-[#93000A]'
-                        }`}
-                      >
-                        {item.type === 'inflow' ? 'Kas Masuk' : 'Kas Keluar'}
-                      </span>
-                    </td>
-                    <td
-                      className={`py-3.5 px-4 text-right font-extrabold ${
-                        item.type === 'inflow' ? 'text-[#15803D]' : 'text-[#BA1A1A]'
-                      }`}
-                    >
-                      {item.type === 'inflow' ? '+' : '-'}Rp{' '}
-                      {item.amount.toLocaleString('id-ID')}
+                {ledger.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-12 text-center text-[#5B403D]">
+                      Belum ada catatan arus kas masuk maupun beban pengeluaran.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  ledger.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-[#FFF7ED]/50 transition-colors">
+                      <td className="py-3.5 px-4 font-mono text-[#5B403D]">{item.date}</td>
+                      <td className="py-3.5 px-4 font-semibold text-[#0B1C30]">
+                        {item.description}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <span
+                          className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                            item.type === 'inflow'
+                              ? 'bg-[#DCFCE7] text-[#15803D]'
+                              : 'bg-[#FFDAD6] text-[#93000A]'
+                          }`}
+                        >
+                          {item.type === 'inflow' ? 'Kas Masuk' : 'Kas Keluar'}
+                        </span>
+                      </td>
+                      <td
+                        className={`py-3.5 px-4 text-right font-extrabold ${
+                          item.type === 'inflow' ? 'text-[#15803D]' : 'text-[#BA1A1A]'
+                        }`}
+                      >
+                        {item.type === 'inflow' ? '+' : '-'}Rp{' '}
+                        {item.amount.toLocaleString('id-ID')}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
