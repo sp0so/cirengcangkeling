@@ -3,6 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import AppShell from '../components/AppShell';
+import WordRevealHeading from '../components/WordRevealHeading';
+import MotionCard from '../components/MotionCard';
 import { useApp } from '../lib/context';
 import {
   IconAlertTriangle,
@@ -13,6 +15,9 @@ import {
   IconArrowUp,
   IconPlus,
   IconCheckCircle,
+  IconPepper,
+  IconCrown,
+  IconSparkles,
 } from '../components/Icons';
 
 export default function DashboardPage() {
@@ -160,7 +165,7 @@ export default function DashboardPage() {
       barWidth: Math.min(100, Math.max(15, Math.round((item.count / maxCount) * 100))),
       color: idx === 0 ? '#A24F9D' : idx === 1 ? '#C92A2A' : '#A1552D',
       badgeBg: idx === 0 ? 'bg-[#FBBF24] text-[#0B1C30]' : idx === 1 ? 'bg-[#CBD5E1] text-[#0B1C30]' : 'bg-[#B45309] text-white',
-      icon: idx === 0 ? '🥟' : idx === 1 ? '🌶️' : '🧀',
+      icon: idx === 0 ? <IconCrown size={20} className="text-[#D97706]" /> : idx === 1 ? <IconPepper size={20} className="text-[#DC2626]" /> : <IconSparkles size={20} className="text-[#A1552D]" />,
     }));
   }, [transactions]);
 
@@ -211,7 +216,7 @@ export default function DashboardPage() {
 
             <div className="relative z-10 shrink-0 self-end md:self-center">
               <Link
-                href="/operasional/pembelian"
+                href="/data-master/bahan-baku"
                 className="bg-[#A24F9D] hover:bg-[#8F3D8A] text-white text-[14px] leading-[20px] font-bold px-4 py-2.5 rounded-[12px] shadow-card flex items-center gap-2 transition-all active:scale-[0.98]"
               >
                 <IconPlus size={16} />
@@ -228,7 +233,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <Link
-              href="/operasional/pembelian"
+              href="/data-master/bahan-baku"
               className="text-xs font-bold text-[#15803D] hover:underline"
             >
               + Pengadaan Baru
@@ -242,9 +247,11 @@ export default function DashboardPage() {
         <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#833E17] shrink-0" />
-            <span className="font-semibold text-[#0B1C30] text-[12px] leading-[16px] tracking-[0.24px]">
-              Ikhtisar Operasional Dapur & Penjualan Terkini
-            </span>
+            <WordRevealHeading
+              text="Ikhtisar Operasional Dapur & Penjualan Terkini"
+              as="span"
+              className="font-semibold text-[#0B1C30] text-[12px] leading-[16px] tracking-[0.24px]"
+            />
             <span className="bg-[#E5EEFF] text-[#5B403D] text-[11px] leading-[14px] font-medium px-2 py-0.5 rounded-[6px] tracking-[0.33px]">
               Database Terhubung
             </span>
@@ -263,7 +270,7 @@ export default function DashboardPage() {
            ========================================================================= */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Card 1: TOTAL PRODUK JADI */}
-          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
+          <MotionCard delay={0.05} hoverEffect="lift" className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#A24F9D]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -289,10 +296,10 @@ export default function DashboardPage() {
                 </span>
               </div>
             </div>
-          </div>
+          </MotionCard>
 
           {/* Card 2: TOTAL BAHAN BAKU */}
-          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
+          <MotionCard delay={0.1} hoverEffect="lift" className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#BA1A1A]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -323,10 +330,10 @@ export default function DashboardPage() {
                 </span>
               </div>
             </div>
-          </div>
+          </MotionCard>
 
           {/* Card 3: PRODUK MENIPIS */}
-          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
+          <MotionCard delay={0.15} hoverEffect="lift" className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#F59E0B]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -351,10 +358,10 @@ export default function DashboardPage() {
                   : 'Semua stok produk aman'}
               </p>
             </div>
-          </div>
+          </MotionCard>
 
           {/* Card 4: PENJUALAN HARI INI */}
-          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
+          <MotionCard delay={0.2} hoverEffect="lift" className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#16A34A]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -373,10 +380,10 @@ export default function DashboardPage() {
                 <span>{todayPacksSold} bks ({todayTransactions.length} transaksi)</span>
               </div>
             </div>
-          </div>
+          </MotionCard>
 
           {/* Card 5: PENGELUARAN BULAN INI */}
-          <div className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between card-hover">
+          <MotionCard delay={0.25} hoverEffect="lift" className="bg-white rounded-[12px] p-4 shadow-card relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 left-0 right-0 h-[4px] bg-[#833E17]" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#5B403D]">
@@ -396,7 +403,7 @@ export default function DashboardPage() {
                   : 'Belum ada pengeluaran'}
               </p>
             </div>
-          </div>
+          </MotionCard>
         </div>
 
         {/* =========================================================================
@@ -404,15 +411,17 @@ export default function DashboardPage() {
            ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Panel: Visualisasi Tren Penjualan & Pengeluaran 7 Hari */}
-          <div className="lg:col-span-2 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
+          <MotionCard delay={0.25} hoverEffect="lift" className="lg:col-span-2 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#A24F9D] block mb-0.5">
                   ANALISIS KEUANGAN & ARUS BARANG
                 </span>
-                <h2 className="text-[20px] leading-[28px] font-bold text-[#0B1C30]">
-                  Tren Penjualan & Pengeluaran 7 Hari Terakhir
-                </h2>
+                <WordRevealHeading
+                  text="Tren Penjualan & Pengeluaran 7 Hari Terakhir"
+                  as="h2"
+                  className="text-[20px] leading-[28px] font-bold text-[#0B1C30]"
+                />
               </div>
 
               <div className="bg-[#EFF4FF] p-1 rounded-[12px] flex items-center gap-1 self-start sm:self-center">
@@ -555,19 +564,21 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </MotionCard>
 
           {/* Right Panel: Kebutuhan Mendesak Bahan Baku Perlu Dibeli */}
-          <div className="lg:col-span-1 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
+          <MotionCard delay={0.3} hoverEffect="lift" className="lg:col-span-1 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
             <div>
               <div className="border-b border-[rgba(220,233,255,0.4)] pb-2.5 flex items-center justify-between mb-3">
                 <div>
                   <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#BA1A1A] block">
                     KEBUTUHAN MENDESAK
                   </span>
-                  <h3 className="text-[16px] leading-[24px] font-bold text-[#0B1C30]">
-                    Bahan Baku Perlu Dibeli
-                  </h3>
+                  <WordRevealHeading
+                    text="Bahan Baku Perlu Dibeli"
+                    as="h3"
+                    className="text-[16px] leading-[24px] font-bold text-[#0B1C30]"
+                  />
                 </div>
                 <span className="bg-[#FFDAD6] text-[#93000A] text-[11px] leading-[14px] font-bold px-2 py-0.5 rounded-full tracking-[0.33px]">
                   {criticalMaterials.length} Item
@@ -612,7 +623,7 @@ export default function DashboardPage() {
                       </div>
 
                       <Link
-                        href="/operasional/pembelian"
+                        href="/data-master/bahan-baku"
                         className="w-full bg-[#D3E4FE] hover:bg-[#C2DAFD] text-[#A24F9D] py-1.5 rounded-[8px] text-[11px] leading-[14px] font-bold tracking-[0.33px] flex items-center justify-center gap-1 transition-colors"
                       >
                         <span>+ Restock Cepat</span>
@@ -640,7 +651,7 @@ export default function DashboardPage() {
                 </svg>
               </Link>
             </div>
-          </div>
+          </MotionCard>
         </div>
 
         {/* =========================================================================
@@ -648,16 +659,18 @@ export default function DashboardPage() {
            ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Riwayat Perubahan Stok (Tabel Mutasi Dinamis) */}
-          <div className="lg:col-span-2 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
+          <MotionCard delay={0.35} hoverEffect="lift" className="lg:col-span-2 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
             <div>
               <div className="border-b border-[rgba(220,233,255,0.4)] pb-2.5 flex items-center justify-between mb-3">
                 <div>
                   <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#A24F9D] block">
                     AUDIT MUTASI INVENTORI
                   </span>
-                  <h3 className="text-[20px] leading-[28px] font-bold text-[#0B1C30]">
-                    Riwayat Perubahan Stok Terakhir
-                  </h3>
+                  <WordRevealHeading
+                    text="Riwayat Perubahan Stok Terakhir"
+                    as="h3"
+                    className="text-[20px] leading-[28px] font-bold text-[#0B1C30]"
+                  />
                 </div>
                 <Link
                   href="/operasional/penyesuaian-stok"
@@ -745,19 +758,21 @@ export default function DashboardPage() {
                 Buka Log Audit Lengkap →
               </Link>
             </div>
-          </div>
+          </MotionCard>
 
           {/* Right: Ringkasan Produk Terlaris (Dinamis dari Data Transaksi) */}
-          <div className="lg:col-span-1 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
+          <MotionCard delay={0.4} hoverEffect="lift" className="lg:col-span-1 bg-white rounded-[12px] p-6 shadow-card flex flex-col justify-between space-y-4">
             <div>
               <div className="border-b border-[rgba(220,233,255,0.4)] pb-2.5 flex items-center justify-between mb-4">
                 <div>
                   <span className="text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px] text-[#15803D] block">
                     PERFORMA PENJUALAN
                   </span>
-                  <h3 className="text-[16px] leading-[24px] font-bold text-[#0B1C30]">
-                    Produk Terlaris
-                  </h3>
+                  <WordRevealHeading
+                    text="Produk Terlaris"
+                    as="h3"
+                    className="text-[16px] leading-[24px] font-bold text-[#0B1C30]"
+                  />
                 </div>
                 <div className="w-8 h-8 rounded-full bg-[#DCFCE7] text-[#15803D] flex items-center justify-center">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -771,7 +786,7 @@ export default function DashboardPage() {
                   {bestSellers.map((item) => (
                     <div key={item.name} className="bg-[#EFF4FF] p-2.5 rounded-[12px] flex items-center gap-3">
                       <div className="w-12 h-12 rounded-[12px] bg-white border border-[#CBD5E1]/40 relative overflow-hidden flex items-center justify-center shrink-0">
-                        <span className="text-xl">{item.icon}</span>
+                        {item.icon}
                         <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full ${item.badgeBg} text-[10px] font-bold flex items-center justify-center shadow-xs`}>
                           {item.rank}
                         </span>
@@ -827,7 +842,7 @@ export default function DashboardPage() {
                 </svg>
               </div>
             </div>
-          </div>
+          </MotionCard>
         </div>
       </div>
     </AppShell>

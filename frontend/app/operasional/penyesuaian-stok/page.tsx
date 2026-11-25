@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import AppShell from '../../components/AppShell';
+import WordRevealHeading from '../../components/WordRevealHeading';
+import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
 import {
   IconPlus,
@@ -151,9 +153,11 @@ export default function RiwayatPerubahanStokOwnerPage() {
                 Pembaruan: Real-time Sinkronisasi
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Audit &amp; Riwayat Perubahan Stok (Mutasi Persediaan)
-            </h1>
+            <WordRevealHeading
+              text="Riwayat Perubahan Stok"
+              as="h1"
+              className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
+            />
             <p className="text-[13px] text-[#5B403D] mt-0.5">
               Pencatatan mutasi otomatis seluruh arus persediaan barang masuk, penjualan POS, dan penyesuaian opname fisik.
             </p>
@@ -213,7 +217,7 @@ export default function RiwayatPerubahanStokOwnerPage() {
            ========================================================================= */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {/* Card 1: Mutasi Masuk */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.05} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#15803D] block">
               MUTASI MASUK (IN)
             </span>
@@ -226,10 +230,10 @@ export default function RiwayatPerubahanStokOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Hasil produksi &amp; belanja bahan
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 2: Mutasi Keluar */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.1} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#93000A] block">
               MUTASI KELUAR (OUT)
             </span>
@@ -242,10 +246,10 @@ export default function RiwayatPerubahanStokOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Penjualan kasir &amp; dapur olah
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 3: Koreksi Opname */}
-          <div className="p-4 rounded-2xl bg-[#FEF3C7]/40 border border-[#F59E0B]/30 shadow-card">
+          <MotionCard delay={0.15} hoverEffect="lift" className="p-4 rounded-2xl bg-[#FEF3C7]/40 border border-[#F59E0B]/30 shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#92400E] block">
               KOREKSI OPNAME FISIK
             </span>
@@ -258,10 +262,10 @@ export default function RiwayatPerubahanStokOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Selisih wajar &lt; 0.5%
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 4: Total Log */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.2} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5B403D] block">
               TOTAL LOG TERCATAT
             </span>
@@ -274,7 +278,7 @@ export default function RiwayatPerubahanStokOwnerPage() {
             <span className="text-[11px] text-[#16A34A] font-medium block mt-1">
               ✓ Log terkunci &amp; valid
             </span>
-          </div>
+          </MotionCard>
         </div>
 
         {/* =========================================================================

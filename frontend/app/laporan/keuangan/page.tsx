@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import AppShell from '../../components/AppShell';
+import WordRevealHeading from '../../components/WordRevealHeading';
+import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
 import {
   IconReport,
@@ -27,9 +29,11 @@ export default function LaporanUsahaPage() {
                 Laporan & Evaluasi
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Laporan Usaha & Keuangan (Figma 6:5179)
-            </h2>
+            <WordRevealHeading
+              text="Laporan Usaha"
+              as="h1"
+              className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
+            />
             <p className="text-sm text-[#5B403D]">
               Rekapitulasi berkala pendapatan kotor, beban operasional, dan ringkasan laba bersih outlet.
             </p>
@@ -54,7 +58,7 @@ export default function LaporanUsahaPage() {
         </div>
 
         {/* Filter Month */}
-        <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card flex items-center justify-between">
+        <MotionCard delay={0.05} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold text-[#334155]">Periode Laporan:</span>
             <input
@@ -65,11 +69,11 @@ export default function LaporanUsahaPage() {
             />
           </div>
           <span className="text-xs text-[#5B403D]">Status Buku: <strong>Terbuka (Berjalan)</strong></span>
-        </div>
+        </MotionCard>
 
         {/* Financial KPI Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.1} hoverEffect="lift" className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase text-[#5B403D] block mb-1">
               Total Omzet Penjualan
             </span>
@@ -79,9 +83,9 @@ export default function LaporanUsahaPage() {
             <span className="text-xs text-[#5B403D] mt-1 block">
               Dari kasir gerai aktif
             </span>
-          </div>
+          </MotionCard>
 
-          <div className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.15} hoverEffect="lift" className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase text-[#5B403D] block mb-1">
               Total Beban Usaha
             </span>
@@ -91,15 +95,15 @@ export default function LaporanUsahaPage() {
             <span className="text-xs text-[#5B403D] mt-1 block">
               Bahan & operasional
             </span>
-          </div>
+          </MotionCard>
 
-          <div className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.2} hoverEffect="lift" className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase text-[#5B403D] block mb-1">
               Surplus / Laba Bersih Sementara
             </span>
             <div
               className={`text-2xl sm:text-3xl font-extrabold ${
-                netEstimated >= 0 ? 'text-[#732662]' : 'text-[#BA1A1A]'
+                netEstimated >= 0 ? 'text-[#A24F9D]' : 'text-[#BA1A1A]'
               }`}
             >
               Rp {netEstimated.toLocaleString('id-ID')}
@@ -107,7 +111,7 @@ export default function LaporanUsahaPage() {
             <span className="text-xs text-[#15803D] font-bold mt-1 block">
               Margin bersih ~{totalOmzet > 0 ? Math.round((netEstimated / totalOmzet) * 100) : 0}%
             </span>
-          </div>
+          </MotionCard>
         </div>
 
         {/* Detailed Breakdown */}
@@ -118,7 +122,7 @@ export default function LaporanUsahaPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm">
             <div className="space-y-3">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-[#732662]">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-[#A24F9D]">
                 Ringkasan Transaksi Penjualan
               </h4>
               <div className="p-4 rounded-xl bg-[#FAF7F2] space-y-2 text-[#0B1C30]">
