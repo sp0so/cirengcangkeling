@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import AppShell from '../../components/AppShell';
+import WordRevealHeading from '../../components/WordRevealHeading';
+import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
 import { RawMaterial } from '../../lib/types';
 import {
@@ -227,9 +229,11 @@ export default function StokBahanBakuOwnerPage() {
                 Pembaruan: Hari ini 09:42 WIB
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Manajemen &amp; Monitoring Stok Bahan Baku
-            </h1>
+            <WordRevealHeading
+              text="Stok Bahan Baku"
+              as="h1"
+              className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
+            />
             <p className="text-[13px] text-[#5B403D] mt-0.5">
               Kelola ketersediaan tepung tapioka, cabai rawit, bumbu rempah Sunda, dan minyak goreng.
             </p>
@@ -277,7 +281,7 @@ export default function StokBahanBakuOwnerPage() {
            ========================================================================= */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {/* Card 1: Total Bahan */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.05} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5B403D] block">
               TOTAL BAHAN BAKU
             </span>
@@ -290,10 +294,10 @@ export default function StokBahanBakuOwnerPage() {
             <span className="text-[11px] text-[#16A34A] font-medium block mt-1">
               ✓ Semua terdaftar di resep
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 2: Status Kritis */}
-          <div className="p-4 rounded-2xl bg-[#FFDAD6]/50 border border-[#BA1A1A]/30 shadow-card">
+          <MotionCard delay={0.1} hoverEffect="lift" className="p-4 rounded-2xl bg-[#FFDAD6]/50 border border-[#BA1A1A]/30 shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#93000A] block">
               STATUS KRITIS
             </span>
@@ -306,10 +310,10 @@ export default function StokBahanBakuOwnerPage() {
             <span className="text-[11px] text-[#BA1A1A] font-bold block mt-1">
               ⚠ Cadangan di bawah 3 hari
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 3: Status Menipis */}
-          <div className="p-4 rounded-2xl bg-[#FEF3C7]/50 border border-[#F59E0B]/30 shadow-card">
+          <MotionCard delay={0.15} hoverEffect="lift" className="p-4 rounded-2xl bg-[#FEF3C7]/50 border border-[#F59E0B]/30 shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#92400E] block">
               STATUS MENIPIS
             </span>
@@ -322,10 +326,10 @@ export default function StokBahanBakuOwnerPage() {
             <span className="text-[11px] text-[#D97706] font-medium block mt-1">
               Perlu order dalam 5 hari
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 4: Status Aman */}
-          <div className="p-4 rounded-2xl bg-[#DCFCE7]/50 border border-[#16A34A]/30 shadow-card">
+          <MotionCard delay={0.2} hoverEffect="lift" className="p-4 rounded-2xl bg-[#DCFCE7]/50 border border-[#16A34A]/30 shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#15803D] block">
               STATUS AMAN
             </span>
@@ -338,7 +342,7 @@ export default function StokBahanBakuOwnerPage() {
             <span className="text-[11px] text-[#16A34A] font-medium block mt-1">
               Stok siap pakai melimpah
             </span>
-          </div>
+          </MotionCard>
         </div>
 
         {/* =========================================================================

@@ -147,7 +147,7 @@ export default function UserManagementOwnerPage() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Halo, Astriana! Owner &amp; Pengelola
+              Manajemen Pengguna
             </h1>
             <p className="text-[13px] text-[#5B403D] mt-0.5">
               Kelola akun staf kasir gerai, tim dapur produksi, dan kredensial PIN keamanan sistem POS.

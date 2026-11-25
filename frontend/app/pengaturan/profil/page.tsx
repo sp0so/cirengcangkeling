@@ -54,7 +54,7 @@ export default function ProfilUsahaOwnerPage() {
               <span className="font-bold text-[#0B1C30]">Profil Usaha</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Profil Usaha &amp; Identitas Bisnis
+              Profil Usaha
             </h1>
             <p className="text-[13px] text-[#5B403D] mt-0.5">
               Informasi pokok entitas UMKM, perizinan OSS, sertifikasi halal, dan saluran komunikasi pelanggan.
@@ -76,13 +76,13 @@ export default function ProfilUsahaOwnerPage() {
             2. BRAND IDENTITY CARD PREVIEW (Figma 6:6660)
            ========================================================================= */}
         <div className="bg-gradient-to-r from-[#5B3765] via-[#A24F9D] to-[#5B3765] text-white rounded-2xl p-6 shadow-card flex flex-col md:flex-row items-center gap-6">
-          <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 relative shadow-md border-2 border-white/30">
+          <div className="w-20 h-20 shrink-0 relative drop-shadow-md">
             <Image
-              src="/logo-sidebar.png"
+              src="/logo-brand.png"
               alt="Logo Cireng Cangkeling"
               fill
               sizes="80px"
-              className="object-cover rounded-2xl"
+              className="object-contain"
               priority
             />
           </div>

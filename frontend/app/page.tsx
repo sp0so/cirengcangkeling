@@ -3,22 +3,25 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import WordRevealHeading from './components/WordRevealHeading';
+import MotionCard from './components/MotionCard';
+import PageTransition from './components/PageTransition';
 
 export default function HomePelanggan() {
   return (
-    <div className="min-h-screen bg-[#F8F9FF] text-[#0B1C30] flex flex-col font-sans selection:bg-[#A24F9D] selection:text-white">
+    <PageTransition className="min-h-screen bg-[#F8F9FF] text-[#0B1C30] selection:bg-[#A24F9D] selection:text-white">
       {/* 1. HEADER (Node 82:1197) */}
       <header className="sticky top-0 z-40 bg-[#A24F9D] border-b border-[#5B3765] shadow-md transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between gap-4">
-          {/* Logo & Brand Identity (Node 82:1200) */}
+          {/* Logo & Brand Identity (Node 82:1200 / Node 111:3) */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-[41px] h-[40px] rounded-[11px] overflow-hidden shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200">
+            <div className="relative w-10 h-10 shrink-0 drop-shadow-xs group-hover:scale-105 transition-transform duration-200">
               <Image
-                src="/logo-cireng-figma.png"
+                src="/logo-brand.png"
                 alt="Logo Cireng Cangkeling"
                 fill
-                sizes="41px"
-                className="object-cover rounded-[11px]"
+                sizes="40px"
+                className="object-contain"
                 priority
               />
             </div>
@@ -108,15 +111,20 @@ export default function HomePelanggan() {
               </span>
             </div>
 
-            {/* Heading 1 (Node 82:1031) */}
-            <h1 className="tracking-[-1.1px] leading-[1.1] mb-4">
-              <span className="block font-black text-white text-3xl sm:text-4xl lg:text-[44px]">
-                NIKMATNYA
-              </span>
-              <span className="block font-black text-[#FCD34D] text-3xl sm:text-4xl lg:text-[44px] drop-shadow-sm">
-                CIRENG CANGKELING!
-              </span>
-            </h1>
+            {/* Heading 1 (Node 82:1031) - Animated Word-by-Word with GSAP */}
+            <div className="mb-4">
+              <WordRevealHeading
+                text="NIKMATNYA"
+                as="h1"
+                className="font-black text-white text-3xl sm:text-4xl lg:text-[44px] tracking-[-1.1px] leading-[1.1]"
+              />
+              <WordRevealHeading
+                text="CIRENG CANGKELING!"
+                as="div"
+                delay={0.15}
+                className="font-black text-[#FCD34D] text-3xl sm:text-4xl lg:text-[44px] tracking-[-1.1px] leading-[1.1] drop-shadow-sm"
+              />
+            </div>
 
             {/* Description (Node 82:1036) */}
             <p className="text-[#FEE2E2] text-sm sm:text-base leading-[26px] max-w-xl mb-6 font-normal">
@@ -190,7 +198,12 @@ export default function HomePelanggan() {
 
           {/* Right Column (Span 5) - Signature Dish Card (Node 82:1003) */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <div className="w-full max-w-[477px] aspect-square rounded-[16px] border-4 border-white/20 bg-black/40 overflow-hidden shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] relative group">
+            <MotionCard
+              delay={0.2}
+              hoverY={-8}
+              hoverScaleValue={1.025}
+              className="w-full max-w-[477px] aspect-square rounded-[16px] border-4 border-white/20 bg-black/40 overflow-hidden shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] relative group cursor-pointer"
+            >
               {/* Dish Photo */}
               <Image
                 src="/hero-cireng.png"
@@ -213,7 +226,7 @@ export default function HomePelanggan() {
                   Disajikan hangat dengan kuah rujak yang otentik.
                 </p>
               </div>
-            </div>
+            </MotionCard>
           </div>
         </div>
       </section>
@@ -223,7 +236,12 @@ export default function HomePelanggan() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           {/* Left Column (Span 5) - About Photo Card (Node 82:1065) */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="w-full max-w-[477px] h-[320px] sm:h-[358px] rounded-[16px] border-2 border-[rgba(127,29,29,0.2)] bg-[#E6EEFF] overflow-hidden shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)] relative group">
+            <MotionCard
+              delay={0.1}
+              hoverY={-6}
+              hoverScaleValue={1.02}
+              className="w-full max-w-[477px] h-[320px] sm:h-[358px] rounded-[16px] border-2 border-[rgba(127,29,29,0.2)] bg-[#E6EEFF] overflow-hidden shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)] relative group cursor-pointer"
+            >
               <Image
                 src="/about-cireng.png"
                 alt="Tentang Cireng Cangkeling"
@@ -231,7 +249,7 @@ export default function HomePelanggan() {
                 sizes="(max-width: 768px) 100vw, 477px"
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
-            </div>
+            </MotionCard>
           </div>
 
           {/* Right Column (Span 7) - About Details & Value Grid (Node 82:1078) */}
@@ -251,20 +269,27 @@ export default function HomePelanggan() {
               </span>
             </div>
 
-            {/* Heading 2 (Node 82:1082) */}
-            <h2 className="font-black text-[#5B3765] text-2xl sm:text-3xl lg:text-[32px] tracking-[-0.32px] mb-4">
-              Tentang Cireng Cangkeling
-            </h2>
+            {/* Heading 2 (Node 82:1082) - Animated Word-by-Word with GSAP */}
+            <WordRevealHeading
+              text="Tentang Cireng Cangkeling"
+              as="h2"
+              className="font-black text-[#5B3765] text-2xl sm:text-3xl lg:text-[32px] tracking-[-0.32px] mb-4"
+            />
 
             {/* Story Paragraph (Node 82:1084) */}
             <p className="text-[#44403C] text-sm sm:text-base leading-[26px] mb-8 max-w-2xl font-normal">
               Cireng Cangkeling menghadirkan kelezatan camilan khas Nusantara yang diracik khusus untuk memanjakan lidah para pecinta gorengan renyah. Dengan karakteristik unik tekstur renyah di luar dan kenyal lembut di dalam, setiap gigitan diperkaya bumbu rempah pilihan gurih, dan pedas menggigit. Tersedia dalam sajian siap santap hangat dari dapur kami maupun kemasan frozen higienis kedap udara yang aman dikirim ke berbagai kota di Indonesia.
             </p>
 
-            {/* 3 Value Cards Grid (Node 82:1086) */}
+            {/* 3 Value Cards Grid (Node 82:1086) - Animated with Motion */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
               {/* Card 1: Olahan Alami (Node 82:1087) */}
-              <div className="bg-white border border-[rgba(127,29,29,0.15)] rounded-[8px] p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col">
+              <MotionCard
+                delay={0.1}
+                hoverY={-6}
+                hoverScaleValue={1.03}
+                className="bg-white border border-[rgba(127,29,29,0.15)] rounded-[8px] p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col cursor-default"
+              >
                 <div className="bg-[#A24F9D] rounded-[4px] w-10 h-10 flex items-center justify-center mb-3 shrink-0">
                   <div className="relative w-[16px] h-[16px]">
                     <Image
@@ -281,10 +306,15 @@ export default function HomePelanggan() {
                 <p className="text-[#57534E] text-xs leading-[18px]">
                   Bebas bahan pengawet sintetik, memakai bahan baku tapioka bermutu tinggi.
                 </p>
-              </div>
+              </MotionCard>
 
               {/* Card 2: Bumbu Rujak Legit (Node 82:1097) */}
-              <div className="bg-white border border-[rgba(127,29,29,0.15)] rounded-[8px] p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col">
+              <MotionCard
+                delay={0.18}
+                hoverY={-6}
+                hoverScaleValue={1.03}
+                className="bg-white border border-[rgba(127,29,29,0.15)] rounded-[8px] p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col cursor-default"
+              >
                 <div className="bg-[#904D00] rounded-[4px] w-10 h-10 flex items-center justify-center mb-3 shrink-0">
                   <div className="relative w-[17px] h-[18px]">
                     <Image
@@ -301,10 +331,15 @@ export default function HomePelanggan() {
                 <p className="text-[#57534E] text-xs leading-[18px]">
                   Diracik dari gula aren asli pilihan serta sambal Bangkok pedas manis istimewa.
                 </p>
-              </div>
+              </MotionCard>
 
               {/* Card 3: Kemasan Vakum (Node 82:1107) */}
-              <div className="bg-white border border-[rgba(127,29,29,0.15)] rounded-[8px] p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col">
+              <MotionCard
+                delay={0.26}
+                hoverY={-6}
+                hoverScaleValue={1.03}
+                className="bg-white border border-[rgba(127,29,29,0.15)] rounded-[8px] p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col cursor-default"
+              >
                 <div className="bg-[#A24F9D] rounded-[4px] w-10 h-10 flex items-center justify-center mb-3 shrink-0">
                   <div className="relative w-[18px] h-[18px]">
                     <Image
@@ -321,7 +356,7 @@ export default function HomePelanggan() {
                 <p className="text-[#57534E] text-xs leading-[18px]">
                   Segel kedap udara higienis, menjaga cita rasa segar tahan kirim antar kota.
                 </p>
-              </div>
+              </MotionCard>
             </div>
           </div>
         </div>
@@ -552,6 +587,6 @@ export default function HomePelanggan() {
           </div>
         </div>
       </footer>
-    </div>
+    </PageTransition>
   );
 }

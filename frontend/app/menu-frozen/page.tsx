@@ -3,6 +3,19 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion } from 'motion/react';
+import PageTransition from '../components/PageTransition';
+import WordRevealHeading from '../components/WordRevealHeading';
+import MotionCard from '../components/MotionCard';
+import {
+  IconFlame,
+  IconShield,
+  IconPackage,
+  IconSnowflake,
+  IconLeaf,
+  IconCheck,
+  IconWhatsApp,
+} from '../components/Icons';
 
 export default function MenuFrozenPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'tanpa-isi' | 'isi' | 'menu-lain'>('all');
@@ -102,7 +115,7 @@ export default function MenuFrozenPage() {
           desc: 'Potongan cumi kenyal dimasak oseng cabai rawit merah pedas nendang dan daun jeruk.',
           portion: 'Pack Isi 5 pcs Jumbo',
           price: 21000,
-          badge: 'SUPER PEDAS 🔥',
+          badge: 'SUPER PEDAS',
           storage: 'Tahan 3 Bulan Freezer',
         },
         {
@@ -210,180 +223,178 @@ export default function MenuFrozenPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF7ED] text-[#0B1C30] flex flex-col font-sans selection:bg-[#A24F9D] selection:text-white">
-      {/* 1. BRAND HEADER (Node 82:1835) */}
-      <header className="sticky top-0 z-40 bg-[#A24F9D] border-b border-[#5B3765] shadow-md transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-[41px] h-[40px] rounded-[11px] overflow-hidden shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200">
-              <Image
-                src="/logo-cireng-figma.png"
-                alt="Logo Cireng Cangkeling"
-                fill
-                sizes="41px"
-                className="object-cover rounded-[11px]"
-                priority
-              />
-            </div>
-            <div>
-              <span className="font-semibold text-lg sm:text-[18px] text-white tracking-[-0.45px] block leading-tight font-brand">
-                Cireng Cangkeling
-              </span>
-              <span className="text-[10px] font-black text-[#FCD34D] tracking-[1px] block uppercase mt-0.5">
-                PELOPOR CIRENG RENYAH GURIH
-              </span>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-2">
-            <nav className="bg-black/20 border border-white/10 rounded-[4px] p-1 flex items-center gap-1">
-              <Link
-                href="/"
-                className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
-              >
-                Home
-              </Link>
-              <Link
-                href="/menu-siap-makan"
-                className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
-              >
-                Menu Siap Makan
-              </Link>
-              <Link
-                href="/menu-frozen"
-                className="bg-white text-[#7F1D1D] font-bold text-sm px-4 py-2 rounded-[2px] shadow-xs transition"
-              >
-                Menu Frozen
-              </Link>
-              <Link
-                href="/pesan"
-                className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
-              >
-                Cara Pesan
-              </Link>
-            </nav>
-            <Link
-              href="/login"
-              className="hidden md:inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-3 py-2 rounded-[4px] font-semibold text-xs transition"
-              title="Portal Staf & Kasir"
-            >
-              <span>Portal Login</span>
-              <span className="text-xs">→</span>
+    <PageTransition>
+      <div className="min-h-screen bg-[#FFF7ED] text-[#0B1C30] flex flex-col font-sans selection:bg-[#A24F9D] selection:text-white">
+        {/* 1. BRAND HEADER (Node 82:1835) */}
+        <header className="sticky top-0 z-40 bg-[#A24F9D] border-b border-[#5B3765] shadow-md transition-all">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between gap-4">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative w-10 h-10 shrink-0 drop-shadow-xs group-hover:scale-105 transition-transform duration-200">
+                <Image
+                  src="/logo-brand.png"
+                  alt="Logo Cireng Cangkeling"
+                  fill
+                  sizes="40px"
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              <div>
+                <span className="font-semibold text-lg sm:text-[18px] text-white tracking-[-0.45px] block leading-tight font-brand">
+                  Cireng Cangkeling
+                </span>
+                <span className="text-[10px] font-black text-[#FCD34D] tracking-[1px] block uppercase mt-0.5">
+                  PELOPOR CIRENG RENYAH GURIH
+                </span>
+              </div>
             </Link>
-          </div>
-        </div>
-      </header>
 
-      {/* 2. HERO SECTION - FROZEN (Node 82:1865) */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#5B3765] via-[#6B3767] to-[#5B3765] text-white py-14 sm:py-20 px-4 sm:px-8 lg:px-12 shadow-2xl">
-        {/* Glow Effects */}
-        <div className="absolute -top-24 right-0 w-96 h-96 bg-[#A24F9D]/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-[#FE932C]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
-          {/* Left Column (Span 7) */}
-          <div className="lg:col-span-7 flex flex-col items-start">
-            <h1 className="tracking-[-1.1px] leading-[1.15] mb-4">
-              <span className="block font-black text-[#EAF1FF] text-3xl sm:text-4xl lg:text-[44px]">
-                MENU FROZEN
-              </span>
-              <span className="block font-black text-[#FCD34D] text-3xl sm:text-4xl lg:text-[44px] drop-shadow-sm">
-                CIRENG CANGKELING
-              </span>
-            </h1>
-
-            <p className="text-[rgba(234,241,255,0.9)] text-sm sm:text-base leading-[26px] max-w-xl mb-6 font-normal">
-              Pilihan camilan frozen yang praktis untuk stok di rumah dan dinikmati kapan saja. Kemasan vakum kedap udara, higienis & tahan kirim ke berbagai kota!
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 mb-8">
-              <a
-                href="#katalog-frozen"
-                className="bg-[#FE932C] hover:bg-[#E8801C] text-[#2F1500] font-black text-xs px-5 py-3 rounded shadow-md transition active:scale-95 inline-flex items-center gap-2 uppercase tracking-wide"
+            <div className="flex items-center gap-2">
+              <nav className="bg-black/20 border border-white/10 rounded-[4px] p-1 flex items-center gap-1">
+                <Link
+                  href="/"
+                  className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/menu-siap-makan"
+                  className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
+                >
+                  Menu Siap Makan
+                </Link>
+                <Link
+                  href="/menu-frozen"
+                  className="bg-white text-[#7F1D1D] font-bold text-sm px-4 py-2 rounded-[2px] shadow-xs transition"
+                >
+                  Menu Frozen
+                </Link>
+                <Link
+                  href="/pesan"
+                  className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
+                >
+                  Cara Pesan
+                </Link>
+              </nav>
+              <Link
+                href="/login"
+                className="hidden md:inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-3 py-2 rounded-[4px] font-semibold text-xs transition"
+                title="Portal Staf & Kasir"
               >
-                <span>Lihat Daftar Harga Resmi</span>
-                <span>↓</span>
-              </a>
-              <div className="bg-[#9E6899] text-[#EAF1FF] font-bold text-xs px-4 py-3 rounded inline-flex items-center gap-2">
-                <span>🛡️</span>
-                <span>100% Halal & Higienis</span>
-              </div>
+                <span>Portal Login</span>
+                <span className="text-xs">→</span>
+              </Link>
             </div>
           </div>
+        </header>
 
-          {/* Right Column (Span 5) - Visual Card */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <div className="w-full max-w-[477px] h-[320px] rounded-xl overflow-hidden shadow-2xl relative border-2 border-white/20 bg-[#5F030A]">
-              <Image
-                src="/hero-cireng.png"
-                alt="Paket Frozen Cireng Cangkeling"
-                fill
-                sizes="(max-width: 768px) 100vw, 477px"
-                className="object-cover"
-                priority
+        {/* 2. HERO SECTION - FROZEN (Node 82:1865) */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-[#5B3765] via-[#6B3767] to-[#5B3765] text-white py-14 sm:py-20 px-4 sm:px-8 lg:px-12 shadow-2xl">
+          {/* Glow Effects */}
+          <div className="absolute -top-24 right-0 w-96 h-96 bg-[#A24F9D]/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-[#FE932C]/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+            {/* Left Column (Span 7) */}
+            <div className="lg:col-span-7 flex flex-col items-start">
+              <WordRevealHeading
+                text="MENU FROZEN CIRENG CANGKELING"
+                as="h1"
+                className="tracking-[-1.1px] leading-[1.15] mb-4 font-black text-3xl sm:text-4xl lg:text-[44px] text-[#FCD34D]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#27313F]/90 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 bg-[#9E6899]/90 backdrop-blur-md rounded px-3 py-2 flex items-center justify-between">
-                <span className="text-[10px] font-black text-[#EAF1FF] uppercase tracking-wider flex items-center gap-1.5">
-                  <span>📦</span>
-                  <span>VAKUM TAHAN KIRIM ANTAR KOTA</span>
-                </span>
-                <span className="bg-[#6F4771] text-[#FFDCC3] text-[10px] font-bold px-2 py-0.5 rounded">
-                  Ready Stock
-                </span>
+
+              <p className="text-[rgba(234,241,255,0.9)] text-sm sm:text-base leading-[26px] max-w-xl mb-6 font-normal">
+                Pilihan camilan frozen yang praktis untuk stok di rumah dan dinikmati kapan saja. Kemasan vakum kedap udara, higienis & tahan kirim ke berbagai kota!
+              </p>
+
+              <div className="flex flex-wrap items-center gap-3 mb-8">
+                <a
+                  href="#katalog-frozen"
+                  className="bg-[#FE932C] hover:bg-[#E8801C] text-[#2F1500] font-black text-xs px-5 py-3 rounded shadow-md transition active:scale-95 inline-flex items-center gap-2 uppercase tracking-wide"
+                >
+                  <span>Lihat Daftar Harga Resmi</span>
+                  <span>↓</span>
+                </a>
+                <div className="bg-[#9E6899] text-[#EAF1FF] font-bold text-xs px-4 py-3 rounded inline-flex items-center gap-2">
+                  <IconShield size={16} className="text-[#EAF1FF]" />
+                  <span>100% Halal & Higienis</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column (Span 5) - Visual Card */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+              <div className="w-full max-w-[477px] h-[320px] rounded-xl overflow-hidden shadow-2xl relative border-2 border-white/20 bg-[#5F030A]">
+                <Image
+                  src="/hero-cireng.png"
+                  alt="Paket Frozen Cireng Cangkeling"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 477px"
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#27313F]/90 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 bg-[#9E6899]/90 backdrop-blur-md rounded px-3 py-2 flex items-center justify-between">
+                  <span className="text-[10px] font-black text-[#EAF1FF] uppercase tracking-wider flex items-center gap-1.5">
+                    <IconPackage size={14} className="text-[#EAF1FF]" />
+                    <span>VAKUM TAHAN KIRIM ANTAR KOTA</span>
+                  </span>
+                  <span className="bg-[#6F4771] text-[#FFDCC3] text-[10px] font-bold px-2 py-0.5 rounded">
+                    Ready Stock
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* 3 Value Cards (Node 82:1904) */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 pt-10 border-t border-white/15 mt-8">
-          {/* Card 1 */}
-          <div className="bg-[#9E6899]/70 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-sm flex items-start gap-3.5">
-            <div className="w-11 h-11 rounded-lg bg-[#5B3765] text-white flex items-center justify-center text-xl shrink-0">
-              📦
-            </div>
-            <div>
-              <h3 className="font-semibold text-white text-sm sm:text-base leading-snug">
-                Kemasan Vakum Kedap Udara
-              </h3>
-              <p className="text-xs text-[rgba(234,241,255,0.8)] leading-relaxed mt-1">
-                Dipress dengan mesin vakum berstandar food grade untuk menjaga cita rasa dan tekstur kenyal.
-              </p>
-            </div>
-          </div>
+          {/* 3 Value Cards (Node 82:1904) */}
+          <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 pt-10 border-t border-white/15 mt-8">
+            {/* Card 1 */}
+            <MotionCard delay={0.05} hoverEffect="glow" className="bg-[#9E6899]/70 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-sm flex items-start gap-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#5B3765] text-white flex items-center justify-center shrink-0">
+                <IconPackage size={22} className="text-[#FCD34D]" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white text-sm sm:text-base leading-snug">
+                  Kemasan Vakum Kedap Udara
+                </h3>
+                <p className="text-xs text-[rgba(234,241,255,0.8)] leading-relaxed mt-1">
+                  Dipress dengan mesin vakum berstandar food grade untuk menjaga cita rasa dan tekstur kenyal.
+                </p>
+              </div>
+            </MotionCard>
 
-          {/* Card 2 */}
-          <div className="bg-[#9E6899]/70 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-sm flex items-start gap-3.5">
-            <div className="w-11 h-11 rounded-lg bg-[#5B3765] text-white flex items-center justify-center text-xl shrink-0">
-              ❄️
-            </div>
-            <div>
-              <h3 className="font-semibold text-white text-sm sm:text-base leading-snug">
-                Tahan 3 Bulan di Freezer
-              </h3>
-              <p className="text-xs text-[rgba(234,241,255,0.8)] leading-relaxed mt-1">
-                Aman 4-5 hari suhu ruang selama pengiriman reguler, serta awet hingga 90 hari dalam freezer beku.
-              </p>
-            </div>
-          </div>
+            {/* Card 2 */}
+            <MotionCard delay={0.15} hoverEffect="glow" className="bg-[#9E6899]/70 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-sm flex items-start gap-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#5B3765] text-white flex items-center justify-center shrink-0">
+                <IconSnowflake size={22} className="text-[#FCD34D]" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white text-sm sm:text-base leading-snug">
+                  Tahan 3 Bulan di Freezer
+                </h3>
+                <p className="text-xs text-[rgba(234,241,255,0.8)] leading-relaxed mt-1">
+                  Aman 4-5 hari suhu ruang selama pengiriman reguler, serta awet hingga 90 hari dalam freezer beku.
+                </p>
+              </div>
+            </MotionCard>
 
-          {/* Card 3 */}
-          <div className="bg-[#9E6899]/70 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-sm flex items-start gap-3.5">
-            <div className="w-11 h-11 rounded-lg bg-[#5B3765] text-white flex items-center justify-center text-xl shrink-0">
-              🌱
-            </div>
-            <div>
-              <h3 className="font-semibold text-white text-sm sm:text-base leading-snug">
-                100% Bebas Pengawet Kimia
-              </h3>
-              <p className="text-xs text-[rgba(234,241,255,0.8)] leading-relaxed mt-1">
-                Diracik dari tapioka murni, rempah alami pilihan, dan daging segar tanpa zat pengawet sintetis.
-              </p>
-            </div>
+            {/* Card 3 */}
+            <MotionCard delay={0.25} hoverEffect="glow" className="bg-[#9E6899]/70 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-sm flex items-start gap-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#5B3765] text-white flex items-center justify-center shrink-0">
+                <IconLeaf size={22} className="text-[#FCD34D]" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white text-sm sm:text-base leading-snug">
+                  100% Bebas Pengawet Kimia
+                </h3>
+                <p className="text-xs text-[rgba(234,241,255,0.8)] leading-relaxed mt-1">
+                  Diracik dari tapioka murni, rempah alami pilihan, dan daging segar tanpa zat pengawet sintetis.
+                </p>
+              </div>
+            </MotionCard>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* 3. FILTER TABS & SEARCH */}
       <section id="katalog-frozen" className="sticky top-20 z-30 bg-[#FFF7ED]/95 backdrop-blur-md border-b border-[#CBD5E1]/70 shadow-xs py-3 px-4 sm:px-8 lg:px-12">
@@ -475,9 +486,12 @@ export default function MenuFrozenPage() {
             </div>
 
             <div className="bg-white rounded-lg shadow-sm border border-[#CBD5E1]/60 overflow-hidden divide-y divide-[#CBD5E1]/50">
-              {cat.items.map((item) => (
-                <div
+              {cat.items.map((item, idx) => (
+                <motion.div
                   key={item.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.3) }}
                   className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#FFFDF9] transition-colors"
                 >
                   <div className="flex-1 max-w-2xl">
@@ -488,17 +502,24 @@ export default function MenuFrozenPage() {
                       <span className="bg-[#E0F2FE] text-[#0369A1] text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider">
                         {item.badge}
                       </span>
-                      <span className="text-[11px] text-[#059669] font-semibold bg-[#ECFDF5] px-2 py-0.5 rounded">
-                        ✓ {item.portion}
+                      <span className="text-[11px] text-[#059669] font-semibold bg-[#ECFDF5] px-2 py-0.5 rounded inline-flex items-center gap-1">
+                        <IconCheck size={12} className="text-[#059669]" />
+                        <span>{item.portion}</span>
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-2 font-normal">
                       {item.desc}
                     </p>
                     <div className="flex items-center gap-3 text-xs text-[#64748B]">
-                      <span>❄️ {item.storage}</span>
+                      <span className="inline-flex items-center gap-1">
+                        <IconSnowflake size={13} className="text-[#0284C7]" />
+                        <span>{item.storage}</span>
+                      </span>
                       <span>•</span>
-                      <span>📦 Segel Kedap Udara Vakum</span>
+                      <span className="inline-flex items-center gap-1">
+                        <IconPackage size={13} className="text-[#0284C7]" />
+                        <span>Segel Kedap Udara Vakum</span>
+                      </span>
                     </div>
                   </div>
 
@@ -517,9 +538,7 @@ export default function MenuFrozenPage() {
                         onClick={() => handleOrderWhatsapp(item.name, item.price)}
                         className="bg-[#25D366] hover:bg-[#1EBE5D] text-white px-3.5 py-2 rounded text-xs font-bold shadow-xs hover:shadow transition flex items-center gap-1.5 active:scale-95"
                       >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.276-.1-.477-.15-.678.15-.2.302-.779.98-.955 1.18-.176.2-.352.226-.653.076-.301-.15-1.272-.469-2.423-1.496-.895-.798-1.5-1.784-1.676-2.085-.176-.301-.019-.464.132-.614.135-.134.301-.351.452-.527.15-.176.201-.301.301-.502.1-.2.05-.376-.025-.526-.075-.15-.678-1.632-.93-2.235-.245-.588-.495-.508-.679-.517l-.578-.01c-.2 0-.526.075-.802.376-.276.301-1.053 1.029-1.053 2.509 0 1.48 1.079 2.909 1.229 3.11.15.2 2.122 3.24 5.141 4.544.718.31 1.279.496 1.716.635.722.23 1.378.197 1.9.12.581-.088 1.78-.727 2.031-1.43.251-.703.251-1.305.176-1.43-.075-.125-.276-.201-.577-.351z"/>
-                        </svg>
+                        <IconWhatsApp size={14} className="text-white" />
                         <span>Order WA</span>
                       </button>
 
@@ -531,7 +550,7 @@ export default function MenuFrozenPage() {
                       </Link>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </section>
@@ -552,7 +571,7 @@ export default function MenuFrozenPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-[#FFF7ED] rounded-xl p-5 border border-[#FFEDD5] flex flex-col items-center text-center">
+            <MotionCard delay={0.05} hoverEffect="lift" className="bg-[#FFF7ED] rounded-xl p-5 border border-[#FFEDD5] flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-[#FE932C] text-white font-black text-sm flex items-center justify-center mb-3">
                 1
               </div>
@@ -560,9 +579,9 @@ export default function MenuFrozenPage() {
               <p className="text-xs text-[#64748B] leading-relaxed">
                 Keluarkan cireng dari freezer dan diamkan 10–15 menit hingga tidak beku keras.
               </p>
-            </div>
+            </MotionCard>
 
-            <div className="bg-[#FFF7ED] rounded-xl p-5 border border-[#FFEDD5] flex flex-col items-center text-center">
+            <MotionCard delay={0.12} hoverEffect="lift" className="bg-[#FFF7ED] rounded-xl p-5 border border-[#FFEDD5] flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-[#FE932C] text-white font-black text-sm flex items-center justify-center mb-3">
                 2
               </div>
@@ -570,9 +589,9 @@ export default function MenuFrozenPage() {
               <p className="text-xs text-[#64748B] leading-relaxed">
                 Panaskan minyak goreng dalam jumlah cukup dengan api sedang (jangan terlalu panas).
               </p>
-            </div>
+            </MotionCard>
 
-            <div className="bg-[#FFF7ED] rounded-xl p-5 border border-[#FFEDD5] flex flex-col items-center text-center">
+            <MotionCard delay={0.19} hoverEffect="lift" className="bg-[#FFF7ED] rounded-xl p-5 border border-[#FFEDD5] flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-[#FE932C] text-white font-black text-sm flex items-center justify-center mb-3">
                 3
               </div>
@@ -580,9 +599,9 @@ export default function MenuFrozenPage() {
               <p className="text-xs text-[#64748B] leading-relaxed">
                 Masukkan cireng, bolak-balik perlahan hingga kulit luar mekar dan renyah keemasan.
               </p>
-            </div>
+            </MotionCard>
 
-            <div className="bg-[#FFF7ED] rounded-xl p-5 border border-[#FFEDD5] flex flex-col items-center text-center">
+            <MotionCard delay={0.26} hoverEffect="lift" className="bg-[#FFF7ED] rounded-xl p-5 border border-[#FFEDD5] flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-[#FE932C] text-white font-black text-sm flex items-center justify-center mb-3">
                 4
               </div>
@@ -590,7 +609,7 @@ export default function MenuFrozenPage() {
               <p className="text-xs text-[#64748B] leading-relaxed">
                 Angkat, tiriskan minyak, dan nikmati hangat bersama bumbu rujak legit Cireng Cangkeling!
               </p>
-            </div>
+            </MotionCard>
           </div>
         </section>
       </main>
@@ -798,5 +817,6 @@ export default function MenuFrozenPage() {
         </div>
       </footer>
     </div>
+    </PageTransition>
   );
 }

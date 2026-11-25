@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import AppShell from '../../components/AppShell';
+import WordRevealHeading from '../../components/WordRevealHeading';
+import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
 import { Expense } from '../../lib/types';
 import {
@@ -97,9 +99,11 @@ export default function PengeluaranUsahaOwnerPage() {
               <span>/</span>
               <span className="font-bold text-[#0B1C30]">Keuangan &amp; Pengeluaran</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Pengeluaran Usaha &amp; Catatan Belanja Operasional
-            </h1>
+            <WordRevealHeading
+              text="Pengeluaran Usaha"
+              as="h1"
+              className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
+            />
             <p className="text-[13px] text-[#5B403D] mt-0.5">
               Pencatatan pos pengeluaran kas kecil gerai, belanja bahan baku di pasar, token listrik, dan gaji karyawan.
             </p>
@@ -124,7 +128,7 @@ export default function PengeluaranUsahaOwnerPage() {
            ========================================================================= */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {/* Card 1: Total Pengeluaran */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.05} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#93000A] block">
               TOTAL PENGELUARAN BULAN INI
             </span>
@@ -136,10 +140,10 @@ export default function PengeluaranUsahaOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               {allExpenses.length} Pos Pembayaran Terdata
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 2: Bahan Baku COGS */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.1} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#833E17] block">
               BELANJA BAHAN BAKU (COGS)
             </span>
@@ -151,10 +155,10 @@ export default function PengeluaranUsahaOwnerPage() {
             <span className="text-[11px] text-[#16A34A] font-medium block mt-1">
               ~55% dari total belanja toko
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 3: Biaya Operasional OPEX */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.15} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1E40AF] block">
               BIAYA OPERASIONAL (OPEX)
             </span>
@@ -166,10 +170,10 @@ export default function PengeluaranUsahaOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Listrik, Gas LPG &amp; Plastik Pouch
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 4: Tenaga Kerja / Gaji */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.2} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5B403D] block">
               BIAYA TENAGA KERJA / GAJI
             </span>
@@ -181,7 +185,7 @@ export default function PengeluaranUsahaOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               2 Staf Gerai Kasir &amp; Dapur
             </span>
-          </div>
+          </MotionCard>
         </div>
 
         {/* =========================================================================

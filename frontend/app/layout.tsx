@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
 import { AppProvider } from './lib/context';
+import SmoothScroll from './components/SmoothScroll';
 
 export const metadata: Metadata = {
   title: 'Cireng Cangkeling — Sistem Informasi Manajemen & POS',
   description: 'Aplikasi Manajemen Operasional, Kasir POS, dan Inventaris Cireng Cangkeling',
   icons: {
-    icon: '/logo-cireng-figma.png',
+    icon: '/logo-brand.png',
   },
 };
 
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-full flex flex-col font-sans bg-[#FFF7ED] text-[#0B1C30]">
         <AppProvider>
-          {children}
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
         </AppProvider>
       </body>
     </html>
