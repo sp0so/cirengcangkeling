@@ -156,7 +156,7 @@ export default function LaporanUsahaOwnerPage() {
           <div className="flex flex-wrap items-center gap-2.5">
             <select
               value={period}
-              onChange={(e) => setPeriod(e.target.value as any)}
+              onChange={(e) => setPeriod(e.target.value as 'month' | '7days' | 'quarter')}
               className="px-3 py-2 rounded-xl border border-[#CBD5E1] text-[12px] font-bold text-[#0B1C30] bg-white cursor-pointer"
             >
               <option value="month">Periode Saat Ini</option>

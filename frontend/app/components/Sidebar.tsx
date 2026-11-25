@@ -261,7 +261,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose?
     },
   ];
 
-  const currentSections = currentUser.role === 'owner' ? ownerSections : kasirSections;
+  const currentSections = currentUser?.role === 'owner' ? ownerSections : kasirSections;
 
   return (
     <>
@@ -299,7 +299,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose?
                 Cireng Cangkeling
               </span>
               <span className="text-[10px] font-semibold text-white/70 tracking-wider uppercase font-sans">
-                {currentUser.role === 'owner' ? 'Owner Portal' : 'ROLE : KASIR'}
+                {currentUser?.role === 'owner' ? 'Owner Portal' : 'ROLE : KASIR'}
               </span>
             </div>
           </div>

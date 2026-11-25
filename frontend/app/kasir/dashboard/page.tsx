@@ -43,11 +43,11 @@ export default function DashboardKasirPage() {
                 PORTAL OPERASIONAL KASIR
               </span>
               <span className="bg-[#E5EEFF] text-[#0B1C30] text-[11px] font-bold px-2 py-0.5 rounded-full">
-                {currentUser.name}
+                {currentUser?.name}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight mt-1">
-              Selamat Bertugas, {currentUser.name}!
+              Selamat Bertugas, {currentUser?.name}!
             </h1>
             <p className="text-sm text-[#5B403D] mt-0.5">
               Kelola pencatatan penjualan POS kasir toko fisik dan pantau status laci kasir harian.

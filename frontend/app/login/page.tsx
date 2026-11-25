@@ -9,11 +9,11 @@ import { UserRole } from '../lib/types';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { switchRole, showToast } = useApp();
+  const { loginWithPassword, showToast } = useApp();
 
   const [selectedRole, setSelectedRole] = useState<UserRole>('owner');
-  const [username, setUsername] = useState('admin@cirengcangkeling.id');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -22,38 +22,38 @@ export default function LoginPage() {
   const handleRoleChange = (role: UserRole) => {
     setSelectedRole(role);
     setErrorMessage('');
-    if (role === 'owner') {
-      setUsername('admin@cirengcangkeling.id');
-      setPassword('admin123');
-    } else {
-      setUsername('kasir@cirengcangkeling.id');
-      setPassword('kasir123');
-    }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
     if (!username || !password) {
-      setErrorMessage('Silakan isi username dan kata sandi Anda.');
+      setErrorMessage('Silakan isi email dan kata sandi Anda.');
       return;
     }
 
     setLoading(true);
+    try {
+      const result = await loginWithPassword(username, password);
+      if (!result.success || !result.role) {
+        setErrorMessage(result.error || 'Email atau kata sandi salah.');
+        setLoading(false);
+        return;
+      }
 
-    setTimeout(() => {
-      setLoading(false);
-      switchRole(selectedRole);
-
-      if (selectedRole === 'owner') {
+      if (result.role === 'owner') {
         showToast('Login berhasil sebagai Owner!', 'success');
-        router.push('/dashboard');
+        router.replace('/dashboard');
       } else {
         showToast('Login berhasil sebagai Kasir!', 'success');
-        router.push('/kasir');
+        router.replace('/kasir/dashboard');
       }
-    }, 400);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Terjadi kesalahan saat memverifikasi akun.';
+      setErrorMessage(msg);
+      setLoading(false);
+    }
   };
 
   return (

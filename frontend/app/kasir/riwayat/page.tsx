@@ -20,7 +20,7 @@ export default function RiwayatTransaksiKasirPage() {
 
   // Kasir only sees transactions processed by themselves (Section 6.2.3 & 6.3)
   const myTransactions = transactions.filter(
-    (tx) => tx.cashierId === currentUser.id || tx.cashierName === currentUser.name
+    (tx) => tx.cashierId === currentUser?.id || tx.cashierName === currentUser?.name
   );
 
   const filtered = myTransactions.filter((tx) => {

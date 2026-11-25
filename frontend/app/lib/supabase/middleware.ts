@@ -1,6 +1,31 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/data-master",
+  "/operasional",
+  "/penjualan",
+  "/marketplace",
+  "/keuangan",
+  "/laporan",
+  "/pengaturan",
+  "/kasir",
+];
+
+const OWNER_ONLY_PREFIXES = [
+  "/dashboard",
+  "/data-master/bahan-baku",
+  "/data-master/supplier",
+  "/data-master/resep",
+  "/operasional",
+  "/penjualan",
+  "/marketplace",
+  "/keuangan",
+  "/laporan",
+  "/pengaturan",
+];
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -31,8 +56,34 @@ export async function updateSession(request: NextRequest) {
   });
 
   // IMPORTANT: Avoid writing code between createServerClient and supabase.auth.getUser()
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+  const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+
+  if (isProtected && !user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Server-side role enforcement: prevent Cashier from accessing Owner routes
+  if (user && OWNER_ONLY_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, is_active")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile || !profile.is_active || profile.role !== "owner") {
+      const kasirUrl = request.nextUrl.clone();
+      kasirUrl.pathname = "/kasir/dashboard";
+      return NextResponse.redirect(kasirUrl);
+    }
+  }
 
   return supabaseResponse;
 }
-

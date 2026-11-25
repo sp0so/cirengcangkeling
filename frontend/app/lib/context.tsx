@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import {
   User,
   UserRole,
@@ -19,17 +19,20 @@ import {
   ProcurementOrder,
 } from './types';
 import {
-  initialCategories,
-  initialProducts,
-  initialRawMaterials,
-  initialSuppliers,
-  initialRecipes,
-  initialTransactions,
-  initialExpenses,
-  initialStockMovements,
-  initialActiveShift,
-  initialMarketplaceReports,
-} from './mockData';
+  getClientSafe,
+  checkSupabaseConnection,
+  inventoryService,
+  financeService,
+  posService,
+  marketplaceService,
+  MarketplaceOrderRecord,
+} from './services';
+import {
+  calculateCartTotals,
+  calculatePaymentChange,
+  calculateExpectedShiftCash,
+  calculateShiftDifference,
+} from './calculations';
 
 interface ToastInfo {
   id: string;
@@ -38,18 +41,28 @@ interface ToastInfo {
 }
 
 interface AppContextType {
-  currentUser: User;
+  currentUser: User | null;
+  authenticatedRole: UserRole | null;
+  isAuthLoading: boolean;
+  loginWithPassword: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; role?: UserRole; error?: string }>;
+  logout: () => Promise<void>;
   switchRole: (role: UserRole) => void;
   
   // Shift management
   activeShift: Shift | null;
   shiftHistory: Shift[];
-  openShift: (startingCash: number, notes?: string) => boolean;
-  closeShift: (actualCash: number, notes?: string) => { difference: number; expected: number };
-  forceCloseShift: (reason: string) => void;
+  openShift: (startingCash: number, notes?: string) => Promise<boolean>;
+  closeShift: (actualCash: number, notes?: string) => Promise<{ difference: number; expected: number }>;
+  forceCloseShift: (reason: string) => Promise<void>;
   
   // Data Master & Operasional
   categories: Category[];
+  addCategory: (category: Omit<Category, 'id'>) => void;
+  updateCategory: (id: string, updates: Partial<Category>) => void;
+  deleteCategory: (id: string) => void;
   products: Product[];
   addProduct: (product: Omit<Product, 'id'>) => void;
   updateProduct: (id: string, updates: Partial<Product>) => void;
@@ -91,7 +104,12 @@ interface AppContextType {
   
   // Marketplace
   marketplaceReports: MarketplaceReport[];
-  importMarketplaceReport: (platform: 'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee', fileName: string, ordersCount?: number, totalRevenue?: number) => Promise<MarketplaceReport>;
+  importMarketplaceReport: (
+    platform: 'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee',
+    fileName: string,
+    fileSize: number,
+    parsedRecords: MarketplaceOrderRecord[]
+  ) => Promise<MarketplaceReport>;
   
   // Produksi & Pengadaan
   productionOrders: ProductionOrder[];
@@ -107,28 +125,16 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const defaultOwner: User = {
-  id: 'usr-admin',
-  name: 'Admin Owner Cireng',
-  email: 'admin@cirengcangkeling.id',
-  role: 'owner',
-  phone: '0812-3456-7890',
-};
-
-const defaultKasir: User = {
-  id: 'usr-kasir-004',
-  name: 'Rina Oktaviani',
-  email: 'rina.oktaviani@cirengcangkeling.com',
-  role: 'kasir',
-  phone: '0812-3456-7890',
-};
-
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<User>(defaultOwner);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authenticatedRole, setAuthenticatedRole] = useState<UserRole | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
+  const isCheckingOutRef = useRef<boolean>(false);
+
   const [activeShift, setActiveShift] = useState<Shift | null>(null);
   const [shiftHistory, setShiftHistory] = useState<Shift[]>([]);
   
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -143,49 +149,139 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>([]);
   const [procurementOrders, setProcurementOrders] = useState<ProcurementOrder[]>([]);
 
-  // LocalStorage hydration on mount
-  useEffect(() => {
+  // Shared helper to fetch live data from Supabase once authenticated
+  const syncDatabase = async () => {
     try {
-      const savedProducts = localStorage.getItem('cc_products');
-      if (savedProducts) setProducts(JSON.parse(savedProducts));
+      const isConnected = await checkSupabaseConnection();
+      if (isConnected) {
+        const [
+          dbCategories,
+          dbProducts,
+          dbMaterials,
+          dbExpenses,
+          dbShift,
+          dbShiftHistory,
+          dbTransactions,
+        ] = await Promise.all([
+          inventoryService.getCategories(),
+          inventoryService.getProducts(),
+          inventoryService.getRawMaterials(),
+          financeService.getExpenses(),
+          posService.getActiveSession(),
+          posService.getShiftHistory(),
+          posService.getTransactions(),
+        ]);
 
-      const savedMaterials = localStorage.getItem('cc_materials');
-      if (savedMaterials) setRawMaterials(JSON.parse(savedMaterials));
-
-      const savedSuppliers = localStorage.getItem('cc_suppliers');
-      if (savedSuppliers) setSuppliers(JSON.parse(savedSuppliers));
-
-      const savedRecipes = localStorage.getItem('cc_recipes');
-      if (savedRecipes) setRecipes(JSON.parse(savedRecipes));
-
-      const savedMovements = localStorage.getItem('cc_movements');
-      if (savedMovements) setStockMovements(JSON.parse(savedMovements));
-
-      const savedTransactions = localStorage.getItem('cc_transactions');
-      if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
-
-      const savedExpenses = localStorage.getItem('cc_expenses');
-      if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
-
-      const savedShift = localStorage.getItem('cc_active_shift');
-      if (savedShift) setActiveShift(JSON.parse(savedShift));
-
-      const savedShiftHistory = localStorage.getItem('cc_shift_history');
-      if (savedShiftHistory) setShiftHistory(JSON.parse(savedShiftHistory));
-
-      const savedProduction = localStorage.getItem('cc_production_orders');
-      if (savedProduction) setProductionOrders(JSON.parse(savedProduction));
-
-      const savedProcurement = localStorage.getItem('cc_procurement_orders');
-      if (savedProcurement) setProcurementOrders(JSON.parse(savedProcurement));
-    } catch {
-      // Ignore localStorage parse errors
+        if (dbCategories) setCategories(dbCategories);
+        if (dbProducts) setProducts(dbProducts);
+        if (dbMaterials) setRawMaterials(dbMaterials);
+        if (dbExpenses) setExpenses(dbExpenses);
+        if (dbShift) setActiveShift(dbShift);
+        if (dbShiftHistory) setShiftHistory(dbShiftHistory);
+        if (dbTransactions) setTransactions(dbTransactions);
+      }
+    } catch (err) {
+      console.warn('Background database synchronization notice:', err);
     }
+  };
+
+  // Auth verification & LocalStorage hydration on mount
+  useEffect(() => {
+    const initSessionAndData = async () => {
+      try {
+        const savedCategories = localStorage.getItem('cc_categories');
+        if (savedCategories) setCategories(JSON.parse(savedCategories));
+
+        const savedProducts = localStorage.getItem('cc_products');
+        if (savedProducts) setProducts(JSON.parse(savedProducts));
+
+        const savedMaterials = localStorage.getItem('cc_materials');
+        if (savedMaterials) setRawMaterials(JSON.parse(savedMaterials));
+
+        const savedSuppliers = localStorage.getItem('cc_suppliers');
+        if (savedSuppliers) setSuppliers(JSON.parse(savedSuppliers));
+
+        const savedRecipes = localStorage.getItem('cc_recipes');
+        if (savedRecipes) setRecipes(JSON.parse(savedRecipes));
+
+        const savedMovements = localStorage.getItem('cc_movements');
+        if (savedMovements) setStockMovements(JSON.parse(savedMovements));
+
+        const savedTransactions = localStorage.getItem('cc_transactions');
+        if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
+
+        const savedExpenses = localStorage.getItem('cc_expenses');
+        if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
+
+        const savedMarketplace = localStorage.getItem('cc_marketplace_reports');
+        if (savedMarketplace) setMarketplaceReports(JSON.parse(savedMarketplace));
+
+        const savedShift = localStorage.getItem('cc_active_shift');
+        if (savedShift) setActiveShift(JSON.parse(savedShift));
+
+        const savedShiftHistory = localStorage.getItem('cc_shift_history');
+        if (savedShiftHistory) setShiftHistory(JSON.parse(savedShiftHistory));
+
+        const savedProduction = localStorage.getItem('cc_production_orders');
+        if (savedProduction) setProductionOrders(JSON.parse(savedProduction));
+
+        const savedProcurement = localStorage.getItem('cc_procurement_orders');
+        if (savedProcurement) setProcurementOrders(JSON.parse(savedProcurement));
+      } catch {
+        // Ignore localStorage parse errors
+      }
+
+      const supabase = getClientSafe();
+      if (supabase) {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('id, email, full_name, role, phone, is_active')
+              .eq('id', user.id)
+              .single();
+
+            if (profile && profile.is_active) {
+              const verifiedRole: UserRole = profile.role === 'owner' ? 'owner' : 'kasir';
+              setCurrentUser({
+                id: profile.id,
+                name: profile.full_name,
+                email: profile.email,
+                role: verifiedRole,
+                phone: profile.phone || '',
+              });
+              setAuthenticatedRole(verifiedRole);
+              await syncDatabase();
+            }
+          }
+        } catch (err) {
+          console.warn('Auth session verification failed:', err);
+        }
+      } else {
+        // Local offline mode without Supabase credentials: require explicit login stored in sessionStorage
+        try {
+          const localSession = sessionStorage.getItem('cc_local_session');
+          if (localSession) {
+            const parsed: User = JSON.parse(localSession);
+            setCurrentUser(parsed);
+            setAuthenticatedRole(parsed.role);
+          }
+        } catch {
+          // Ignore session parse errors
+        }
+      }
+
+      setIsAuthLoading(false);
+    };
+
+    initSessionAndData();
   }, []);
 
   // Sync to localStorage
   useEffect(() => {
     try {
+      localStorage.setItem('cc_categories', JSON.stringify(categories));
       localStorage.setItem('cc_products', JSON.stringify(products));
       localStorage.setItem('cc_materials', JSON.stringify(rawMaterials));
       localStorage.setItem('cc_suppliers', JSON.stringify(suppliers));
@@ -193,6 +289,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cc_movements', JSON.stringify(stockMovements));
       localStorage.setItem('cc_transactions', JSON.stringify(transactions));
       localStorage.setItem('cc_expenses', JSON.stringify(expenses));
+      localStorage.setItem('cc_marketplace_reports', JSON.stringify(marketplaceReports));
       localStorage.setItem('cc_shift_history', JSON.stringify(shiftHistory));
       localStorage.setItem('cc_production_orders', JSON.stringify(productionOrders));
       localStorage.setItem('cc_procurement_orders', JSON.stringify(procurementOrders));
@@ -205,6 +302,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Ignore storage quota errors
     }
   }, [
+    categories,
     products,
     rawMaterials,
     suppliers,
@@ -212,6 +310,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     stockMovements,
     transactions,
     expenses,
+    marketplaceReports,
     shiftHistory,
     productionOrders,
     procurementOrders,
@@ -219,6 +318,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   ]);
 
   const clearAllData = () => {
+    setCategories([]);
     setProducts([]);
     setRawMaterials([]);
     setSuppliers([]);
@@ -226,6 +326,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setStockMovements([]);
     setTransactions([]);
     setExpenses([]);
+    setMarketplaceReports([]);
     setProductionOrders([]);
     setProcurementOrders([]);
     setActiveShift(null);
@@ -236,15 +337,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast('Seluruh data operasional berhasil dikosongkan.', 'info');
   };
 
-  const loadSampleData = () => {
-    setProducts(initialProducts);
-    setRawMaterials(initialRawMaterials);
-    setSuppliers(initialSuppliers);
-    setRecipes(initialRecipes);
-    setStockMovements(initialStockMovements);
-    setTransactions(initialTransactions);
-    setExpenses(initialExpenses);
-    setMarketplaceReports(initialMarketplaceReports);
+  const loadSampleData = async () => {
+    const mod = await import('./mockData');
+    setCategories(mod.initialCategories);
+    setProducts(mod.initialProducts);
+    setRawMaterials(mod.initialRawMaterials);
+    setSuppliers(mod.initialSuppliers);
+    setRecipes(mod.initialRecipes);
+    setStockMovements(mod.initialStockMovements);
+    setTransactions(mod.initialTransactions);
+    setExpenses(mod.initialExpenses);
+    setMarketplaceReports(mod.initialMarketplaceReports);
     showToast('Data percontohan (sample) berhasil dimuat.', 'success');
   };
 
@@ -262,29 +365,125 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const switchRole = (role: UserRole) => {
-    if (role === 'owner') {
-      setCurrentUser(defaultOwner);
-      showToast('Beralih ke mode Owner / Manajemen', 'info');
-    } else {
-      setCurrentUser(defaultKasir);
-      showToast('Beralih ke mode Kasir POS', 'info');
+  const loginWithPassword = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; role?: UserRole; error?: string }> => {
+    const supabase = getClientSafe();
+    if (supabase) {
+      const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (authErr || !authData.user) {
+        return {
+          success: false,
+          error: authErr?.message || 'Email atau kata sandi tidak valid.',
+        };
+      }
+
+      const { data: profile, error: profErr } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, role, phone, is_active')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profErr || !profile || !profile.is_active) {
+        await supabase.auth.signOut();
+        return {
+          success: false,
+          error: 'Profil pengguna tidak ditemukan atau akun sedang dinonaktifkan.',
+        };
+      }
+
+      const verifiedRole: UserRole = profile.role === 'owner' ? 'owner' : 'kasir';
+      const userObj: User = {
+        id: profile.id,
+        name: profile.full_name,
+        email: profile.email,
+        role: verifiedRole,
+        phone: profile.phone || '',
+      };
+
+      setCurrentUser(userObj);
+      setAuthenticatedRole(verifiedRole);
+      await syncDatabase();
+      return { success: true, role: verifiedRole };
     }
+
+    return {
+      success: false,
+      error: 'Konfigurasi Supabase belum tersedia. Periksa NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY.',
+    };
+  };
+
+  const logout = async () => {
+    const supabase = getClientSafe();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    try {
+      sessionStorage.removeItem('cc_local_session');
+    } catch {}
+    setCurrentUser(null);
+    setAuthenticatedRole(null);
+    setCart([]);
+    showToast('Berhasil keluar dari sistem.', 'info');
+  };
+
+  const switchRole = (role: UserRole) => {
+    if (authenticatedRole !== 'owner') {
+      showToast('Akses ditolak: hanya akun Owner yang dapat beralih mode tampilan.', 'error');
+      return;
+    }
+    setCurrentUser((prev) => (prev ? { ...prev, role } : null));
+    showToast(
+      role === 'owner' ? 'Beralih ke mode Owner / Manajemen' : 'Beralih ke mode Kasir POS',
+      'info'
+    );
   };
 
   // Shift Operations
-  const openShift = (startingCash: number, notes?: string): boolean => {
+  const openShift = async (startingCash: number, notes?: string): Promise<boolean> => {
+    if (!currentUser) {
+      showToast('Anda harus login untuk membuka shift.', 'error');
+      return false;
+    }
     if (activeShift) {
       showToast('Sesi kasir aktif sudah berjalan. Hanya 1 shift yang boleh aktif secara global.', 'warning');
       return false;
     }
+
+    const supabase = getClientSafe();
+    let sessionId = `shift-${Date.now()}`;
+    let openedAt = new Date().toISOString();
+
+    if (supabase) {
+      try {
+        const dbSession = await posService.openSession(
+          currentUser.id,
+          startingCash,
+          currentUser.role === 'owner' ? 'owner_kasir' : 'kasir',
+          notes
+        );
+        if (!dbSession) throw new Error('Gagal membuat sesi kasir di database.');
+        sessionId = dbSession.id;
+        openedAt = dbSession.opened_at;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Gagal membuka shift di Supabase.';
+        showToast(msg, 'error');
+        return false;
+      }
+    }
+
     const newShift: Shift = {
-      id: `shift-${Date.now()}`,
+      id: sessionId,
       cashierId: currentUser.id,
       cashierName: currentUser.name,
       status: 'open',
       startingCash,
-      openedAt: new Date().toISOString(),
+      openedAt,
       expectedCash: startingCash,
       totalTransactions: 0,
       totalSales: 0,
@@ -298,15 +497,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
-  const closeShift = (actualCash: number, notes?: string) => {
+  const closeShift = async (actualCash: number, notes?: string) => {
     if (!activeShift) {
       throw new Error('Tidak ada shift kasir yang sedang aktif');
     }
-    const difference = actualCash - activeShift.expectedCash;
+
+    const supabase = getClientSafe();
+    let expectedCash = activeShift.expectedCash;
+    let difference = calculateShiftDifference(actualCash, expectedCash);
+
+    if (supabase) {
+      const res = await posService.closeSession(
+        activeShift.id,
+        actualCash,
+        notes,
+        currentUser?.id,
+        false
+      );
+      if (!res || !res.success) {
+        throw new Error('Gagal menyimpan penutupan shift ke database.');
+      }
+      expectedCash = Number(res.expected_cash);
+      difference = Number(res.cash_difference);
+    }
+
     const closed: Shift = {
       ...activeShift,
       status: 'closed',
       closedAt: new Date().toISOString(),
+      expectedCash,
       actualCash,
       difference,
       notes: notes || activeShift.notes,
@@ -324,16 +543,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
         : `Selisih kurang: -Rp ${Math.abs(difference).toLocaleString('id-ID')}`;
 
     showToast(`Shift ditutup. ${diffText}`, difference === 0 ? 'success' : 'warning');
-    return { difference, expected: activeShift.expectedCash };
+    return { difference, expected: expectedCash };
   };
 
-  const forceCloseShift = (reason: string) => {
+  const forceCloseShift = async (reason: string) => {
     if (!activeShift) return;
+
+    const supabase = getClientSafe();
+    let expectedCash = activeShift.expectedCash;
+
+    if (supabase) {
+      const res = await posService.closeSession(
+        activeShift.id,
+        expectedCash,
+        `[FORCE CLOSE OLEH OWNER]: ${reason}`,
+        currentUser?.id,
+        true,
+        reason
+      );
+      if (res && res.expected_cash !== undefined) {
+        expectedCash = Number(res.expected_cash);
+      }
+    }
+
     const closed: Shift = {
       ...activeShift,
       status: 'closed',
       closedAt: new Date().toISOString(),
-      actualCash: activeShift.expectedCash,
+      expectedCash,
+      actualCash: expectedCash,
       difference: 0,
       notes: `[FORCE CLOSE OLEH OWNER]: ${reason}`,
     };
@@ -342,11 +580,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast('Shift kasir berhasil di-force close oleh Owner.', 'info');
   };
 
+  // Categories
+  const addCategory = (cat: Omit<Category, 'id'>) => {
+    const id = `cat-${Date.now()}`;
+    const newCat = { ...cat, id };
+    setCategories((prev) => [...prev, newCat]);
+    showToast(`Kategori "${cat.name}" berhasil ditambahkan`, 'success');
+  };
+
+  const updateCategory = (id: string, updates: Partial<Category>) => {
+    setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+    showToast('Kategori berhasil diperbarui', 'success');
+  };
+
+  const deleteCategory = (id: string) => {
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+    showToast('Kategori berhasil dihapus', 'info');
+  };
+
   // Products
   const addProduct = (p: Omit<Product, 'id'>) => {
     const id = `prd-${Date.now()}`;
     const newProduct: Product = { ...p, id };
     setProducts((prev) => [newProduct, ...prev]);
+    inventoryService.addProduct(p).catch((err) => console.warn('Supabase product sync:', err));
     showToast(`Produk "${p.name}" berhasil ditambahkan`, 'success');
   };
 
@@ -354,11 +611,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setProducts((prev) =>
       prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
     );
+    inventoryService.updateProduct(id, updates).catch((err) => console.warn('Supabase product sync:', err));
     showToast('Data produk berhasil diperbarui', 'success');
   };
 
   const deleteProduct = (id: string) => {
     setProducts((prev) => prev.filter((item) => item.id !== id));
+    inventoryService.deleteProduct(id).catch((err) => console.warn('Supabase product sync:', err));
     showToast('Produk telah dihapus', 'info');
   };
 
@@ -366,6 +625,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addRawMaterial = (m: Omit<RawMaterial, 'id'>) => {
     const id = `raw-${Date.now()}`;
     setRawMaterials((prev) => [{ ...m, id }, ...prev]);
+    inventoryService.addRawMaterial(m).catch((err) => console.warn('Supabase raw material sync:', err));
     showToast(`Bahan baku "${m.name}" berhasil ditambahkan`, 'success');
   };
 
@@ -373,11 +633,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setRawMaterials((prev) =>
       prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
     );
+    inventoryService.updateRawMaterial(id, updates).catch((err) => console.warn('Supabase raw material sync:', err));
     showToast('Data bahan baku berhasil diperbarui', 'success');
   };
 
   const deleteRawMaterial = (id: string) => {
     setRawMaterials((prev) => prev.filter((item) => item.id !== id));
+    inventoryService.deleteRawMaterial(id).catch((err) => console.warn('Supabase raw material sync:', err));
     showToast('Bahan baku telah dihapus', 'info');
   };
 
@@ -510,101 +772,158 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => setCart([]);
 
-  // Transaction checkout
+  // Transaction checkout (Persisted atomically in Supabase with idempotency)
   const processTransaction = async (
     paymentMethod: 'tunai' | 'qris' | 'transfer',
     amountPaid: number
   ): Promise<Transaction> => {
+    if (!currentUser) {
+      throw new Error('Anda harus login untuk memproses transaksi');
+    }
     if (!activeShift) {
       throw new Error('Shift belum dibuka');
     }
     if (cart.length === 0) {
       throw new Error('Keranjang belanja masih kosong');
     }
-
-    const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-
-    if (paymentMethod === 'tunai' && amountPaid < total) {
-      throw new Error('Nominal uang tunai kurang dari total pembayaran');
+    if (isCheckingOutRef.current) {
+      throw new Error('Transaksi sedang diproses, harap tunggu sebentar.');
     }
 
-    const change = paymentMethod === 'tunai' ? amountPaid - total : 0;
-    const code = `TRX-${new Date().toISOString().replace(/\D/g, '').slice(0, 14)}`;
+    isCheckingOutRef.current = true;
+    try {
+      const { total } = calculateCartTotals(
+        cart.map((c) => ({ price: c.product.price, quantity: c.quantity }))
+      );
+      const paymentCheck = calculatePaymentChange(total, paymentMethod, amountPaid);
+      if (!paymentCheck.valid) {
+        throw new Error(paymentCheck.error || 'Pembayaran tidak valid');
+      }
 
-    const details = cart.map((item) => ({
-      productId: item.product.id,
-      productName: item.product.name,
-      price: item.product.price,
-      quantity: item.quantity,
-      subtotal: item.product.price * item.quantity,
-    }));
+      const idempotencyKey =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `idem-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
-    const newTx: Transaction = {
-      id: `trx-${Date.now()}`,
-      code,
-      shiftId: activeShift.id,
-      cashierId: currentUser.id,
-      cashierName: currentUser.name,
-      date: new Date().toISOString(),
-      items: details,
-      total,
-      paymentMethod,
-      amountPaid: paymentMethod === 'tunai' ? amountPaid : total,
-      change,
-      status: 'selesai',
-    };
+      const supabase = getClientSafe();
+      let txId = `trx-${Date.now()}`;
+      let code = `TRX-${new Date().toISOString().replace(/\D/g, '').slice(0, 14)}`;
 
-    // Update product stock and record stock movements
-    setProducts((prev) =>
-      prev.map((prod) => {
-        const cartItem = cart.find((c) => c.product.id === prod.id);
-        if (cartItem) {
-          return { ...prod, stock: Math.max(0, prod.stock - cartItem.quantity) };
+      if (supabase) {
+        const rpcResult = await posService.processCheckout(
+          activeShift.id,
+          currentUser.id,
+          cart,
+          paymentMethod,
+          paymentCheck.amountPaid,
+          undefined,
+          idempotencyKey
+        );
+        if (!rpcResult || !rpcResult.success) {
+          throw new Error('Gagal menyimpan transaksi ke database Supabase.');
         }
-        return prod;
-      })
-    );
+        txId = rpcResult.transaction_id;
+        code = rpcResult.invoice_number;
+      }
 
-    const movements: StockMovement[] = cart.map((item) => ({
-      id: `sm-${Date.now()}-${item.product.id}`,
-      date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-      type: 'keluar',
-      itemType: 'produk',
-      itemName: item.product.name,
-      quantity: item.quantity,
-      unit: item.product.unit,
-      reference: `Penjualan #${code}`,
-    }));
+      const details = cart.map((item) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        subtotal: item.product.price * item.quantity,
+      }));
 
-    setStockMovements((prev) => [...movements, ...prev]);
-
-    // Update active shift financial summary
-    setActiveShift((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        totalTransactions: prev.totalTransactions + 1,
-        totalSales: prev.totalSales + total,
-        cashSales: paymentMethod === 'tunai' ? prev.cashSales + total : prev.cashSales,
-        qrisSales: paymentMethod === 'qris' ? prev.qrisSales + total : prev.qrisSales,
-        transferSales: paymentMethod === 'transfer' ? prev.transferSales + total : prev.transferSales,
-        expectedCash: paymentMethod === 'tunai' ? prev.expectedCash + total : prev.expectedCash,
+      const newTx: Transaction = {
+        id: txId,
+        code,
+        shiftId: activeShift.id,
+        cashierId: currentUser.id,
+        cashierName: currentUser.name,
+        date: new Date().toISOString(),
+        items: details,
+        total,
+        paymentMethod,
+        amountPaid: paymentCheck.amountPaid,
+        change: paymentCheck.change,
+        status: 'selesai',
       };
-    });
 
-    setTransactions((prev) => [newTx, ...prev]);
-    clearCart();
-    showToast(`Transaksi #${code} berhasil diproses!`, 'success');
-    return newTx;
+      setProducts((prev) =>
+        prev.map((prod) => {
+          const cartItem = cart.find((c) => c.product.id === prod.id);
+          if (cartItem) {
+            return { ...prod, stock: Math.max(0, prod.stock - cartItem.quantity) };
+          }
+          return prod;
+        })
+      );
+
+      const movements: StockMovement[] = cart.map((item) => ({
+        id: `sm-${Date.now()}-${item.product.id}`,
+        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        type: 'keluar',
+        itemType: 'produk',
+        itemName: item.product.name,
+        quantity: item.quantity,
+        unit: item.product.unit,
+        reference: `Penjualan #${code}`,
+      }));
+
+      setStockMovements((prev) => [...movements, ...prev]);
+
+      setActiveShift((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          totalTransactions: prev.totalTransactions + 1,
+          totalSales: prev.totalSales + total,
+          cashSales: paymentMethod === 'tunai' ? prev.cashSales + total : prev.cashSales,
+          qrisSales: paymentMethod === 'qris' ? prev.qrisSales + total : prev.qrisSales,
+          transferSales: paymentMethod === 'transfer' ? prev.transferSales + total : prev.transferSales,
+          expectedCash:
+            paymentMethod === 'tunai'
+              ? calculateExpectedShiftCash(
+                  prev.startingCash,
+                  prev.cashSales + total,
+                  prev.startingCash + prev.cashSales - prev.expectedCash
+                )
+              : prev.expectedCash,
+        };
+      });
+
+      setTransactions((prev) => [newTx, ...prev]);
+      clearCart();
+      showToast(`Transaksi #${code} berhasil diproses!`, 'success');
+      return newTx;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Transaksi gagal diproses.';
+      showToast(msg, 'error');
+      throw err;
+    } finally {
+      isCheckingOutRef.current = false;
+    }
   };
 
   // Expenses (FR-FIN: Expected Cash = Opening + Cash Sales - Cash Expenses - Cash Refunds)
   const addExpense = (expense: Omit<Expense, 'id'>) => {
     const id = `exp-${Date.now()}`;
-    setExpenses((prev) => [{ ...expense, id }, ...prev]);
+    const paymentMethod = expense.paymentMethod || 'cash';
+    const isCashExpense = paymentMethod === 'cash';
+    const shiftId = expense.shiftId || (isCashExpense && activeShift ? activeShift.id : undefined);
+    const enrichedExpense: Omit<Expense, 'id'> = {
+      ...expense,
+      paymentMethod,
+      shiftId,
+    };
 
-    // Subtract cash expenses from expectedCash in active shift
-    if (activeShift) {
+    setExpenses((prev) => [{ ...enrichedExpense, id }, ...prev]);
+    financeService
+      .addExpense(enrichedExpense, currentUser?.id)
+      .catch((err) => console.warn('Supabase expense sync:', err));
+
+    // Only cash expenses linked to the active shift reduce the physical drawer expectedCash
+    if (isCashExpense && activeShift && shiftId === activeShift.id) {
       setActiveShift((prev) => {
         if (!prev) return null;
         return {
@@ -617,36 +936,58 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast(`Pengeluaran Rp ${expense.amount.toLocaleString('id-ID')} berhasil dicatat`, 'success');
   };
 
-  // Marketplace
+  // Marketplace (Uses real parsed CSV records, zero dummy defaults)
   const importMarketplaceReport = async (
     platform: 'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee',
     fileName: string,
-    ordersCount = 12,
-    totalRevenue = 285000
+    fileSize: number,
+    parsedRecords: MarketplaceOrderRecord[]
   ): Promise<MarketplaceReport> => {
+    if (!parsedRecords || parsedRecords.length === 0) {
+      throw new Error('Tidak ada baris transaksi valid untuk diimpor.');
+    }
+
+    const platformKey = platform.toLowerCase() as 'gofood' | 'grabfood' | 'shopeefood' | 'shopee';
+    const supabase = getClientSafe();
+    let batchId = `rep-${platformKey}-${Date.now()}`;
+
+    if (supabase) {
+      const batch = await marketplaceService.importBatch(
+        platformKey,
+        fileName,
+        fileSize,
+        parsedRecords,
+        currentUser?.id
+      );
+      if (batch) {
+        batchId = batch.id;
+      }
+    }
+
+    const totalOrders = parsedRecords.length;
+    const totalRevenue = parsedRecords.reduce((sum, r) => sum + r.netAmount, 0);
+
     const report: MarketplaceReport = {
-      id: `rep-${platform.toLowerCase()}-${Date.now()}`,
+      id: batchId,
       platform,
       fileName,
       importDate: new Date().toISOString().replace('T', ' ').substring(0, 16),
-      totalOrders: ordersCount,
+      totalOrders,
       totalRevenue,
       status: 'Sukses',
-      orders: [
-        {
-          orderId: `${platform.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-6)}`,
-          platform,
-          date: new Date().toISOString().split('T')[0],
-          customerName: 'Customer Marketplace',
-          productName: 'Cireng Frozen Pack Original (10 pcs)',
-          quantity: 2,
-          total: 36000,
-          status: 'Selesai',
-        },
-      ],
+      orders: parsedRecords.map((rec) => ({
+        orderId: rec.platformOrderId,
+        platform,
+        date: rec.orderDate.split('T')[0],
+        customerName: rec.customerName || 'Pelanggan Marketplace',
+        productName: rec.productName || 'Item Marketplace',
+        quantity: rec.quantity || 1,
+        total: rec.netAmount,
+        status: 'Selesai',
+      })),
     };
     setMarketplaceReports((prev) => [report, ...prev]);
-    showToast(`Laporan ${platform} "${fileName}" berhasil diimpor tanpa mengurangi stok fisik aktif.`, 'success');
+    showToast(`Laporan ${platform} "${fileName}" (${totalOrders} pesanan) berhasil diimpor.`, 'success');
     return report;
   };
 
@@ -795,6 +1136,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider
       value={{
         currentUser,
+        authenticatedRole,
+        isAuthLoading,
+        loginWithPassword,
+        logout,
         switchRole,
         activeShift,
         shiftHistory,
@@ -802,6 +1147,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         closeShift,
         forceCloseShift,
         categories,
+        addCategory,
+        updateCategory,
+        deleteCategory,
         products,
         addProduct,
         updateProduct,

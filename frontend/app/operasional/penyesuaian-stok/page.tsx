@@ -30,74 +30,20 @@ export default function RiwayatPerubahanStokOwnerPage() {
   const [adjustmentQty, setAdjustmentQty] = useState(1);
   const [reason, setReason] = useState('Koreksi selisih opname fisik berkala');
 
-  // Rich mock audit items
-  const allAuditItems = [
-    ...stockMovements.map((sm) => {
-      let mutationKind = 'Penyesuaian Opname';
-      if (sm.quantity > 0) mutationKind = 'Stok Masuk / Produksi';
-      else if (sm.quantity < 0) mutationKind = 'Penjualan / Pemakaian';
+  // Dynamic real audit items derived strictly from live stockMovements
+  const allAuditItems = stockMovements.map((sm) => {
+    let mutationKind = 'Penyesuaian Opname';
+    if (sm.quantity > 0) mutationKind = 'Stok Masuk / Produksi';
+    else if (sm.quantity < 0) mutationKind = 'Penjualan / Pemakaian';
 
-      return {
-        ...sm,
-        reason: sm.note || 'Penyesuaian stok sistem',
-        actor: 'Astriana (Owner)',
-        mutationKind,
-        finalStock: 25,
-      };
-    }),
-    {
-      id: 'mock-audit-1',
-      date: '2026-10-30T09:30:00Z',
-      itemName: 'Cireng Sambal Rujak Reguler',
-      itemType: 'produk' as const,
-      quantity: 20,
-      unit: 'pack',
-      reason: 'Hasil olahan batch pagi dapur utama',
-      reference: 'PROD-202610-091',
-      actor: 'Dapur Dika (Staf)',
-      mutationKind: 'Hasil Produksi',
-      finalStock: 42,
-    },
-    {
-      id: 'mock-audit-2',
-      date: '2026-10-30T09:15:00Z',
-      itemName: 'Tepung Tapioka Cap Tani',
-      itemType: 'bahan_baku' as const,
-      quantity: -10,
-      unit: 'kg',
-      reason: 'Pemakaian adonan cireng batch pagi',
-      reference: 'DAPUR-USE-042',
-      actor: 'Dapur Dika (Staf)',
-      mutationKind: 'Pemakaian Dapur',
-      finalStock: 15,
-    },
-    {
-      id: 'mock-audit-3',
-      date: '2026-10-29T16:45:00Z',
-      itemName: 'Cireng Isi Keju Mozzarella',
-      itemType: 'produk' as const,
-      quantity: -2,
-      unit: 'pack',
-      reason: 'Penjualan struk kasir #TRX-202610-044',
-      reference: 'POS-TRX-044',
-      actor: 'Kasir Utama',
-      mutationKind: 'Penjualan POS',
-      finalStock: 18,
-    },
-    {
-      id: 'mock-audit-4',
-      date: '2026-10-29T14:10:00Z',
-      itemName: 'Minyak Goreng Sawit Curah',
-      itemType: 'bahan_baku' as const,
-      quantity: 20,
-      unit: 'liter',
-      reason: 'Restock belanja supplier CV Sumber Rejeki',
-      reference: 'PO-202610-019',
-      actor: 'Astriana (Owner)',
-      mutationKind: 'Stok Masuk / Restock',
-      finalStock: 22,
-    },
-  ];
+    return {
+      ...sm,
+      reason: sm.note || 'Penyesuaian stok sistem',
+      actor: 'Owner / Admin',
+      mutationKind,
+      finalStock: 0,
+    };
+  });
 
   const totalIn = allAuditItems.filter((m) => m.quantity > 0).reduce((sum, m) => sum + m.quantity, 0);
   const totalOut = allAuditItems.filter((m) => m.quantity < 0).reduce((sum, m) => sum + Math.abs(m.quantity), 0);
@@ -307,7 +253,7 @@ export default function RiwayatPerubahanStokOwnerPage() {
 
             <select
               value={filterModule}
-              onChange={(e) => setFilterModule(e.target.value as any)}
+              onChange={(e) => setFilterModule(e.target.value as 'all' | 'produk' | 'bahan_baku')}
               className="px-3 py-2 rounded-xl border border-[#CBD5E1] text-[12px] font-semibold text-[#0B1C30] bg-white cursor-pointer"
             >
               <option value="all">Semua Persediaan</option>
@@ -348,7 +294,17 @@ export default function RiwayatPerubahanStokOwnerPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {filteredLogs.map((log) => (
+                {filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-[#5B403D]">
+                      <div className="max-w-md mx-auto space-y-2">
+                        <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada riwayat mutasi atau penyesuaian stok</p>
+                        <p className="text-[12px]">Semua pergerakan bahan baku, hasil produksi, transaksi kasir, dan penyesuaian opname fisik akan tercatat di sini secara otomatis.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
                     {/* Date */}
                     <td className="py-3.5 px-4 text-[12px] text-[#5B403D]">
@@ -413,7 +369,7 @@ export default function RiwayatPerubahanStokOwnerPage() {
                       </span>
                     </td>
                   </tr>
-                ))}
+                )))}
               </tbody>
             </table>
           </div>

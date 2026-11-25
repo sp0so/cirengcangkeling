@@ -93,17 +93,25 @@ export default function LaporanPersediaanPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
-              {rawMaterials.map((m) => (
-                <tr key={m.id}>
-                  <td className="py-3 px-4 font-mono font-bold text-[#732662]">{m.code}</td>
-                  <td className="py-3 px-4 font-bold text-[#0B1C30]">{m.name}</td>
-                  <td className="py-3 px-4 text-center font-semibold">{m.stock} {m.unit}</td>
-                  <td className="py-3 px-4 text-right">Rp {m.unitCost.toLocaleString('id-ID')}</td>
-                  <td className="py-3 px-4 text-right font-bold text-[#0B1C30]">
-                    Rp {Math.round(m.stock * m.unitCost).toLocaleString('id-ID')}
+              {rawMaterials.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-[#5B403D]">
+                    Belum ada data bahan baku terdaftar di gudang.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                rawMaterials.map((m) => (
+                  <tr key={m.id}>
+                    <td className="py-3 px-4 font-mono font-bold text-[#732662]">{m.code}</td>
+                    <td className="py-3 px-4 font-bold text-[#0B1C30]">{m.name}</td>
+                    <td className="py-3 px-4 text-center font-semibold">{m.stock} {m.unit}</td>
+                    <td className="py-3 px-4 text-right">Rp {m.unitCost.toLocaleString('id-ID')}</td>
+                    <td className="py-3 px-4 text-right font-bold text-[#0B1C30]">
+                      Rp {Math.round(m.stock * m.unitCost).toLocaleString('id-ID')}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -74,7 +74,7 @@ export default function PengeluaranUsahaOwnerPage() {
       description: formDesc,
       amount: Number(formAmount),
       date: `${formDate}T${formTime}:00Z`,
-      recordedBy: currentUser.name,
+      recordedBy: currentUser?.name || 'Admin',
     });
 
     showToast(`Pengeluaran Rp ${Number(formAmount).toLocaleString('id-ID')} berhasil dicatat!`, 'success');
@@ -351,7 +351,7 @@ export default function PengeluaranUsahaOwnerPage() {
                   <label className="block font-bold text-[#334155] mb-1">Kategori Biaya *</label>
                   <select
                     value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value as any)}
+                    onChange={(e) => setFormCategory(e.target.value as 'Operasional' | 'Bahan Baku' | 'Gaji Karyawan' | 'Sewa & Listrik' | 'Pemasaran' | 'Lain-lain')}
                     className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-semibold text-[#0B1C30]"
                   >
                     <option value="Bahan Baku">Bahan Baku Segar Pasar (Cabai, Bawang, Daun Bawang)</option>
@@ -378,7 +378,7 @@ export default function PengeluaranUsahaOwnerPage() {
                   <label className="block font-bold text-[#334155] mb-1">Pilihan Sumber Dana *</label>
                   <select
                     value={formSource}
-                    onChange={(e) => setFormSource(e.target.value as any)}
+                    onChange={(e) => setFormSource(e.target.value as 'Kas Tunai Gerai' | 'Rekening Bank BRI')}
                     className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-semibold"
                   >
                     <option value="Kas Tunai Gerai">Kas Laci Gerai (Uang Tunai Fisik)</option>
