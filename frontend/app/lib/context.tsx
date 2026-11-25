@@ -1,6 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { IconCheckCircle, IconAlertTriangle, IconInfo, IconClose } from '../components/Icons';
 import {
   User,
   UserRole,
@@ -843,30 +845,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      {/* Toast Notification Container */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-alert text-sm font-semibold transition-all transform animate-fade-in ${
-              toast.type === 'success'
-                ? 'bg-[#DCFCE7] text-[#15803D] border border-[#16A34A]/30'
-                : toast.type === 'warning'
-                ? 'bg-[#FEF3C7] text-[#92400E] border border-[#F59E0B]/30'
-                : toast.type === 'error'
-                ? 'bg-[#FFDAD6] text-[#93000A] border border-[#BA1A1A]/30'
-                : 'bg-[#E5EEFF] text-[#0B1C30] border border-[#CBD5E1]'
-            }`}
-          >
-            <span>{toast.message}</span>
-            <button
-              onClick={() => removeToast(toast.id)}
-              className="ml-2 text-xs opacity-60 hover:opacity-100"
+      {/* Toast Notification Container with Smooth Motion */}
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4 sm:px-0">
+        <AnimatePresence mode="popLayout">
+          {toasts.map((toast) => (
+            <motion.div
+              key={toast.id}
+              layout
+              initial={{ opacity: 0, y: 16, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92, x: 24, transition: { duration: 0.18 } }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className={`pointer-events-auto flex items-center justify-between gap-3 px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-semibold backdrop-blur-md border ${
+                toast.type === 'success'
+                  ? 'bg-[#DCFCE7]/95 text-[#15803D] border-[#16A34A]/40'
+                  : toast.type === 'warning'
+                  ? 'bg-[#FEF3C7]/95 text-[#92400E] border-[#F59E0B]/40'
+                  : toast.type === 'error'
+                  ? 'bg-[#FFDAD6]/95 text-[#93000A] border-[#BA1A1A]/40'
+                  : 'bg-[#E5EEFF]/95 text-[#0B1C30] border-[#CBD5E1]'
+              }`}
             >
-              ✕
-            </button>
-          </div>
-        ))}
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="shrink-0">
+                  {toast.type === 'success' ? (
+                    <IconCheckCircle size={18} className="text-[#16A34A]" />
+                  ) : toast.type === 'warning' || toast.type === 'error' ? (
+                    <IconAlertTriangle size={18} className={toast.type === 'error' ? 'text-[#BA1A1A]' : 'text-[#F59E0B]'} />
+                  ) : (
+                    <IconInfo size={18} className="text-[#732662]" />
+                  )}
+                </span>
+                <span className="leading-snug break-words">{toast.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => removeToast(toast.id)}
+                className="shrink-0 p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-black/5 transition"
+                aria-label="Tutup notifikasi"
+              >
+                <IconClose size={14} />
+              </button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </AppContext.Provider>
   );

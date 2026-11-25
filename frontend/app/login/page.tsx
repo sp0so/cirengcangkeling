@@ -4,8 +4,21 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import { useApp } from '../lib/context';
 import { UserRole } from '../lib/types';
+import {
+  IconLock,
+  IconUser,
+  IconCrown,
+  IconMail,
+  IconEye,
+  IconEyeOff,
+  IconSpinner,
+  IconInfo,
+  IconAlertTriangle,
+} from '../components/Icons';
+import PageTransition from '../components/PageTransition';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -57,19 +70,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F1F5F9] text-[#0B1C30] flex flex-col font-sans selection:bg-[#A24F9D] selection:text-white">
+    <PageTransition className="min-h-screen bg-[#F1F5F9] text-[#0B1C30] selection:bg-[#A24F9D] selection:text-white">
       {/* 1. HEADER - TOP NAVIGATION BAR (Node 140:252) */}
       <header className="bg-white border-b border-[#E2E8F0] px-6 sm:px-10 py-3 relative shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo & Brand Identity */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-[41px] h-[40px] rounded-[11px] overflow-hidden shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200">
+            <div className="relative w-10 h-10 shrink-0 drop-shadow-xs group-hover:scale-105 transition-transform duration-200">
               <Image
-                src="/logo-cireng-figma.png"
+                src="/logo-brand.png"
                 alt="Logo Cireng Cangkeling"
                 fill
-                sizes="41px"
-                className="object-cover rounded-[11px]"
+                sizes="40px"
+                className="object-contain"
                 priority
               />
             </div>
@@ -86,7 +99,7 @@ export default function LoginPage() {
           {/* Return link to public site */}
           <Link
             href="/"
-            className="text-xs font-bold text-[#64748B] hover:text-[#5B3765] px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-white transition hover:bg-gray-50 flex items-center gap-1.5"
+            className="text-xs font-bold text-[#64748B] hover:text-[#5B3765] px-3.5 py-2 rounded-lg border border-[#CBD5E1] bg-white transition hover:bg-gray-50 flex items-center gap-1.5 hover:shadow-xs"
           >
             <span>←</span>
             <span>Kembali ke Website</span>
@@ -96,7 +109,12 @@ export default function LoginPage() {
 
       {/* 2. MAIN CONTENT AREA (Node 140:268) */}
       <div className="flex-1 flex items-center justify-center py-10 sm:py-16 px-4 sm:px-8">
-        <div className="bg-white border border-[#F1F5F9] w-full max-w-5xl rounded-[24px] shadow-[0px_20px_25px_-5px_rgba(226,232,240,0.8),0px_8px_10px_-6px_rgba(226,232,240,0.8)] overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="bg-white border border-[#F1F5F9] w-full max-w-5xl rounded-[24px] shadow-[0px_20px_25px_-5px_rgba(226,232,240,0.8),0px_8px_10px_-6px_rgba(226,232,240,0.8)] overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]"
+        >
           {/* Left Feature Panel (Node 140:270) */}
           <div
             className="lg:col-span-5 relative p-8 sm:p-12 text-white flex flex-col justify-between overflow-hidden"
@@ -123,9 +141,9 @@ export default function LoginPage() {
             {/* Bottom Highlight Feature Badges (Node 140:279) */}
             <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-8 mt-8 border-t border-white/15">
               {/* Card 1: Peringatan Dini */}
-              <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-3.5">
+              <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-3.5 hover:bg-white/15 transition-colors">
                 <div className="flex items-center gap-1.5 mb-1 text-[#FCD34D] font-bold text-[10px] tracking-wider uppercase">
-                  <span>⚠️</span>
+                  <IconAlertTriangle size={14} className="text-[#FCD34D]" />
                   <span>PERINGATAN DINI</span>
                 </div>
                 <h3 className="font-bold text-xs text-white mb-0.5">Batas Stok Minimum</h3>
@@ -135,9 +153,9 @@ export default function LoginPage() {
               </div>
 
               {/* Card 2: Audit Trail */}
-              <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-3.5">
+              <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl p-3.5 hover:bg-white/15 transition-colors">
                 <div className="flex items-center gap-1.5 mb-1 text-[#6EE7B7] font-bold text-[10px] tracking-wider uppercase">
-                  <span>🔒</span>
+                  <IconLock size={14} className="text-[#6EE7B7]" />
                   <span>AUDIT TRAIL</span>
                 </div>
                 <h3 className="font-bold text-xs text-white mb-0.5">Anti Manipulasi</h3>
@@ -174,11 +192,11 @@ export default function LoginPage() {
                       onClick={() => handleRoleChange('kasir')}
                       className={`py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 border ${
                         selectedRole === 'kasir'
-                          ? 'bg-[#FBF4F9] border-2 border-[#732662] text-[#5E1E4F] shadow-xs'
-                          : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#475569] hover:bg-gray-100'
+                          ? 'bg-[#FBF4F9] border-2 border-[#732662] text-[#5E1E4F] shadow-xs scale-[1.01]'
+                          : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#475569] hover:bg-gray-100 hover:text-slate-800'
                       }`}
                     >
-                      <span>👤</span>
+                      <IconUser size={16} className={selectedRole === 'kasir' ? 'text-[#5E1E4F]' : 'text-slate-500'} />
                       <span>Kasir</span>
                     </button>
                     <button
@@ -186,11 +204,11 @@ export default function LoginPage() {
                       onClick={() => handleRoleChange('owner')}
                       className={`py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 border ${
                         selectedRole === 'owner'
-                          ? 'bg-[#FBF4F9] border-2 border-[#732662] text-[#5E1E4F] shadow-xs'
-                          : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#475569] hover:bg-gray-100'
+                          ? 'bg-[#FBF4F9] border-2 border-[#732662] text-[#5E1E4F] shadow-xs scale-[1.01]'
+                          : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#475569] hover:bg-gray-100 hover:text-slate-800'
                       }`}
                     >
-                      <span>👑</span>
+                      <IconCrown size={16} className={selectedRole === 'owner' ? 'text-[#5E1E4F]' : 'text-slate-500'} />
                       <span>Owner</span>
                     </button>
                   </div>
@@ -202,13 +220,15 @@ export default function LoginPage() {
                     USERNAME / EMAIL <span className="text-[#F43F5E]">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3.5 top-3 text-gray-400 text-sm">📧</span>
+                    <span className="absolute left-3.5 top-3 text-slate-400">
+                      <IconMail size={16} />
+                    </span>
                     <input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Masukkan username atau email Anda"
-                      className="w-full bg-white border border-[#CBD5E1] rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#732662] transition"
+                      className="w-full bg-white border border-[#CBD5E1] rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#732662] transition shadow-2xs"
                       required
                     />
                   </div>
@@ -229,21 +249,24 @@ export default function LoginPage() {
                     </button>
                   </div>
                   <div className="relative">
-                    <span className="absolute left-3.5 top-3 text-gray-400 text-sm">🔒</span>
+                    <span className="absolute left-3.5 top-3 text-slate-400">
+                      <IconLock size={16} />
+                    </span>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-white border border-[#CBD5E1] rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#732662] transition"
+                      className="w-full bg-white border border-[#CBD5E1] rounded-xl pl-10 pr-11 py-2.5 text-xs sm:text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#732662] transition shadow-2xs"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                      className="absolute right-3.5 top-2.5 p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"
+                      aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
                     >
-                      {showPassword ? 'Sembunyi' : 'Lihat'}
+                      {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
                     </button>
                   </div>
                 </div>
@@ -255,9 +278,9 @@ export default function LoginPage() {
                     id="rememberMe"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#732662] focus:ring-[#732662] border-[#CBD5E1]"
+                    className="w-4 h-4 rounded text-[#732662] focus:ring-[#732662] border-[#CBD5E1] cursor-pointer"
                   />
-                  <label htmlFor="rememberMe" className="text-xs text-[#475569] cursor-pointer">
+                  <label htmlFor="rememberMe" className="text-xs text-[#475569] cursor-pointer select-none">
                     Ingat akun di perangkat ini
                   </label>
                 </div>
@@ -268,18 +291,19 @@ export default function LoginPage() {
                   </p>
                 )}
 
-                {/* Submit Button (Node 140:353) */}
+                {/* Submit Button (Node 140:353) with Loading State */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#732662] hover:bg-[#5E1E4F] text-white py-3 px-4 rounded-xl font-bold text-sm shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
+                  className="w-full bg-[#732662] hover:bg-[#5E1E4F] text-white py-3 px-4 rounded-xl font-bold text-sm shadow-md transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
                 >
-                  {loading ? 'Memverifikasi...' : 'Login ke Sistem'}
+                  {loading && <IconSpinner size={16} className="text-white" />}
+                  <span>{loading ? 'Memverifikasi...' : 'Login ke Sistem'}</span>
                 </button>
 
                 {/* Info Callout Box (Node 140:356) */}
                 <div className="bg-[#FFFBEB]/80 border border-[#FDE68A] rounded-xl p-3.5 flex items-start gap-3">
-                  <span className="text-[#92400E] text-base shrink-0">ℹ️</span>
+                  <IconInfo size={18} className="text-[#92400E] shrink-0 mt-0.5" />
                   <div>
                     <h4 className="font-bold text-[11px] text-[#92400E] mb-0.5">
                       Ketentuan Akun Sistem UMKM
@@ -292,7 +316,7 @@ export default function LoginPage() {
               </form>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* 3. SITE FOOTER (Node 140:366) */}
@@ -305,6 +329,6 @@ export default function LoginPage() {
           <span className="hover:underline cursor-pointer">Kebijakan Privasi</span>
         </div>
       </footer>
-    </div>
+    </PageTransition>
   );
 }

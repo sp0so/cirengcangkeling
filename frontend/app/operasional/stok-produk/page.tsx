@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import AppShell from '../../components/AppShell';
+import WordRevealHeading from '../../components/WordRevealHeading';
+import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
 import { Product } from '../../lib/types';
 import {
@@ -180,9 +182,11 @@ export default function InventarisProdukOwnerPage() {
                 Pembaruan: Hari ini 09:30 WIB
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Inventaris Produk Jadi
-            </h1>
+            <WordRevealHeading
+              text="Stok Produk Jadi"
+              as="h1"
+              className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
+            />
             <p className="text-[13px] text-[#5B403D] mt-0.5">
               Monitoring persediaan fisik cireng siap saji hangat dan kemasan frozen siap jual di etalase kasir.
             </p>
@@ -217,7 +221,7 @@ export default function InventarisProdukOwnerPage() {
            ========================================================================= */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {/* Card 1: Stok Siap Jual */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.05} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5B403D] block">
               TOTAL STOK SIAP JUAL
             </span>
@@ -230,10 +234,10 @@ export default function InventarisProdukOwnerPage() {
             <span className="text-[11px] text-[#16A34A] font-medium block mt-1">
               ✓ Siap melayani pelanggan
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 2: Crispy Bumbu Rujak */}
-          <div className="p-4 rounded-2xl bg-[#FFF7ED] border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.1} hoverEffect="lift" className="p-4 rounded-2xl bg-[#FFF7ED] border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#833E17] block">
               PRODUK TERLARIS (TOP SKU)
             </span>
@@ -245,10 +249,10 @@ export default function InventarisProdukOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Stok saat ini: <strong>{bestSeller ? `${bestSeller.stock} Pack` : '0 Pack'}</strong>
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 3: Stok Frozen Pack */}
-          <div className="p-4 rounded-2xl bg-[#EFF4FF] border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.15} hoverEffect="lift" className="p-4 rounded-2xl bg-[#EFF4FF] border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1E40AF] block">
               STOK FROZEN PACK
             </span>
@@ -261,10 +265,10 @@ export default function InventarisProdukOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Tersimpan aman di suhu -18°C
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 4: Nilai Total Inventaris */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.2} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5B403D] block">
               NILAI TOTAL INVENTARIS
             </span>
@@ -276,7 +280,7 @@ export default function InventarisProdukOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Berdasarkan harga jual retail
             </span>
-          </div>
+          </MotionCard>
         </div>
 
         {/* =========================================================================

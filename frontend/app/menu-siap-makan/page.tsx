@@ -3,7 +3,18 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion } from 'motion/react';
 import { useApp } from '../lib/context';
+import PageTransition from '../components/PageTransition';
+import WordRevealHeading from '../components/WordRevealHeading';
+import {
+  IconSnowflake,
+  IconPepper,
+  IconFlame,
+  IconLightbulb,
+  IconCheck,
+  IconWhatsApp,
+} from '../components/Icons';
 
 export default function MenuSiapMakanPage() {
   const { addToCart, showToast } = useApp();
@@ -104,7 +115,7 @@ export default function MenuSiapMakanPage() {
           desc: 'Potongan cumi segar kenyal dimasak oseng cabai rawit pedas menggelegar dan wangi daun jeruk.',
           portion: '1 Pcs (Jumbo)',
           price: 4500,
-          badge: 'EXTRA PEDAS 🔥',
+          badge: 'EXTRA PEDAS',
           spicy: 'Super Pedas',
         },
         {
@@ -239,120 +250,122 @@ export default function MenuSiapMakanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF7ED] text-[#0B1C30] flex flex-col font-sans selection:bg-[#A24F9D] selection:text-white">
-      {/* 1. BRAND HEADER (Node 82:1835) */}
-      <header className="sticky top-0 z-40 bg-[#A24F9D] border-b border-[#5B3765] shadow-md transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-[41px] h-[40px] rounded-[11px] overflow-hidden shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200">
-              <Image
-                src="/logo-cireng-figma.png"
-                alt="Logo Cireng Cangkeling"
-                fill
-                sizes="41px"
-                className="object-cover rounded-[11px]"
-                priority
-              />
-            </div>
-            <div>
-              <span className="font-semibold text-lg sm:text-[18px] text-white tracking-[-0.45px] block leading-tight font-brand">
-                Cireng Cangkeling
-              </span>
-              <span className="text-[10px] font-black text-[#FCD34D] tracking-[1px] block uppercase mt-0.5">
-                PELOPOR CIRENG RENYAH GURIH
-              </span>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-2">
-            <nav className="bg-black/20 border border-white/10 rounded-[4px] p-1 flex items-center gap-1">
-              <Link
-                href="/"
-                className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
-              >
-                Home
-              </Link>
-              <Link
-                href="/menu-siap-makan"
-                className="bg-white text-[#7F1D1D] font-bold text-sm px-4 py-2 rounded-[2px] shadow-xs transition"
-              >
-                Menu Siap Makan
-              </Link>
-              <Link
-                href="/menu-frozen"
-                className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
-              >
-                Menu Frozen
-              </Link>
-              <Link
-                href="/pesan"
-                className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
-              >
-                Cara Pesan
-              </Link>
-            </nav>
-            <Link
-              href="/login"
-              className="hidden md:inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-3 py-2 rounded-[4px] font-semibold text-xs transition"
-              title="Portal Staf & Kasir"
-            >
-              <span>Portal Login</span>
-              <span className="text-xs">→</span>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* 2. TOP DECORATIVE HERO HEADER (Node 82:1237) */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#5B3765] via-[#7E3778] to-[#5B3765] text-white py-12 sm:py-16 px-4 sm:px-8 lg:px-12">
-        {/* Ambient Glows */}
-        <div className="absolute -top-24 right-0 w-96 h-96 bg-[#EC4899]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-10 -left-20 w-80 h-80 bg-[#581C87]/40 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-          <div className="max-w-2xl">
-            {/* Breadcrumb / Badge Pill */}
-            <div className="backdrop-blur-sm bg-white/10 border border-white/20 px-3.5 py-1.5 rounded-full inline-flex items-center gap-2 mb-4">
-              <span className="w-2 h-2 rounded-full bg-[#34D399] animate-pulse" />
-              <span className="font-bold text-[#FCD34D] text-xs tracking-wider uppercase">
-                KITCHEN FRESH • DIGORENG DADAKAN PANAS
-              </span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black font-brand tracking-tight leading-tight mb-3">
-              MENU SIAP MAKAN <br />
-              <span className="text-[#FCD34D]">CIRENG CANGKELING</span>
-            </h1>
-
-            <p className="text-[#FEE2E2] text-sm sm:text-base leading-relaxed font-normal">
-              Sajian aneka cireng renyah gurih hangat langsung dari wajan penggorengan kami. Dilengkapi bumbu rujak legit pedas manis khas Sunda atau sambal Bangkok istimewa.
-            </p>
-          </div>
-
-          {/* Quick Switch Banner to Frozen (Node 82:1256) */}
-          <Link
-            href="/menu-frozen"
-            className="w-full lg:w-96 bg-black/25 hover:bg-black/35 border border-white/20 hover:border-[#FCD34D]/60 rounded-xl p-4 shadow-xl backdrop-blur-md transition-all group flex items-center justify-between gap-4"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-lg bg-[#FBBF24]/20 border border-[#FCD34D]/40 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
-                ❄️
+    <PageTransition>
+      <div className="min-h-screen bg-[#FFF7ED] text-[#0B1C30] flex flex-col font-sans selection:bg-[#A24F9D] selection:text-white">
+        {/* 1. BRAND HEADER (Node 82:1835) */}
+        <header className="sticky top-0 z-40 bg-[#A24F9D] border-b border-[#5B3765] shadow-md transition-all">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between gap-4">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative w-10 h-10 shrink-0 drop-shadow-xs group-hover:scale-105 transition-transform duration-200">
+                <Image
+                  src="/logo-brand.png"
+                  alt="Logo Cireng Cangkeling"
+                  fill
+                  sizes="40px"
+                  className="object-contain"
+                  priority
+                />
               </div>
               <div>
-                <span className="block text-[11px] font-black text-[#FCD34D] uppercase tracking-wider">
-                  Mau Simpan Buat Nanti?
+                <span className="font-semibold text-lg sm:text-[18px] text-white tracking-[-0.45px] block leading-tight font-brand">
+                  Cireng Cangkeling
                 </span>
-                <span className="block text-sm font-bold text-white group-hover:text-[#FCD34D] transition-colors">
-                  Lihat Menu Frozen Pack →
+                <span className="text-[10px] font-black text-[#FCD34D] tracking-[1px] block uppercase mt-0.5">
+                  PELOPOR CIRENG RENYAH GURIH
                 </span>
               </div>
+            </Link>
+
+            <div className="flex items-center gap-2">
+              <nav className="bg-black/20 border border-white/10 rounded-[4px] p-1 flex items-center gap-1">
+                <Link
+                  href="/"
+                  className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/menu-siap-makan"
+                  className="bg-white text-[#7F1D1D] font-bold text-sm px-4 py-2 rounded-[2px] shadow-xs transition"
+                >
+                  Menu Siap Makan
+                </Link>
+                <Link
+                  href="/menu-frozen"
+                  className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
+                >
+                  Menu Frozen
+                </Link>
+                <Link
+                  href="/pesan"
+                  className="text-white/90 hover:text-white font-bold text-xs px-3 sm:px-4 py-2 rounded-[2px] tracking-[0.48px] transition"
+                >
+                  Cara Pesan
+                </Link>
+              </nav>
+              <Link
+                href="/login"
+                className="hidden md:inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-3 py-2 rounded-[4px] font-semibold text-xs transition"
+                title="Portal Staf & Kasir"
+              >
+                <span>Portal Login</span>
+                <span className="text-xs">→</span>
+              </Link>
             </div>
-            <span className="text-white/60 group-hover:translate-x-1 transition-transform text-lg">
-              →
-            </span>
-          </Link>
-        </div>
-      </section>
+          </div>
+        </header>
+
+        {/* 2. TOP DECORATIVE HERO HEADER (Node 82:1237) */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-[#5B3765] via-[#7E3778] to-[#5B3765] text-white py-12 sm:py-16 px-4 sm:px-8 lg:px-12">
+          {/* Ambient Glows */}
+          <div className="absolute -top-24 right-0 w-96 h-96 bg-[#EC4899]/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-10 -left-20 w-80 h-80 bg-[#581C87]/40 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+            <div className="max-w-2xl">
+              {/* Breadcrumb / Badge Pill */}
+              <div className="backdrop-blur-sm bg-white/10 border border-white/20 px-3.5 py-1.5 rounded-full inline-flex items-center gap-2 mb-4">
+                <span className="w-2 h-2 rounded-full bg-[#34D399] animate-pulse" />
+                <span className="font-bold text-[#FCD34D] text-xs tracking-wider uppercase">
+                  KITCHEN FRESH • DIGORENG DADAKAN PANAS
+                </span>
+              </div>
+
+              <WordRevealHeading
+                text="MENU SIAP MAKAN CIRENG CANGKELING"
+                as="h1"
+                className="text-3xl sm:text-4xl lg:text-5xl font-black font-brand tracking-tight leading-tight mb-3 text-white"
+              />
+
+              <p className="text-[#FEE2E2] text-sm sm:text-base leading-relaxed font-normal">
+                Sajian aneka cireng renyah gurih hangat langsung dari wajan penggorengan kami. Dilengkapi bumbu rujak legit pedas manis khas Sunda atau sambal Bangkok istimewa.
+              </p>
+            </div>
+
+            {/* Quick Switch Banner to Frozen (Node 82:1256) */}
+            <Link
+              href="/menu-frozen"
+              className="w-full lg:w-96 bg-black/25 hover:bg-black/35 border border-white/20 hover:border-[#FCD34D]/60 rounded-xl p-4 shadow-xl backdrop-blur-md transition-all group flex items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-lg bg-[#FBBF24]/20 border border-[#FCD34D]/40 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+                  <IconSnowflake size={22} className="text-[#FCD34D]" />
+                </div>
+                <div>
+                  <span className="block text-[11px] font-black text-[#FCD34D] uppercase tracking-wider">
+                    Mau Simpan Buat Nanti?
+                  </span>
+                  <span className="block text-sm font-bold text-white group-hover:text-[#FCD34D] transition-colors">
+                    Lihat Menu Frozen Pack →
+                  </span>
+                </div>
+              </div>
+              <span className="text-white/60 group-hover:translate-x-1 transition-transform text-lg">
+                →
+              </span>
+            </Link>
+          </div>
+        </section>
 
       {/* 3. INTERACTIVE FILTER & JUMP NAVIGATION BAR (Node 82:1222) */}
       <section className="sticky top-20 z-30 bg-[#FFF7ED]/95 backdrop-blur-md border-b border-[#CBD5E1]/70 shadow-xs py-3 px-4 sm:px-8 lg:px-12">
@@ -448,9 +461,12 @@ export default function MenuSiapMakanPage() {
 
             {/* Menu Items Table / Cards */}
             <div className="bg-white rounded-lg shadow-sm border border-[#CBD5E1]/60 overflow-hidden divide-y divide-[#CBD5E1]/50">
-              {cat.items.map((item) => (
-                <div
+              {cat.items.map((item, idx) => (
+                <motion.div
                   key={item.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.3) }}
                   className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#FFFDF9] transition-colors"
                 >
                   {/* Left Info */}
@@ -462,17 +478,24 @@ export default function MenuSiapMakanPage() {
                       <span className="bg-[#FEF3C7] text-[#92400E] text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider">
                         {item.badge}
                       </span>
-                      <span className="text-[11px] text-[#059669] font-semibold bg-[#ECFDF5] px-2 py-0.5 rounded">
-                        ✓ {item.portion}
+                      <span className="text-[11px] text-[#059669] font-semibold bg-[#ECFDF5] px-2 py-0.5 rounded inline-flex items-center gap-1">
+                        <IconCheck size={12} className="text-[#059669]" />
+                        <span>{item.portion}</span>
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-2 font-normal">
                       {item.desc}
                     </p>
                     <div className="flex items-center gap-3 text-xs text-[#64748B]">
-                      <span>🌶️ {item.spicy}</span>
+                      <span className="inline-flex items-center gap-1">
+                        <IconPepper size={13} className="text-[#E11D48]" />
+                        <span>{item.spicy}</span>
+                      </span>
                       <span>•</span>
-                      <span>🔥 Digoreng Panas Dadakan</span>
+                      <span className="inline-flex items-center gap-1">
+                        <IconFlame size={13} className="text-[#EA580C]" />
+                        <span>Digoreng Panas Dadakan</span>
+                      </span>
                     </div>
                   </div>
 
@@ -492,9 +515,7 @@ export default function MenuSiapMakanPage() {
                         onClick={() => handleOrderWhatsapp(item.name, item.price)}
                         className="bg-[#25D366] hover:bg-[#1EBE5D] text-white px-3.5 py-2 rounded text-xs font-bold shadow-xs hover:shadow transition flex items-center gap-1.5 active:scale-95"
                       >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.276-.1-.477-.15-.678.15-.2.302-.779.98-.955 1.18-.176.2-.352.226-.653.076-.301-.15-1.272-.469-2.423-1.496-.895-.798-1.5-1.784-1.676-2.085-.176-.301-.019-.464.132-.614.135-.134.301-.351.452-.527.15-.176.201-.301.301-.502.1-.2.05-.376-.025-.526-.075-.15-.678-1.632-.93-2.235-.245-.588-.495-.508-.679-.517l-.578-.01c-.2 0-.526.075-.802.376-.276.301-1.053 1.029-1.053 2.509 0 1.48 1.079 2.909 1.229 3.11.15.2 2.122 3.24 5.141 4.544.718.31 1.279.496 1.716.635.722.23 1.378.197 1.9.12.581-.088 1.78-.727 2.031-1.43.251-.703.251-1.305.176-1.43-.075-.125-.276-.201-.577-.351z"/>
-                        </svg>
+                        <IconWhatsApp size={14} className="text-white" />
                         <span>Pesan WA</span>
                       </button>
 
@@ -506,7 +527,7 @@ export default function MenuSiapMakanPage() {
                       </Link>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </section>
@@ -515,8 +536,8 @@ export default function MenuSiapMakanPage() {
         {/* 5. SECTION - IMPORTANT ORDERING NOTES (Node 82:1705) */}
         <section className="bg-[#FEF3C7] border border-[#FCD34D] rounded-xl p-6 sm:p-7 shadow-xs">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-[#F59E0B] text-white flex items-center justify-center text-xl shrink-0">
-              💡
+            <div className="w-10 h-10 rounded-lg bg-[#F59E0B] text-white flex items-center justify-center shrink-0 shadow-sm">
+              <IconLightbulb size={22} className="text-white" />
             </div>
             <div>
               <h3 className="font-black text-base sm:text-lg text-[#92400E] mb-2 uppercase tracking-wide">
@@ -776,5 +797,6 @@ export default function MenuSiapMakanPage() {
         </div>
       </footer>
     </div>
+    </PageTransition>
   );
 }

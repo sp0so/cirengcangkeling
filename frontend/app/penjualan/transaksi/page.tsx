@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import AppShell from '../../components/AppShell';
+import WordRevealHeading from '../../components/WordRevealHeading';
+import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
 import { Transaction } from '../../lib/types';
 import {
@@ -38,31 +40,33 @@ export default function TransaksiPenjualanPage() {
                 Penjualan & Kasir
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Daftar Transaksi Penjualan (Figma 6:3562)
-            </h2>
+            <WordRevealHeading
+              text="Penjualan & Kasir"
+              as="h1"
+              className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
+            />
             <p className="text-sm text-[#5B403D]">
               Semua struk dan riwayat pembayaran pelanggan dari kasir toko fisik dan pesanan takeaway.
             </p>
           </div>
 
-          <div className="p-3 px-4 rounded-xl bg-white border border-[#CBD5E1] shadow-card flex items-center gap-3">
+          <MotionCard delay={0.1} hoverEffect="lift" className="p-3 px-4 rounded-xl bg-white border border-[#CBD5E1] shadow-card flex items-center gap-3">
             <span className="text-xs font-bold text-[#5B403D]">Total Penjualan:</span>
-            <span className="text-lg font-extrabold text-[#732662]">
+            <span className="text-lg font-extrabold text-[#A24F9D]">
               Rp {totalSalesAll.toLocaleString('id-ID')}
             </span>
-          </div>
+          </MotionCard>
         </div>
 
         {/* Filter bar */}
-        <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card flex flex-col md:flex-row items-center justify-between gap-4">
+        <MotionCard delay={0.15} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="w-full md:w-80 relative">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari kode transaksi atau nama kasir..."
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#CBD5E1] text-xs sm:text-sm text-[#0B1C30] focus:outline-none focus:border-[#732662]"
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#CBD5E1] text-xs sm:text-sm text-[#0B1C30] focus:outline-none focus:border-[#A24F9D]"
             />
             <span className="absolute left-3 top-2.5 text-[#5B403D]/60">
               <IconSearch size={16} />
@@ -74,7 +78,7 @@ export default function TransaksiPenjualanPage() {
               onClick={() => setFilterPayment('all')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 filterPayment === 'all'
-                  ? 'bg-[#732662] text-white shadow-xs'
+                  ? 'bg-[#A24F9D] text-white shadow-xs'
                   : 'bg-[#F8FAFC] text-[#475569] border border-[#CBD5E1]'
               }`}
             >
@@ -84,7 +88,7 @@ export default function TransaksiPenjualanPage() {
               onClick={() => setFilterPayment('tunai')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 filterPayment === 'tunai'
-                  ? 'bg-[#732662] text-white shadow-xs'
+                  ? 'bg-[#A24F9D] text-white shadow-xs'
                   : 'bg-[#F8FAFC] text-[#475569] border border-[#CBD5E1]'
               }`}
             >
@@ -94,7 +98,7 @@ export default function TransaksiPenjualanPage() {
               onClick={() => setFilterPayment('qris')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 filterPayment === 'qris'
-                  ? 'bg-[#732662] text-white shadow-xs'
+                  ? 'bg-[#A24F9D] text-white shadow-xs'
                   : 'bg-[#F8FAFC] text-[#475569] border border-[#CBD5E1]'
               }`}
             >
@@ -104,14 +108,14 @@ export default function TransaksiPenjualanPage() {
               onClick={() => setFilterPayment('transfer')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 filterPayment === 'transfer'
-                  ? 'bg-[#732662] text-white shadow-xs'
+                  ? 'bg-[#A24F9D] text-white shadow-xs'
                   : 'bg-[#F8FAFC] text-[#475569] border border-[#CBD5E1]'
               }`}
             >
               Transfer
             </button>
           </div>
-        </div>
+        </MotionCard>
 
         {/* Transactions Table */}
         <div className="rounded-2xl bg-white border border-[#CBD5E1] shadow-card overflow-hidden">
@@ -133,7 +137,7 @@ export default function TransaksiPenjualanPage() {
                 {filtered.length > 0 ? (
                   filtered.map((tx) => (
                     <tr key={tx.id} className="hover:bg-[#FFF7ED]/50 transition-colors">
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#732662]">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#A24F9D]">
                         {tx.code}
                       </td>
                       <td className="py-3.5 px-4 text-[#5B403D] text-xs">
@@ -172,7 +176,7 @@ export default function TransaksiPenjualanPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedTx(tx)}
-                          className="p-1.5 rounded-lg border border-[#CBD5E1] hover:bg-[#FFF7ED] text-[#732662] transition-colors"
+                          className="p-1.5 rounded-lg border border-[#CBD5E1] hover:bg-[#FFF7ED] text-[#A24F9D] transition-colors"
                           title="Cetak Struk"
                         >
                           <IconPrint size={15} />
@@ -247,7 +251,7 @@ export default function TransaksiPenjualanPage() {
                 <div className="border-t border-dashed border-[#CBD5E1] pt-2 space-y-1">
                   <div className="flex justify-between font-bold text-xs">
                     <span>TOTAL:</span>
-                    <span className="text-[#732662]">Rp {selectedTx.total.toLocaleString('id-ID')}</span>
+                    <span className="text-[#A24F9D]">Rp {selectedTx.total.toLocaleString('id-ID')}</span>
                   </div>
                   <div className="flex justify-between text-[11px] text-[#5B403D]">
                     <span>Metode ({selectedTx.paymentMethod.toUpperCase()}):</span>

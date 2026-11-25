@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import AppShell from '../../components/AppShell';
+import WordRevealHeading from '../../components/WordRevealHeading';
+import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
 import { Product } from '../../lib/types';
 import {
@@ -187,9 +189,11 @@ export default function KelolaProdukOwnerPage() {
               <span>/</span>
               <span className="font-bold text-[#0B1C30]">Data Produk</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight">
-              Katalog &amp; Pengelolaan Data Produk
-            </h1>
+            <WordRevealHeading
+              text="Data Master Produk"
+              as="h1"
+              className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
+            />
             <p className="text-[13px] text-[#5B403D] mt-0.5">
               Atur harga jual, estimasi HPP, margin laba, dan status tayang katalog POS kasir gerai.
             </p>
@@ -242,7 +246,7 @@ export default function KelolaProdukOwnerPage() {
            ========================================================================= */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {/* Card 1: Total SKU Aktif */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.05} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5B403D] block">
               TOTAL SKU AKTIF
             </span>
@@ -255,10 +259,10 @@ export default function KelolaProdukOwnerPage() {
             <span className="text-[11px] text-[#16A34A] font-medium block mt-1">
               ✓ 100% aktif tayang di katalog kasir
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 2: Kategori Kemasan */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.1} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5B403D] block">
               KATEGORI KEMASAN
             </span>
@@ -271,10 +275,10 @@ export default function KelolaProdukOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Vakum • Siap Goreng • Besek Bundling
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 3: Perhatian Stok */}
-          <div className="p-4 rounded-2xl bg-[#FEF3C7]/40 border border-[#F59E0B]/30 shadow-card">
+          <MotionCard delay={0.15} hoverEffect="lift" className="p-4 rounded-2xl bg-[#FEF3C7]/40 border border-[#F59E0B]/30 shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#92400E] block">
               PERHATIAN STOK
             </span>
@@ -287,10 +291,10 @@ export default function KelolaProdukOwnerPage() {
             <span className="text-[11px] text-[#D97706] font-medium block mt-1">
               Segera buat jadwal olah adonan dapur
             </span>
-          </div>
+          </MotionCard>
 
           {/* Card 4: Total Nilai Katalog */}
-          <div className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
+          <MotionCard delay={0.2} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5B403D] block">
               TOTAL NILAI KATALOG
             </span>
@@ -302,7 +306,7 @@ export default function KelolaProdukOwnerPage() {
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
               Estimasi nilai jual seluruh stok fisik
             </span>
-          </div>
+          </MotionCard>
         </div>
 
         {/* =========================================================================
