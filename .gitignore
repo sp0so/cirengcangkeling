@@ -1,8 +1,65 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ==============================================================================
+# .gitignore - Sistem Informasi Manajemen UMKM Cireng Cangkeling
+# Mengunci dan mencegah semua berkas sensitif, kredensial, cache, build,
+# metadata AI agent, dan berkas privat agar tidak terdorong (ter-push) ke GitHub.
+# ==============================================================================
 
-# dependencies
-/node_modules
-/.pnp
+# ------------------------------------------------------------------------------
+# 1. Environment & Secrets (Sangat Rahasia - Jangan Pernah Di-push)
+# ------------------------------------------------------------------------------
+.env
+.env*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.env.local
+
+# Hanya izinkan file template .env.example sebagai dokumentasi
+!.env.example
+!frontend/.env.example
+
+# Kunci Kriptografi, Sertifikat, & Token
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.keystore
+*.jks
+id_rsa*
+id_ed25519*
+*service-account*.json
+*firebase-adminsdk*.json
+credentials.json
+client_secret*.json
+
+# ------------------------------------------------------------------------------
+# 2. AI Agents, Assistants, Sidecars, Customization, & Memory Dumps
+# ------------------------------------------------------------------------------
+.agent/
+.agents/
+.codex/
+.impeccable/
+.claude/
+.gemini/
+.cursor/
+.cursorrules
+.windsurf/
+.copilot/
+skills-lock.json
+*.brain/
+.system_generated/
+transcript*.jsonl
+
+# ------------------------------------------------------------------------------
+# 3. Dependencies & Package Managers
+# ------------------------------------------------------------------------------
+node_modules/
+*/node_modules/
+.pnp/
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,42 +67,87 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# ------------------------------------------------------------------------------
+# 4. Next.js, Build Outputs, Bundlers, & Vercel
+# ------------------------------------------------------------------------------
 .next/
-/.next/
+*/.next/
 /frontend/.next/
-/out/
+out/
+*/out/
+build/
+dist/
+.turbo/
+.vercel/
+*/.vercel/
 
-# production
-/build
+# TypeScript & Next.js auto-generated types
+*.tsbuildinfo
+next-env.d.ts
+*/next-env.d.ts
 
-# misc
-.DS_Store
-*.pem
-
-# debug
+# ------------------------------------------------------------------------------
+# 5. Debugging & Logs
+# ------------------------------------------------------------------------------
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+lerna-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-!.env.example
+# ------------------------------------------------------------------------------
+# 6. Database Dumps, SQLite, & Backup Files
+# ------------------------------------------------------------------------------
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.bak
+*.backup
+*.old
+*.tmp
+*.temp
+*~
 
-# vercel
-.vercel
+# ------------------------------------------------------------------------------
+# 7. Testing & Code Coverage
+# ------------------------------------------------------------------------------
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+.vitest/
 
-# agent metadata
-.agent/
-.agents/
-.codex/
-.impeccable/
-skills-lock.json
+# ------------------------------------------------------------------------------
+# 8. IDE & Text Editor Personal Settings
+# ------------------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# ------------------------------------------------------------------------------
+# 9. Operating System Artifacts & Junk Files
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Thumbs.db:encryptable
+Desktop.ini
+$RECYCLE.BIN/
