@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import AppShell from '../../components/AppShell';
 import { useApp } from '../../lib/context';
+import { businessInfo, formatOutletCopy } from '../../lib/businessInfo';
 import {
   IconUser,
   IconCheckCircle,
@@ -27,6 +28,11 @@ interface SystemUser {
   status: 'Aktif' | 'Nonaktif';
 }
 
+const displayOutletAssignment = (assignment: string) =>
+  /kaliurang|sentral|gerai/i.test(assignment)
+    ? businessInfo.outletName
+    : formatOutletCopy(assignment);
+
 export default function UserManagementOwnerPage() {
   const { activeShift, showToast } = useApp();
 
@@ -41,7 +47,7 @@ export default function UserManagementOwnerPage() {
   const [formUsername, setFormUsername] = useState('');
   const [formEmail, setFormEmail] = useState('');
   const [formRole, setFormRole] = useState<'Kasir Gerai' | 'Staf Dapur'>('Kasir Gerai');
-  const [formOutlet, setFormOutlet] = useState('Outlet Kaliurang KM 5.2');
+  const [formOutlet, setFormOutlet] = useState<string>(businessInfo.outletName);
   const [formPin, setFormPin] = useState('1234');
 
   const [userList, setUserList] = useState<SystemUser[]>([
@@ -150,7 +156,7 @@ export default function UserManagementOwnerPage() {
               Manajemen Pengguna
             </h1>
             <p className="text-[13px] text-[#5B403D] mt-0.5">
-              Kelola akun staf kasir gerai, tim dapur produksi, dan kredensial PIN keamanan sistem POS.
+              Kelola akun staf kasir OUTLET, tim dapur produksi, dan kredensial PIN keamanan sistem POS.
             </p>
           </div>
 
@@ -229,7 +235,7 @@ export default function UserManagementOwnerPage() {
               <span className="text-[12px] font-semibold text-[#5B403D]">Petugas</span>
             </div>
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
-              Dapur Sentral Kaliurang
+              {businessInfo.address}
             </span>
           </div>
 
@@ -273,7 +279,7 @@ export default function UserManagementOwnerPage() {
             >
               <option value="all">Semua Role Pengguna</option>
               <option value="Owner">Owner</option>
-              <option value="Kasir Gerai">Kasir Gerai</option>
+              <option value="Kasir Gerai">Kasir OUTLET</option>
               <option value="Staf Dapur">Staf Dapur</option>
             </select>
           </div>
@@ -321,13 +327,13 @@ export default function UserManagementOwnerPage() {
                             : 'bg-[#FEF3C7] text-[#92400E]'
                         }`}
                       >
-                        {u.role}
+                        {formatOutletCopy(u.role)}
                       </span>
                     </td>
 
                     {/* Outlet */}
                     <td className="py-3.5 px-4 text-[#5B403D] font-medium">
-                      {u.outlet}
+                      {displayOutletAssignment(u.outlet)}
                     </td>
 
                     {/* Permissions */}
@@ -438,7 +444,7 @@ export default function UserManagementOwnerPage() {
                       onChange={(e) => setFormRole(e.target.value as 'Kasir Gerai' | 'Staf Dapur')}
                       className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-bold"
                     >
-                      <option value="Kasir Gerai">Kasir Gerai</option>
+                      <option value="Kasir Gerai">Kasir OUTLET</option>
                       <option value="Staf Dapur">Staf Dapur</option>
                     </select>
                   </div>
@@ -462,9 +468,7 @@ export default function UserManagementOwnerPage() {
                     onChange={(e) => setFormOutlet(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1]"
                   >
-                    <option value="Outlet Kaliurang KM 5.2">Outlet Kaliurang KM 5.2</option>
-                    <option value="Outlet Kaliurang KM 9.2">Outlet Kaliurang KM 9.2</option>
-                    <option value="Dapur Sentral KM 5.2">Dapur Sentral KM 5.2</option>
+                    <option value={businessInfo.outletName}>{businessInfo.outletName}</option>
                   </select>
                 </div>
 

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { useApp } from '../lib/context';
 import { UserRole } from '../lib/types';
+import { businessInfo } from '../lib/businessInfo';
 import {
   IconLock,
   IconUser,
@@ -91,7 +92,7 @@ export default function LoginPage() {
                 Cireng Cangkeling
               </span>
               <span className="text-[10px] font-black text-[#904D00] tracking-[1px] block uppercase mt-0.5">
-                PELOPOR CIRENG RENYAH GURIH
+                {businessInfo.slogan}
               </span>
             </div>
           </Link>
@@ -134,7 +135,7 @@ export default function LoginPage() {
                 Cireng Tanpa Selisih.
               </h1>
               <p className="text-xs sm:text-sm text-[#F5E8F2]/90 leading-relaxed font-normal">
-                Sistem pencatatan persediaan bahan baku dapur, monitoring stok produk jadi, dan audit mutasi transparan untuk operasional harian gerai.
+                Sistem pencatatan persediaan bahan baku dapur, monitoring stok produk jadi, dan audit mutasi transparan untuk operasional harian OUTLET.
               </p>
             </div>
 

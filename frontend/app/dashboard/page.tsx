@@ -6,6 +6,7 @@ import AppShell from '../components/AppShell';
 import WordRevealHeading from '../components/WordRevealHeading';
 import MotionCard from '../components/MotionCard';
 import { useApp } from '../lib/context';
+import { formatOutletCopy } from '../lib/businessInfo';
 import {
   IconAlertTriangle,
   IconProduct,
@@ -687,24 +688,24 @@ export default function DashboardPage() {
                 <table className="w-full text-left">
                   <thead>
                     <tr className="bg-[#EFF4FF] text-[#5B403D] text-[11px] leading-[14px] font-bold uppercase tracking-[0.55px]">
-                      <th className="py-3 px-3 rounded-l-[8px]">WAKTU</th>
-                      <th className="py-3 px-3">ITEM</th>
-                      <th className="py-3 px-3">JENIS MUTASI</th>
-                      <th className="py-3 px-3 text-right">JUMLAH</th>
-                      <th className="py-3 px-3">REFERENSI</th>
-                      <th className="py-3 px-3 text-center rounded-r-[8px]">STATUS</th>
+                      <th className="py-2 px-2.5 rounded-l-[8px]">WAKTU</th>
+                      <th className="py-2 px-2.5">ITEM</th>
+                      <th className="py-2 px-2.5">JENIS MUTASI</th>
+                      <th className="py-2 px-2.5 text-right">JUMLAH</th>
+                      <th className="py-2 px-2.5">REFERENSI</th>
+                      <th className="py-2 px-2.5 text-center rounded-r-[8px]">STATUS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[rgba(220,233,255,0.4)] text-[12px] leading-[16px]">
                     {recentMovements.length > 0 ? (
                       recentMovements.map((m) => (
                         <tr key={m.id} className="row-hover-satisfying">
-                          <td className="py-3 px-3 text-[#5B403D] whitespace-nowrap">{m.date}</td>
-                          <td className="py-3 px-3">
+                          <td className="py-2.5 px-2.5 text-[#5B403D] whitespace-nowrap">{m.date}</td>
+                          <td className="py-2.5 px-2.5">
                             <div className="font-bold text-[#0B1C30] tracking-[0.24px]">{m.itemName}</div>
                             <div className="text-[#5B403D] text-[11px] uppercase">{m.itemType}</div>
                           </td>
-                          <td className="py-3 px-3">
+                          <td className="py-2.5 px-2.5">
                             <span
                               className={`text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
                                 m.type === 'masuk'
@@ -718,16 +719,16 @@ export default function DashboardPage() {
                             </span>
                           </td>
                           <td
-                            className={`py-3 px-3 text-right font-bold whitespace-nowrap ${
+                            className={`py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${
                               m.type === 'masuk' ? 'text-[#15803D]' : 'text-[#BA1A1A]'
                             }`}
                           >
                             {m.type === 'masuk' ? '+' : '-'}{m.quantity} {m.unit}
                           </td>
-                          <td className="py-3 px-3 text-[#0B1C30] font-medium max-w-[180px] truncate">
-                            {m.reference}
+                          <td className="py-2.5 px-2.5 text-[#0B1C30] font-medium max-w-[180px] truncate">
+                            {formatOutletCopy(m.reference)}
                           </td>
-                          <td className="py-3 px-3 text-center">
+                          <td className="py-2.5 px-2.5 text-center">
                             <span className="inline-flex items-center gap-1 bg-[#F0FDF4] text-[#15803D] text-[11px] font-bold px-2 py-0.5 rounded-full">
                               <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
                               <span>Tercatat</span>
@@ -833,7 +834,7 @@ export default function DashboardPage() {
                 <p className="text-[#5B403D] leading-[18px] mt-0.5">
                   {bestSellers.length > 0
                     ? `Prioritaskan produksi adonan "${bestSellers[0].name}" untuk mengantisipasi permintaan!`
-                    : 'Siapkan varian cireng beku & bumbu rujak untuk persiapan jam operasional gerai.'}
+                    : 'Siapkan varian cireng beku & bumbu rujak untuk persiapan jam operasional OUTLET.'}
                 </p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-[#D3E4FE] text-[#0B1C30] flex items-center justify-center shrink-0">

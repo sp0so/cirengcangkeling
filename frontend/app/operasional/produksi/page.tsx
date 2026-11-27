@@ -63,7 +63,7 @@ export default function ProduksiPage() {
         <div className="rounded-2xl bg-white border border-[#CBD5E1] shadow-card overflow-hidden">
           <div className="p-4 border-b border-[#F1F5F9] flex items-center justify-between">
             <h3 className="font-bold text-sm text-[#0B1C30]">
-              Riwayat Batch Produksi Gerai
+              Riwayat Batch Produksi OUTLET
             </h3>
             <span className="text-xs text-[#5B403D]">
               Total: {productionOrders.length} Batch Selesai

@@ -26,7 +26,7 @@ export default function LaporanPersediaanPage() {
               Laporan Nilai Persediaan (Valuasi Stok)
             </h2>
             <p className="text-sm text-[#5B403D]">
-              Valuasi aset persediaan bahan baku di gudang dan produk jadi di etalase gerai.
+              Valuasi aset persediaan bahan baku di gudang dan produk jadi di etalase OUTLET.
             </p>
           </div>
 

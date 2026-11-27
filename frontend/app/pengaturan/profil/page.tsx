@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import AppShell from '../../components/AppShell';
 import { useApp } from '../../lib/context';
+import { businessInfo } from '../../lib/businessInfo';
 import {
   IconSettings,
   IconCheckCircle,
@@ -13,8 +14,8 @@ import {
 export default function ProfilUsahaOwnerPage() {
   const { showToast, clearAllData, loadSampleData } = useApp();
 
-  const [brandName, setBrandName] = useState('Cireng Cangkeling');
-  const [tagline, setTagline] = useState('Yang kamu ingin, kita adain!');
+  const [brandName, setBrandName] = useState<string>(businessInfo.name);
+  const [tagline, setTagline] = useState<string>(businessInfo.slogan);
   const [ownerName, setOwnerName] = useState('Astriana (Usaha Dagang / Perorangan UMKM)');
   const [yearFounded, setYearFounded] = useState('2021');
   const [nibNumber, setNibNumber] = useState('0220202931029');
@@ -23,15 +24,10 @@ export default function ProfilUsahaOwnerPage() {
     'Cireng Cangkeling memproduksi olahan cireng krispi dengan racikan bumbu rempah Sunda autentik dan berbagai isian. Dibuat setiap pagi dari bahan tapioka pilihan segar tanpa pengawet berbahaya. Melayani pembelian cemilan hangat di tempat, kemasan vacuum beku (frozen food), serta pesanan katering UMKM se-Yogyakarta.'
   );
 
-  const [outlet1Address, setOutlet1Address] = useState(
-    'Jl. Kaliurang KM 5.2 No. 18, Caturtunggal, Depok, Sleman, D.I. Yogyakarta 55281'
-  );
-  const [outlet2Address, setOutlet2Address] = useState(
-    'Jl. Kaliurang KM 9.2 (Depan Pasar Gentan), Sleman, D.I. Yogyakarta'
-  );
+  const [outletAddress, setOutletAddress] = useState<string>(businessInfo.address);
   const [waNumber, setWaNumber] = useState('0822-1234-5678');
   const [instagram, setInstagram] = useState('@cirengcangkeling.yk');
-  const [operatingHours, setOperatingHours] = useState('Setiap Hari, 09.00 - 21.00 WIB');
+  const [operatingHours, setOperatingHours] = useState(`Setiap Hari, ${businessInfo.hours}`);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +94,7 @@ export default function ProfilUsahaOwnerPage() {
               &quot;{tagline}&quot;
             </p>
             <div className="text-xs text-white/80 flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
-              <span>📍 Kaliurang, Yogyakarta</span>
+              <span>📍 {businessInfo.address}</span>
               <span>•</span>
               <span>🕒 {operatingHours}</span>
               <span>•</span>
@@ -230,7 +226,7 @@ export default function ProfilUsahaOwnerPage() {
         <div className="p-6 rounded-2xl bg-white border border-[#CBD5E1] shadow-card space-y-5">
           <div className="border-b border-[#F1F5F9] pb-3">
             <span className="text-[11px] font-bold text-[#833E17] uppercase tracking-wider block">
-              GERAI &amp; KOMUNIKASI
+              OUTLET &amp; KOMUNIKASI
             </span>
             <h3 className="text-base font-extrabold text-[#0B1C30]">
               Lokasi Outlet, Dapur Produksi &amp; Kontak Resmi
@@ -243,24 +239,12 @@ export default function ProfilUsahaOwnerPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div>
               <label className="block font-bold text-[#334155] mb-1">
-                Outlet 1 (Sentral &amp; Dapur Produksi Utama) *
+                OUTLET CIRENG CANGKELING *
               </label>
               <textarea
                 rows={2}
-                value={outlet1Address}
-                onChange={(e) => setOutlet1Address(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] resize-none"
-              />
-            </div>
-
-            <div>
-              <label className="block font-bold text-[#334155] mb-1">
-                Outlet 2 (Cabang Gerai Kaliurang Atas)
-              </label>
-              <textarea
-                rows={2}
-                value={outlet2Address}
-                onChange={(e) => setOutlet2Address(e.target.value)}
+                value={outletAddress}
+                onChange={(e) => setOutletAddress(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] resize-none"
               />
             </div>

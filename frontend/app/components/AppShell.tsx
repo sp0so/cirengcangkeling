@@ -13,6 +13,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { currentUser, isAuthLoading } = useApp();
+  const isBusinessReport = pathname === '/laporan/keuangan';
 
   useEffect(() => {
     if (!isAuthLoading && !currentUser) {
@@ -50,7 +51,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isRestrictedForKasir = isKasir && isOwnerRoute;
 
   return (
-    <div className="min-h-screen flex bg-[#FFF7ED]">
+    <div className={`min-h-screen flex bg-[#FFF7ED]${isBusinessReport ? ' report-print-shell' : ''}`}>
       {/* Sidebar (Width 288px / w-72 per Figma Spec) */}
       <Sidebar isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 

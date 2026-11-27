@@ -6,13 +6,13 @@ import Image from 'next/image';
 import PageTransition from '../components/PageTransition';
 import WordRevealHeading from '../components/WordRevealHeading';
 import MotionCard from '../components/MotionCard';
+import { businessInfo } from '../lib/businessInfo';
 import {
   IconCooking,
   IconShoppingBag,
   IconBike,
   IconUtensils,
   IconWhatsApp,
-  IconCheck,
   IconMapPin,
   IconClock,
 } from '../components/Icons';
@@ -40,7 +40,7 @@ export default function InformasiPemesananPage() {
                   Cireng Cangkeling
                 </span>
                 <span className="text-[10px] font-black text-[#FCD34D] tracking-[1px] block uppercase mt-0.5">
-                  PELOPOR CIRENG RENYAH GURIH
+                  {businessInfo.slogan}
                 </span>
               </div>
             </Link>
@@ -125,7 +125,7 @@ export default function InformasiPemesananPage() {
                     </span>
                   </div>
                   <p className="text-xs text-white/90 font-medium">
-                    Buka Hari Ini: 10.00 – 21.30 WIB
+                    Buka Hari Ini: {businessInfo.hours}
                   </p>
                 </div>
               </div>
@@ -149,19 +149,6 @@ export default function InformasiPemesananPage() {
                 <h2 className="font-black text-2xl text-[#121C2A] tracking-tight uppercase mb-2">
                   SHOPEEFOOD
                 </h2>
-                <p className="text-sm text-[#574240] leading-relaxed mb-6 font-normal">
-                  Pesan makanan favoritmu dengan mudah melalui ShopeeFood. Nikmati promo voucher hemat, potongan ongkir ekstra, dan cireng digoreng dadakan langsung antar.
-                </p>
-                <div className="space-y-1.5 text-xs text-[#64748B] mb-6">
-                  <p className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#EE4D2D] shrink-0" />
-                    <span>Tersedia Menu Siap Makan & Gorengan Dadakan</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#EE4D2D] shrink-0" />
-                    <span>Dukungan ShopeePay & Diskon Merchant</span>
-                  </p>
-                </div>
               </div>
 
               <a
@@ -188,19 +175,6 @@ export default function InformasiPemesananPage() {
                 <h2 className="font-black text-2xl text-[#121C2A] tracking-tight uppercase mb-2">
                   GOFOOD
                 </h2>
-                <p className="text-sm text-[#574240] leading-relaxed mb-6 font-normal">
-                  Nikmati kemudahan memesan Cireng Cangkeling melalui GoFood. Armada driver sigap menjangkau area Sleman, Kampus UGM, UNY, hingga pusat Kota Yogyakarta.
-                </p>
-                <div className="space-y-1.5 text-xs text-[#64748B] mb-6">
-                  <p className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#00AA13] shrink-0" />
-                    <span>Pengantaran Cepat Cireng Hangat</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#00AA13] shrink-0" />
-                    <span>Promo GoPay & GoFood Pasti Ada Promo</span>
-                  </p>
-                </div>
               </div>
 
               <a
@@ -227,19 +201,6 @@ export default function InformasiPemesananPage() {
                 <h2 className="font-black text-2xl text-[#121C2A] tracking-tight uppercase mb-2">
                   GRABFOOD
                 </h2>
-                <p className="text-sm text-[#574240] leading-relaxed mb-6 font-normal">
-                  Pesan menu cireng dan camilan gurih langsung dari aplikasi Grab. Dapatkan diskon langganan GrabUnlimited dan garansi antar tepat waktu.
-                </p>
-                <div className="space-y-1.5 text-xs text-[#64748B] mb-6">
-                  <p className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#00B14F] shrink-0" />
-                    <span>Pengiriman Terjadwal & Dine-Out</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#00B14F] shrink-0" />
-                    <span>Diskon GrabUnlimited Aktif</span>
-                  </p>
-                </div>
               </div>
 
               <a
@@ -266,19 +227,6 @@ export default function InformasiPemesananPage() {
                 <h2 className="font-black text-2xl text-[#121C2A] tracking-tight uppercase mb-2">
                   WHATSAPP RESMI
                 </h2>
-                <p className="text-sm text-[#574240] leading-relaxed mb-6 font-normal">
-                  Ingin pesan langsung atau bertanya? Hubungi kami melalui WhatsApp. Layanan ramah untuk pesanan prasmanan arisan, katering kantor, paket frozen antar kota, atau kemitraan reseller.
-                </p>
-                <div className="space-y-1.5 text-xs text-[#64748B] mb-6">
-                  <p className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#25D366] shrink-0" />
-                    <span>Pesanan Partai Besar & Konsultasi Menu</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <IconCheck size={14} className="text-[#25D366] shrink-0" />
-                    <span>Pengiriman Luar Kota via Paxel & JNE YES</span>
-                  </p>
-                </div>
               </div>
 
               <a
@@ -300,39 +248,25 @@ export default function InformasiPemesananPage() {
                 Kunjungi Langsung
               </span>
               <h2 className="text-2xl sm:text-3xl font-black font-brand text-[#0F172A] mt-2">
-                Beli Langsung di Gerai Cireng Cangkeling
+                Beli Langsung di OUTLET Cireng Cangkeling
               </h2>
               <p className="text-sm text-[#64748B] mt-1">
                 Nikmati sensasi makan cireng hangat langsung dari wajan di outlet resmi kami di Yogyakarta.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="max-w-2xl">
               <MotionCard delay={0.05} hoverEffect="glow" className="border border-[#CBD5E1]/70 rounded-xl p-5 bg-[#FFFDF9]">
                 <div className="flex items-center gap-2.5 mb-2">
                   <IconMapPin size={18} className="text-[#5B3765] shrink-0" />
-                  <h3 className="font-bold text-base text-[#0F172A]">Outlet Kaliurang KM 5.2</h3>
+                  <h3 className="font-bold text-base text-[#0F172A]">{businessInfo.outletName}</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-[#574240] leading-relaxed mb-3">
-                  Jl. Kaliurang KM 5.2 No. 12, Sleman, D.I. Yogyakarta (Dekat Kawasan Kampus UGM)
+                  {businessInfo.address}
                 </p>
                 <div className="text-xs text-[#64748B] flex items-center gap-2">
                   <IconClock size={14} className="text-[#64748B] shrink-0" />
-                  <span>Buka Setiap Hari: 10.00 – 21.30 WIB</span>
-                </div>
-              </MotionCard>
-
-              <MotionCard delay={0.15} hoverEffect="glow" className="border border-[#CBD5E1]/70 rounded-xl p-5 bg-[#FFFDF9]">
-                <div className="flex items-center gap-2.5 mb-2">
-                  <IconMapPin size={18} className="text-[#5B3765] shrink-0" />
-                  <h3 className="font-bold text-base text-[#0F172A]">Outlet Kaliurang KM 9.2</h3>
-                </div>
-                <p className="text-xs sm:text-sm text-[#574240] leading-relaxed mb-3">
-                  Jl. Kaliurang KM 9.2, Sinduharjo, Ngaglik, Sleman, D.I. Yogyakarta
-                </p>
-                <div className="text-xs text-[#64748B] flex items-center gap-2">
-                  <IconClock size={14} className="text-[#64748B] shrink-0" />
-                  <span>Buka Setiap Hari: 10.00 – 21.30 WIB</span>
+                  <span>Buka Setiap Hari: {businessInfo.hours}</span>
                 </div>
               </MotionCard>
             </div>
@@ -373,46 +307,6 @@ export default function InformasiPemesananPage() {
               </div>
             </div>
 
-            {/* Col 2 */}
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="relative w-[14px] h-[12px] shrink-0">
-                  <Image src="/icons/store.svg" alt="Store" fill className="object-contain" />
-                </div>
-                <span className="font-bold text-[#FCD34D] text-sm tracking-[0.7px] uppercase">
-                  GERAI YOGYAKARTA
-                </span>
-              </div>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2.5">
-                  <div className="relative w-[11px] h-[15px] shrink-0 mt-0.5">
-                    <Image src="/icons/map-pin.svg" alt="Pin" fill className="object-contain" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-xs text-white leading-[18px]">
-                      Outlet Kaliurang KM 5.2
-                    </p>
-                    <p className="text-[#FEE2E2] text-xs leading-[18px]">
-                      Jl. Kaliurang KM 5.2 No. 12, Sleman, D.I. Yogyakarta
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <div className="relative w-[11px] h-[15px] shrink-0 mt-0.5">
-                    <Image src="/icons/map-pin.svg" alt="Pin" fill className="object-contain" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-xs text-white leading-[18px]">
-                      Outlet Kaliurang KM 9.2
-                    </p>
-                    <p className="text-[#FEE2E2] text-xs leading-[18px]">
-                      Jl. Kaliurang KM 9.2, Sinduharjo, Ngaglik, Sleman
-                    </p>
-                  </div>
-                </li>
-              </ul>
-            </div>
-
             {/* Col 3 */}
             <div className="flex flex-col">
               <div className="flex items-center gap-2 mb-3">
@@ -426,18 +320,10 @@ export default function InformasiPemesananPage() {
               <div className="space-y-2.5">
                 <div className="bg-black/20 border border-white/10 rounded-[4px] p-2.5">
                   <p className="font-semibold text-xs text-white leading-[18px]">
-                    Senin - Jumat
+                    Setiap Hari
                   </p>
                   <p className="text-[#FEE2E2] text-xs leading-[18px]">
-                    10.00 - 21.30 WIB
-                  </p>
-                </div>
-                <div className="bg-black/20 border border-white/10 rounded-[4px] p-2.5">
-                  <p className="font-semibold text-xs text-white leading-[18px]">
-                    Sabtu - Minggu
-                  </p>
-                  <p className="text-[#FEE2E2] text-xs leading-[18px]">
-                    09.00 - 22.00 WIB
+                    {businessInfo.hours}
                   </p>
                 </div>
               </div>

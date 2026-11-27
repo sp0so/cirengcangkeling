@@ -46,7 +46,7 @@ export default function CatatanKeuanganPage() {
               Buku Kas & Catatan Keuangan
             </h2>
             <p className="text-sm text-[#5B403D]">
-              Arus penerimaan kas harian (inflow) vs pengeluaran operasional (outflow) gerai.
+              Arus penerimaan kas harian (inflow) vs pengeluaran operasional (outflow) OUTLET.
             </p>
           </div>
 

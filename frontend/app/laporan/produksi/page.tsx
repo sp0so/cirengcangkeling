@@ -23,7 +23,7 @@ export default function LaporanProduksiPage() {
               Laporan Hasil Batch Produksi
             </h2>
             <p className="text-sm text-[#5B403D]">
-              Rekapitulasi batch pembuatan cireng siap goreng dan kemasan frozen di gerai.
+              Rekapitulasi batch pembuatan cireng siap goreng dan kemasan frozen di OUTLET.
             </p>
           </div>
 

@@ -138,7 +138,7 @@ export default function ImportMarketplacePage() {
           <div className="space-y-1">
             <span className="font-bold block">Ketentuan Bisnis Import Marketplace (PRD & SRS):</span>
             <p className="text-[#5B403D] leading-relaxed">
-              Import laporan marketplace adalah pencatatan histori omzet manual. Mengimpor transaksi marketplace <strong>TIDAK AKAN</strong> memotong stok fisik aktif di toko secara otomatis, guna menghindari selisih inventaris riil di gerai.
+              Import laporan marketplace adalah pencatatan histori omzet manual. Mengimpor transaksi marketplace <strong>TIDAK AKAN</strong> memotong stok fisik aktif di toko secara otomatis, guna menghindari selisih inventaris riil di OUTLET.
             </p>
           </div>
         </div>
@@ -342,7 +342,7 @@ export default function ImportMarketplacePage() {
                   Laporan Berhasil Disimpan!
                 </h4>
                 <p className="text-xs text-[#5B403D] max-w-sm mx-auto">
-                  Data penjualan marketplace {platform} telah tercatat di master laporan tanpa mengurangi stok fisik gerai.
+                  Data penjualan marketplace {platform} telah tercatat di master laporan tanpa mengurangi stok fisik OUTLET.
                 </p>
                 <div className="pt-2">
                   <button

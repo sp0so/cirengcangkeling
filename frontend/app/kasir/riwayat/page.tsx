@@ -6,6 +6,7 @@ import AppShell from '../../components/AppShell';
 import WordRevealHeading from '../../components/WordRevealHeading';
 import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
+import { formatOutletCopy } from '../../lib/businessInfo';
 import { Transaction } from '../../lib/types';
 import {
   IconSearch,
@@ -70,7 +71,7 @@ export default function RiwayatPengalihanKasirPage() {
         id: `tx-${tx.id}`,
         refCode: `#REF-${tx.code}`,
         time: tx.date ? new Date(tx.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB' : '14:00 WIB',
-        customerName: tx.cashierName || 'Pelanggan Gerai',
+        customerName: formatOutletCopy(tx.cashierName || 'Pelanggan Gerai'),
         customerNote: '(POS Kasir)',
         itemsSummary: tx.items.map((i) => `${i.quantity}x ${i.productName}`).join(', '),
         platform: p,
