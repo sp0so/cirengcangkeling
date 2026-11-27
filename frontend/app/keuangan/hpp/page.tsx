@@ -68,7 +68,17 @@ export default function PerhitunganHppPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {products.map((prod) => {
+                {products.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-[#5B403D]">
+                      <div className="max-w-md mx-auto space-y-2">
+                        <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada data produk atau resep terdaftar</p>
+                        <p className="text-[12px]">Silakan tambahkan data produk pada menu Data Master &gt; Produk dan susun komposisi bahan baku pada Data Master &gt; Resep untuk melihat analisis margin HPP otomatis.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  products.map((prod) => {
                   const grossMargin = prod.price - prod.baseCost;
                   const marginPct = prod.price > 0 ? Math.round((grossMargin / prod.price) * 100) : 0;
                   const isHealthy = marginPct >= 45;
@@ -109,7 +119,7 @@ export default function PerhitunganHppPage() {
                       </td>
                     </tr>
                   );
-                })}
+                }))}
               </tbody>
             </table>
           </div>

@@ -16,17 +16,19 @@ import {
 export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser, switchRole, rawMaterials } = useApp();
+  const { currentUser, authenticatedRole, logout, switchRole, rawMaterials } = useApp();
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
   const criticalMaterials = rawMaterials.filter((m) => m.stock < m.minStock);
 
-  const handleLogout = () => {
-    router.push('/login');
+  const handleLogout = async () => {
+    setProfileOpen(false);
+    await logout();
+    router.replace('/login');
   };
 
-  const isKasir = pathname.startsWith('/kasir') || currentUser.role === 'kasir';
+  const isKasir = pathname.startsWith('/kasir') || currentUser?.role === 'kasir';
 
   // Live formatted date
   const formattedDate = new Intl.DateTimeFormat('id-ID', {
@@ -255,7 +257,7 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
 
         <div className="flex flex-col">
           <h1 className="text-[16px] leading-[24px] font-bold text-[#0B1C30] font-sans">
-            Halo, {currentUser.name}!
+            Halo, {currentUser?.name || 'Pengguna'}!
           </h1>
           <div className="flex items-center gap-1.5 text-[12px] leading-[18px] text-[#5B403D] font-sans">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#5B403D]">
@@ -335,14 +337,14 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
             className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-[#FFF7ED] transition-colors"
           >
             <div className="w-8 h-8 rounded-full bg-[#A24F9D] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-              {currentUser.name.charAt(0)}
+              {currentUser?.name?.charAt(0) || 'U'}
             </div>
             <div className="hidden sm:flex flex-col text-left">
               <span className="text-[12px] leading-[15px] font-bold text-[#0B1C30] tracking-[0.24px] font-sans">
-                {currentUser.name}
+                {currentUser?.name || 'Pengguna'}
               </span>
               <span className="text-[11px] leading-[14px] font-bold text-[#5B403D] tracking-[0.33px] font-sans">
-                Owner & Pengelola
+                {currentUser?.role === 'owner' ? 'Owner & Pengelola' : 'Kasir Shift'}
               </span>
             </div>
             <div className="p-1 rounded-lg text-[#5B403D]">
@@ -353,48 +355,50 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-alert border border-[#CBD5E1] py-2 z-50 animate-fade-in font-sans">
               <div className="px-4 py-2 border-b border-[#F1F5F9]">
-                <p className="text-xs font-bold text-[#0B1C30]">{currentUser.name}</p>
+                <p className="text-xs font-bold text-[#0B1C30]">{currentUser?.name || 'Pengguna'}</p>
                 <p className="text-[11px] text-[#5B403D]">
-                  owner@cirengcangkeling.com
+                  {currentUser?.email || ''}
                 </p>
               </div>
 
-              {/* Role Switcher */}
-              <div className="p-2 border-b border-[#F1F5F9]">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#5B403D] px-2 block mb-1">
-                  Ganti Hak Akses
-                </span>
-                <div className="flex gap-1 bg-[#F8FAFC] p-1 rounded-xl border border-[#CBD5E1]/60">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      switchRole('owner');
-                      setProfileOpen(false);
-                    }}
-                    className={`flex-1 py-1 px-2 rounded-lg text-xs font-bold transition-all ${
-                      currentUser.role === 'owner'
-                        ? 'bg-[#A24F9D] text-white shadow-xs'
-                        : 'text-[#5B403D] hover:text-[#0B1C30]'
-                    }`}
-                  >
-                    Owner
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      switchRole('kasir');
-                      setProfileOpen(false);
-                    }}
-                    className={`flex-1 py-1 px-2 rounded-lg text-xs font-bold transition-all ${
-                      currentUser.role === 'kasir'
-                        ? 'bg-[#A24F9D] text-white shadow-xs'
-                        : 'text-[#5B403D] hover:text-[#0B1C30]'
-                    }`}
-                  >
-                    Kasir
-                  </button>
+              {/* Role Switcher (strictly restricted to authenticated Owner) */}
+              {authenticatedRole === 'owner' && (
+                <div className="p-2 border-b border-[#F1F5F9]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#5B403D] px-2 block mb-1">
+                    Mode Tampilan Owner
+                  </span>
+                  <div className="flex gap-1 bg-[#F8FAFC] p-1 rounded-xl border border-[#CBD5E1]/60">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        switchRole('owner');
+                        setProfileOpen(false);
+                      }}
+                      className={`flex-1 py-1 px-2 rounded-lg text-xs font-bold transition-all ${
+                        currentUser?.role === 'owner'
+                          ? 'bg-[#A24F9D] text-white shadow-xs'
+                          : 'text-[#5B403D] hover:text-[#0B1C30]'
+                      }`}
+                    >
+                      Owner
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        switchRole('kasir');
+                        setProfileOpen(false);
+                      }}
+                      className={`flex-1 py-1 px-2 rounded-lg text-xs font-bold transition-all ${
+                        currentUser?.role === 'kasir'
+                          ? 'bg-[#A24F9D] text-white shadow-xs'
+                          : 'text-[#5B403D] hover:text-[#0B1C30]'
+                      }`}
+                    >
+                      Kasir
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="p-1">
                 <Link

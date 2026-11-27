@@ -49,6 +49,7 @@ client_secret*.json
 .cursorrules
 .windsurf/
 .copilot/
+.aider*
 skills-lock.json
 *.brain/
 .system_generated/
@@ -151,3 +152,12 @@ Thumbs.db
 Thumbs.db:encryptable
 Desktop.ini
 $RECYCLE.BIN/
+
+# ------------------------------------------------------------------------------
+# 10. Internal Specifications & Local Agent Instructions
+# ------------------------------------------------------------------------------
+frontend/AGENTS.md
+design.md
+PRD-MainSistem.md
+PRODUCT.md
+SRS-MainSistem.md

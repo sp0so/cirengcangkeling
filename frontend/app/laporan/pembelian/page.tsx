@@ -56,22 +56,30 @@ export default function LaporanPembelianPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
-              {procurementOrders.map((po) => (
-                <tr key={po.id}>
-                  <td className="py-3 px-4 font-mono font-bold text-[#732662]">{po.code}</td>
-                  <td className="py-3 px-4 text-[#5B403D]">{po.date}</td>
-                  <td className="py-3 px-4 font-semibold">{po.supplierName}</td>
-                  <td className="py-3 px-4">{po.items.map((i) => `${i.materialName} (${i.quantity} ${i.unit})`).join(', ')}</td>
-                  <td className="py-3 px-4 text-right font-extrabold text-[#0B1C30]">
-                    Rp {po.totalAmount.toLocaleString('id-ID')}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
-                      {po.status}
-                    </span>
+              {procurementOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-10 text-center text-[#5B403D]">
+                    Belum ada riwayat pembelian bahan baku tercatat.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                procurementOrders.map((po) => (
+                  <tr key={po.id}>
+                    <td className="py-3 px-4 font-mono font-bold text-[#732662]">{po.code}</td>
+                    <td className="py-3 px-4 text-[#5B403D]">{po.date}</td>
+                    <td className="py-3 px-4 font-semibold">{po.supplierName}</td>
+                    <td className="py-3 px-4">{po.items.map((i) => `${i.materialName} (${i.quantity} ${i.unit})`).join(', ')}</td>
+                    <td className="py-3 px-4 text-right font-extrabold text-[#0B1C30]">
+                      Rp {po.totalAmount.toLocaleString('id-ID')}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
+                        {po.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

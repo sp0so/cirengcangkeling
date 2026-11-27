@@ -7,7 +7,7 @@ export function getClientSafe() {
   try {
     return createClient();
   } catch (err) {
-    console.warn('Supabase client initialization skipped (environment variables missing or invalid). Falling back to mock data.');
+    console.warn('Supabase client initialization skipped (environment variables missing or invalid). Operating in local storage mode with empty initial state.');
     return null;
   }
 }

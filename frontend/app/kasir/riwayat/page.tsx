@@ -48,109 +48,18 @@ export default function RiwayatPengalihanKasirPage() {
   const [selectedItem, setSelectedItem] = useState<LogPlatformItem | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Figma 127:485 default log entries + dynamic mapping
-  const defaultLogs: LogPlatformItem[] = useMemo(() => [
-    {
-      id: 'ref-025',
-      refCode: '#REF-20241024-025',
-      time: '14:10 WIB',
-      customerName: 'Mas Dedi',
-      customerNote: '(Order Cepat)',
-      itemsSummary: '2x Cireng Rujak, 1x Jeletot, 1x Goreng Matang',
-      platform: 'ShopeeFood',
-      platformLabel: 'ShopeeFood',
-      platformBadgeBg: '#FFDAD6',
-      platformBadgeText: '#93000B',
-      status: 'Terkirim',
-      statusBg: 'rgba(0,132,56,0.15)',
-      statusText: '#00682B',
-      totalNominal: 68000,
-    },
-    {
-      id: 'ref-024',
-      refCode: '#REF-20241024-024',
-      time: '13:42 WIB',
-      customerName: 'Ibu Dewi Permata',
-      customerNote: '(Langganan)',
-      itemsSummary: '2x Cireng Rujak, 1x Besek Oleh-oleh',
-      platform: 'GoFood',
-      platformLabel: 'GoFood',
-      platformBadgeBg: '#DCFCE7',
-      platformBadgeText: '#002109',
-      status: 'Selesai',
-      statusBg: 'rgba(0,132,56,0.15)',
-      statusText: '#00682B',
-      totalNominal: 82000,
-    },
-    {
-      id: 'ref-023',
-      refCode: '#REF-20241024-023',
-      time: '13:25 WIB',
-      customerName: 'Kang Budi Cileunyi',
-      customerNote: '(Pick Up Ojol)',
-      itemsSummary: '3x Cireng Goreng Matang',
-      platform: 'ShopeeFood',
-      platformLabel: 'ShopeeFood',
-      platformBadgeBg: '#FFDAD6',
-      platformBadgeText: '#93000B',
-      status: 'Terkirim',
-      statusBg: 'rgba(0,132,56,0.15)',
-      statusText: '#00682B',
-      totalNominal: 60000,
-    },
-    {
-      id: 'ref-022',
-      refCode: '#REF-20241024-022',
-      time: '12:50 WIB',
-      customerName: 'Teh Nengsih',
-      customerNote: '(Kurir Toko)',
-      itemsSummary: '4x Cireng Pedas, 2x Cireng Keju',
-      platform: 'WhatsApp',
-      platformLabel: 'WhatsApp Order',
-      platformBadgeBg: 'rgba(0,132,56,0.15)',
-      platformBadgeText: '#00682B',
-      status: 'Terkirim',
-      statusBg: 'rgba(0,132,56,0.15)',
-      statusText: '#00682B',
-      totalNominal: 116000,
-    },
-    {
-      id: 'ref-021',
-      refCode: '#REF-20241024-021',
-      time: '11:15 WIB',
-      customerName: 'Pelanggan Walk-In',
-      customerNote: '(Diantar Kurir)',
-      itemsSummary: '1x Paket Bundling Besek Super',
-      platform: 'Shopee',
-      platformLabel: 'Shopee Official',
-      platformBadgeBg: '#DAE2FD',
-      platformBadgeText: '#002109',
-      status: 'Selesai',
-      statusBg: 'rgba(0,132,56,0.15)',
-      statusText: '#00682B',
-      totalNominal: 52000,
-    },
-    {
-      id: 'ref-020',
-      refCode: '#REF-20241024-020',
-      time: '10:05 WIB',
-      customerName: 'Pak Hendra (Kantor)',
-      customerNote: '(Catering Box)',
-      itemsSummary: '5x Cireng Rujak, 3x Kuah Seblak',
-      platform: 'GoFood',
-      platformLabel: 'GoFood',
-      platformBadgeBg: '#DCFCE7',
-      platformBadgeText: '#002109',
-      status: 'Selesai',
-      statusBg: 'rgba(0,132,56,0.15)',
-      statusText: '#00682B',
-      totalNominal: 132000,
-    },
-  ], []);
+  // Kasir only sees transactions processed by themselves (Section 6.2.3 & 6.3)
+  const myTransactions = useMemo(
+    () =>
+      transactions.filter(
+        (tx) => tx.cashierId === currentUser?.id || tx.cashierName === currentUser?.name
+      ),
+    [transactions, currentUser]
+  );
 
   // Merge real transactions dynamically
   const mergedLogs: LogPlatformItem[] = useMemo(() => {
-    const dynamicItems: LogPlatformItem[] = transactions.slice(0, 10).map((tx, idx) => {
+    return myTransactions.map((tx, idx) => {
       const platformTypes: Array<'ShopeeFood' | 'GoFood' | 'WhatsApp' | 'Shopee'> = [
         'ShopeeFood',
         'GoFood',
@@ -175,9 +84,7 @@ export default function RiwayatPengalihanKasirPage() {
         totalNominal: tx.total,
       };
     });
-
-    return [...defaultLogs, ...dynamicItems];
-  }, [transactions, defaultLogs]);
+  }, [myTransactions]);
 
   // Filter logs
   const filteredLogs = useMemo(() => {

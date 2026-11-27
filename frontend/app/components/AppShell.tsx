@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -11,8 +11,28 @@ import { IconLock } from './Icons';
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { currentUser } = useApp();
+  const router = useRouter();
+  const { currentUser, isAuthLoading } = useApp();
   const isBusinessReport = pathname === '/laporan/keuangan';
+
+  useEffect(() => {
+    if (!isAuthLoading && !currentUser) {
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+    }
+  }, [isAuthLoading, currentUser, pathname, router]);
+
+  if (isAuthLoading || !currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF7ED]">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-4 border-[#A24F9D] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-bold text-[#5B403D]">
+            {isAuthLoading ? 'Memverifikasi sesi akses...' : 'Mengalihkan ke halaman login...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Role-Based Access Control as per design.md Section 6.3
   const isKasir = currentUser.role === 'kasir';

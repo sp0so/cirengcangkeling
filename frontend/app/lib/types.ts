@@ -134,6 +134,8 @@ export interface Expense {
   amount: number;
   date: string;
   recordedBy: string;
+  paymentMethod?: 'cash' | 'transfer';
+  shiftId?: string;
 }
 
 export interface MarketplaceOrder {

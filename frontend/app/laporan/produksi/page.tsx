@@ -56,22 +56,30 @@ export default function LaporanProduksiPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
-              {productionOrders.map((ord) => (
-                <tr key={ord.id}>
-                  <td className="py-3 px-4 font-mono font-bold text-[#732662]">{ord.code}</td>
-                  <td className="py-3 px-4 text-[#5B403D]">{ord.date}</td>
-                  <td className="py-3 px-4 font-bold text-[#0B1C30]">{ord.productName}</td>
-                  <td className="py-3 px-4 text-center font-bold text-[#15803D]">
-                    +{ord.targetQuantity} porsi
-                  </td>
-                  <td className="py-3 px-4 text-[#5B403D]">{ord.notes || '-'}</td>
-                  <td className="py-3 px-4 text-center">
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
-                      {ord.status}
-                    </span>
+              {productionOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-10 text-center text-[#5B403D]">
+                    Belum ada riwayat batch produksi yang tercatat.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                productionOrders.map((ord) => (
+                  <tr key={ord.id}>
+                    <td className="py-3 px-4 font-mono font-bold text-[#732662]">{ord.code}</td>
+                    <td className="py-3 px-4 text-[#5B403D]">{ord.date}</td>
+                    <td className="py-3 px-4 font-bold text-[#0B1C30]">{ord.productName}</td>
+                    <td className="py-3 px-4 text-center font-bold text-[#15803D]">
+                      +{ord.targetQuantity} porsi
+                    </td>
+                    <td className="py-3 px-4 text-[#5B403D]">{ord.notes || '-'}</td>
+                    <td className="py-3 px-4 text-center">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#15803D]">
+                        {ord.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -4,6 +4,11 @@ import React, { useState } from 'react';
 import AppShell from '../../components/AppShell';
 import { useApp } from '../../lib/context';
 import {
+  marketplaceService,
+  MarketplaceOrderRecord,
+  MarketplaceParseError,
+} from '../../lib/services';
+import {
   IconUpload,
   IconCheckCircle,
   IconClose,
@@ -11,65 +16,101 @@ import {
 } from '../../components/Icons';
 
 export default function ImportMarketplacePage() {
-  const { importMarketplaceReport, products } = useApp();
+  const { importMarketplaceReport, showToast } = useApp();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [platform, setPlatform] = useState<'GoFood' | 'GrabFood' | 'ShopeeFood' | 'Shopee'>('ShopeeFood');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadState, setUploadState] = useState<'idle' | 'validating' | 'preview' | 'imported'>('idle');
   const [validationStep, setValidationStep] = useState(0);
+  const [parsedRecords, setParsedRecords] = useState<MarketplaceOrderRecord[]>([]);
+  const [parseErrors, setParseErrors] = useState<MarketplaceParseError[]>([]);
+  const [fileError, setFileError] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const validationSteps = [
     'File laporan diterima oleh sistem',
-    'Memvalidasi format spreadsheet (.xlsx / .csv)',
+    'Memvalidasi format file CSV (UTF-8)',
     'Membaca struktur kolom laporan marketplace',
     'Mengekstrak data transaksi & identitas pembeli',
     'Memeriksa potensi duplikasi ID pesanan',
     'Menyiapkan pratinjau data impor',
   ];
 
-  // Derived preview orders based on real products catalog
-  const previewOrders = React.useMemo(() => {
-    const p1 = products[0]?.name || 'Cireng Frozen Pack Original (10 pcs)';
-    const pr1 = products[0]?.price || 15000;
-    const p2 = products[1]?.name || 'Cireng Frozen Pack Keju (10 pcs)';
-    const pr2 = products[1]?.price || 18000;
-
-    return [
-      { id: `ORD-${Date.now().toString().slice(-6)}-01`, customer: 'Pelanggan Online 1', product: p1, qty: 2, total: pr1 * 2 },
-      { id: `ORD-${Date.now().toString().slice(-6)}-02`, customer: 'Pelanggan Online 2', product: p2, qty: 3, total: pr2 * 3 },
-      { id: `ORD-${Date.now().toString().slice(-6)}-03`, customer: 'Pelanggan Online 3', product: p1, qty: 4, total: pr1 * 4 },
-    ];
-  }, [products]);
-
-  const totalPreviewAmount = previewOrders.reduce((sum, o) => sum + o.total, 0);
+  const totalPreviewAmount = parsedRecords.reduce((sum, o) => sum + o.netAmount, 0);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setParsedRecords([]);
+      setParseErrors([]);
+      setFileError('');
       setUploadState('idle');
     }
   };
 
-  const handleStartProcess = () => {
+  const handleStartProcess = async () => {
+    if (!selectedFile) {
+      setFileError('Silakan pilih file laporan CSV terlebih dahulu.');
+      return;
+    }
+
+    const lowerName = selectedFile.name.toLowerCase();
+    if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
+      setFileError(
+        'Format biner Excel (.xlsx/.xls) belum didukung langsung oleh browser. Silakan simpan/ekspor laporan Anda ke format .csv (UTF-8 Comma/Semicolon Delimited) dari Excel atau dashboard marketplace.'
+      );
+      return;
+    }
+
+    if (!lowerName.endsWith('.csv') && !lowerName.endsWith('.txt')) {
+      setFileError('Format file tidak didukung. Harap unggah file berekstensi .csv.');
+      return;
+    }
+
+    setFileError('');
     setUploadState('validating');
     setValidationStep(0);
 
-    const interval = setInterval(() => {
-      setValidationStep((prev) => {
-        if (prev >= validationSteps.length - 1) {
-          clearInterval(interval);
-          setUploadState('preview');
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 350);
+    try {
+      const content = await selectedFile.text();
+      const platformKey = platform.toLowerCase() as 'gofood' | 'grabfood' | 'shopeefood' | 'shopee';
+      const result = marketplaceService.parseReportCSV(content, platformKey);
+
+      setParsedRecords(result.records);
+      setParseErrors(result.errors);
+
+      if (result.records.length === 0) {
+        const firstReason = result.errors[0]?.reason || 'Tidak ditemukan baris transaksi yang valid pada file CSV.';
+        setFileError(firstReason);
+        setUploadState('idle');
+        showToast(firstReason, 'error');
+        return;
+      }
+
+      setValidationStep(validationSteps.length - 1);
+      setUploadState('preview');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Gagal membaca isi file.';
+      setFileError(msg);
+      setUploadState('idle');
+      showToast(msg, 'error');
+    }
   };
 
   const handleConfirmImport = async () => {
-    await importMarketplaceReport(platform, selectedFile ? selectedFile.name : `Laporan_${platform}_Nov2026.xlsx`, previewOrders.length, totalPreviewAmount);
-    setUploadState('imported');
+    if (!selectedFile || parsedRecords.length === 0) return;
+    setIsSaving(true);
+    try {
+      await importMarketplaceReport(platform, selectedFile.name, selectedFile.size, parsedRecords);
+      setUploadState('imported');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Gagal menyimpan laporan marketplace.';
+      showToast(msg, 'error');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -165,6 +206,12 @@ export default function ImportMarketplacePage() {
               </div>
             </div>
 
+            {fileError && (
+              <div className="p-3 rounded-xl bg-[#FFDAD6] border border-[#BA1A1A]/30 text-xs text-[#93000A] font-medium">
+                {fileError}
+              </div>
+            )}
+
             {selectedFile && uploadState === 'idle' && (
               <button
                 type="button"
@@ -218,13 +265,28 @@ export default function ImportMarketplacePage() {
             {uploadState === 'preview' ? (
               <div className="space-y-4 animate-fade-in">
                 <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#CBD5E1] flex justify-between items-center text-xs">
-                  <span>Total Pesanan Divalidasi: <strong>{previewOrders.length} Transaksi</strong></span>
+                  <span>Total Pesanan Divalidasi: <strong>{parsedRecords.length} Transaksi</strong></span>
                   <span className="font-bold text-[#732662] text-sm">
-                    Total Omzet: Rp {totalPreviewAmount.toLocaleString('id-ID')}
+                    Total Omzet Bersih: Rp {totalPreviewAmount.toLocaleString('id-ID')}
                   </span>
                 </div>
 
-                <div className="overflow-x-auto">
+                {parseErrors.length > 0 && (
+                  <div className="p-3 rounded-xl bg-[#FEF3C7] border border-[#F59E0B]/30 text-xs text-[#92400E] space-y-1">
+                    <span className="font-bold block">
+                      {parseErrors.length} baris dilewati karena format tidak valid:
+                    </span>
+                    <ul className="list-disc pl-4 space-y-0.5 max-h-24 overflow-y-auto">
+                      {parseErrors.slice(0, 5).map((err, i) => (
+                        <li key={i}>
+                          Baris {err.rowNumber}: {err.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="overflow-x-auto max-h-72 overflow-y-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-[#CBD5E1] text-[#5B403D]">
@@ -232,18 +294,18 @@ export default function ImportMarketplacePage() {
                         <th className="py-2 px-2 font-bold">Nama Pembeli</th>
                         <th className="py-2 px-2 font-bold">Produk</th>
                         <th className="py-2 px-2 font-bold text-center">Qty</th>
-                        <th className="py-2 px-2 font-bold text-right">Total</th>
+                        <th className="py-2 px-2 font-bold text-right">Netto</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F1F5F9]">
-                      {previewOrders.map((ord) => (
-                        <tr key={ord.id}>
-                          <td className="py-2.5 px-2 font-mono font-bold text-[#732662]">{ord.id}</td>
-                          <td className="py-2.5 px-2">{ord.customer}</td>
-                          <td className="py-2.5 px-2 font-medium">{ord.product}</td>
-                          <td className="py-2.5 px-2 text-center">{ord.qty}</td>
+                      {parsedRecords.map((ord) => (
+                        <tr key={ord.platformOrderId}>
+                          <td className="py-2.5 px-2 font-mono font-bold text-[#732662]">{ord.platformOrderId}</td>
+                          <td className="py-2.5 px-2">{ord.customerName || 'Pelanggan Marketplace'}</td>
+                          <td className="py-2.5 px-2 font-medium">{ord.productName || '-'}</td>
+                          <td className="py-2.5 px-2 text-center">{ord.quantity || 1}</td>
                           <td className="py-2.5 px-2 text-right font-bold text-[#0B1C30]">
-                            Rp {ord.total.toLocaleString('id-ID')}
+                            Rp {ord.netAmount.toLocaleString('id-ID')}
                           </td>
                         </tr>
                       ))}
@@ -255,6 +317,7 @@ export default function ImportMarketplacePage() {
                   <button
                     type="button"
                     onClick={() => setUploadState('idle')}
+                    disabled={isSaving}
                     className="btn-secondary text-xs"
                   >
                     Batal
@@ -262,10 +325,11 @@ export default function ImportMarketplacePage() {
                   <button
                     type="button"
                     onClick={handleConfirmImport}
-                    className="btn-primary text-xs"
+                    disabled={isSaving}
+                    className="btn-primary text-xs disabled:opacity-50"
                   >
                     <IconCheckCircle size={16} />
-                    <span>Konfirmasi Simpan ke Master Penjualan</span>
+                    <span>{isSaving ? 'Menyimpan...' : 'Konfirmasi Simpan ke Master Penjualan'}</span>
                   </button>
                 </div>
               </div>

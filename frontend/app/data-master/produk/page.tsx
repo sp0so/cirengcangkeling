@@ -374,7 +374,7 @@ export default function KelolaProdukOwnerPage() {
 
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as any)}
+              onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')}
               className="px-2.5 py-1.5 rounded-xl border border-[#CBD5E1] text-[12px] font-semibold text-[#0B1C30] bg-white cursor-pointer"
             >
               <option value="all">Status: Semua</option>
@@ -384,7 +384,7 @@ export default function KelolaProdukOwnerPage() {
 
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as 'best-seller' | 'price-desc' | 'price-asc' | 'margin')}
               className="px-2.5 py-1.5 rounded-xl border border-[#CBD5E1] text-[12px] font-semibold text-[#0B1C30] bg-white cursor-pointer"
             >
               <option value="best-seller">Urutan: Terlaris</option>

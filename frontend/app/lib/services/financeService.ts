@@ -28,6 +28,8 @@ export const financeService = {
       amount: Number(item.amount),
       date: item.expense_date,
       recordedBy: item.profiles?.full_name || 'Admin',
+      paymentMethod: (item.payment_method === 'transfer' ? 'transfer' : 'cash') as 'cash' | 'transfer',
+      shiftId: item.cashier_session_id || undefined,
     }));
   },
 
@@ -51,10 +53,11 @@ export const financeService = {
         expense_code: code,
         category: categoryMap[expense.category] || 'operasional',
         amount: expense.amount,
-        payment_method: 'cash',
+        payment_method: expense.paymentMethod || 'cash',
+        cashier_session_id: expense.shiftId || null,
         expense_date: expense.date,
         description: expense.description,
-        created_by: userId,
+        created_by: userId || null,
       })
       .select()
       .single();

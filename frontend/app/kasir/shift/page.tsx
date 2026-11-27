@@ -196,7 +196,7 @@ export default function ShiftKasirPage() {
                   <input
                     type="text"
                     disabled
-                    value={currentUser.name}
+                    value={currentUser?.name || ''}
                     className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] bg-slate-100 text-xs text-[#0B1C30] font-bold"
                   />
                 </div>

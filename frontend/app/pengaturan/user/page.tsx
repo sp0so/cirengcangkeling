@@ -77,12 +77,15 @@ export default function UserManagementOwnerPage() {
     },
   ]);
 
-  // LocalStorage persistence for user list
+  // LocalStorage persistence for user list (defer state update asynchronously)
   React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem('cc_system_users');
-      if (saved) setUserList(JSON.parse(saved));
-    } catch {}
+    const timer = setTimeout(() => {
+      try {
+        const saved = localStorage.getItem('cc_system_users');
+        if (saved) setUserList(JSON.parse(saved));
+      } catch {}
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   React.useEffect(() => {
@@ -438,7 +441,7 @@ export default function UserManagementOwnerPage() {
                     <label className="block font-bold text-[#334155] mb-1">Role Jabatan *</label>
                     <select
                       value={formRole}
-                      onChange={(e) => setFormRole(e.target.value as any)}
+                      onChange={(e) => setFormRole(e.target.value as 'Kasir Gerai' | 'Staf Dapur')}
                       className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-bold"
                     >
                       <option value="Kasir Gerai">Kasir OUTLET</option>

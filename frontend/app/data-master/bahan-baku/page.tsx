@@ -39,8 +39,8 @@ export default function StokBahanBakuOwnerPage() {
   const [formUnit, setFormUnit] = useState('kg');
   const [formStock, setFormStock] = useState(10);
   const [formMinStock, setFormMinStock] = useState(5);
-  const [formUnitCost, setFormUnitCost] = useState(15000);
-  const [formSupplier, setFormSupplier] = useState('Pemasok Tepung Jaya CV');
+  const [formUnitCost, setFormUnitCost] = useState(0);
+  const [formSupplier, setFormSupplier] = useState('');
   const [formCategory, setFormCategory] = useState('Bahan Pokok');
 
   // Quick Action form states
@@ -423,7 +423,7 @@ export default function StokBahanBakuOwnerPage() {
 
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as 'stock-asc' | 'stock-desc' | 'name-asc')}
               className="px-3 py-2 rounded-xl border border-[#CBD5E1] text-[12px] font-semibold text-[#0B1C30] bg-white focus:outline-none focus:border-[#A24F9D] cursor-pointer"
             >
               <option value="stock-asc">Sisa Stok Terendah</option>
