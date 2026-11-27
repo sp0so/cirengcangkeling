@@ -107,7 +107,7 @@ export default function LaporanUsahaOwnerPage() {
               Laporan Usaha &amp; Kinerja Finansial UMKM
             </h1>
             <p className="text-[13px] text-[#5B403D] mt-0.5">
-              Laporan laba rugi komprehensif (P&amp;L), margin kontribusi produk, dan rasio likuiditas kas gerai.
+              Laporan laba rugi komprehensif (P&amp;L), margin kontribusi produk, dan rasio likuiditas kas OUTLET.
             </p>
           </div>
 
@@ -169,8 +169,8 @@ export default function LaporanUsahaOwnerPage() {
               onChange={(e) => setChannel(e.target.value)}
               className="px-3 py-2 rounded-xl border border-[#CBD5E1] text-[12px] font-semibold text-[#0B1C30] bg-white cursor-pointer"
             >
-              <option value="all">Semua Saluran &amp; Gerai</option>
-              <option value="pos">Kasir Gerai Fisik</option>
+              <option value="all">Semua Saluran &amp; OUTLET</option>
+              <option value="pos">Kasir OUTLET Fisik</option>
               <option value="marketplace">Marketplace &amp; Omnichannel</option>
             </select>
           </div>

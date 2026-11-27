@@ -7,7 +7,6 @@ import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
 import {
   IconReport,
-  IconDownload,
   IconPrint,
 } from '../../components/Icons';
 
@@ -21,7 +20,7 @@ export default function LaporanUsahaPage() {
 
   return (
     <AppShell>
-      <div className="space-y-6">
+      <div className="space-y-6 print-report-content">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -39,26 +38,19 @@ export default function LaporanUsahaPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 report-print-hide">
             <button
               onClick={() => window.print()}
               className="btn-secondary text-xs sm:text-sm font-bold"
             >
               <IconPrint size={16} />
-              <span>Cetak Laporan</span>
-            </button>
-            <button
-              onClick={() => alert('Laporan berhasil diekspor ke format Excel (.xlsx)')}
-              className="btn-primary text-xs sm:text-sm"
-            >
-              <IconDownload size={16} />
-              <span>Ekspor Excel</span>
+              <span>Ekspor PDF</span>
             </button>
           </div>
         </div>
 
         {/* Filter Month */}
-        <MotionCard delay={0.05} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card flex items-center justify-between">
+        <MotionCard delay={0.05} hoverEffect="lift" className="p-4 rounded-2xl bg-white border border-[#CBD5E1] shadow-card flex items-center justify-between report-print-hide">
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold text-[#334155]">Periode Laporan:</span>
             <input
@@ -81,7 +73,7 @@ export default function LaporanUsahaPage() {
               Rp {totalOmzet.toLocaleString('id-ID')}
             </div>
             <span className="text-xs text-[#5B403D] mt-1 block">
-              Dari kasir gerai aktif
+              Dari kasir OUTLET aktif
             </span>
           </MotionCard>
 

@@ -6,6 +6,7 @@ import AppShell from '../../components/AppShell';
 import WordRevealHeading from '../../components/WordRevealHeading';
 import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
+import { formatOutletCopy } from '../../lib/businessInfo';
 import { Expense } from '../../lib/types';
 import {
   IconFinance,
@@ -105,7 +106,7 @@ export default function PengeluaranUsahaOwnerPage() {
               className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
             />
             <p className="text-[13px] text-[#5B403D] mt-0.5">
-              Pencatatan pos pengeluaran kas kecil gerai, belanja bahan baku di pasar, token listrik, dan gaji karyawan.
+              Pencatatan pos pengeluaran kas kecil OUTLET, belanja bahan baku di pasar, token listrik, dan gaji karyawan.
             </p>
           </div>
 
@@ -183,7 +184,7 @@ export default function PengeluaranUsahaOwnerPage() {
               </span>
             </div>
             <span className="text-[11px] text-[#5B403D] font-medium block mt-1">
-              2 Staf Gerai Kasir &amp; Dapur
+              2 Staf Kasir OUTLET &amp; Dapur
             </span>
           </MotionCard>
         </div>
@@ -241,41 +242,41 @@ export default function PengeluaranUsahaOwnerPage() {
                 <table className="w-full text-left text-[13px]">
                   <thead className="bg-[#FAF7F2] border-b border-[#CBD5E1] text-[#5B403D]">
                     <tr>
-                      <th className="py-3 px-4 font-bold">NO. BUKTI</th>
-                      <th className="py-3 px-4 font-bold">TANGGAL &amp; JAM</th>
-                      <th className="py-3 px-4 font-bold">RINCIAN PENGELUARAN</th>
-                      <th className="py-3 px-4 font-bold">KATEGORI</th>
-                      <th className="py-3 px-4 font-bold">SUMBER DANA</th>
-                      <th className="py-3 px-4 font-bold text-right">NOMINAL</th>
-                      <th className="py-3 px-4 font-bold text-center">BUKTI</th>
+                      <th className="py-2 px-3 font-bold">NO. BUKTI</th>
+                      <th className="py-2 px-3 font-bold">TANGGAL &amp; JAM</th>
+                      <th className="py-2 px-3 font-bold">RINCIAN PENGELUARAN</th>
+                      <th className="py-2 px-3 font-bold">KATEGORI</th>
+                      <th className="py-2 px-3 font-bold">SUMBER DANA</th>
+                      <th className="py-2 px-3 font-bold text-right">NOMINAL</th>
+                      <th className="py-2 px-3 font-bold text-center">BUKTI</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#F1F5F9]">
                     {filteredExpenses.length > 0 ? (
                       filteredExpenses.map((exp) => (
                         <tr key={exp.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
-                          <td className="py-3.5 px-4 font-mono font-bold text-[12px] text-[#A24F9D]">
+                          <td className="py-2.5 px-3 font-mono font-bold text-[12px] text-[#A24F9D]">
                             {exp.code}
                           </td>
-                          <td className="py-3.5 px-4 text-[12px] text-[#5B403D]">
+                          <td className="py-2.5 px-3 text-[12px] text-[#5B403D]">
                             {exp.date.replace('T', ' ').substring(0, 16)}
                           </td>
-                          <td className="py-3.5 px-4">
-                            <div className="font-bold text-[#0B1C30]">{exp.description}</div>
+                          <td className="py-2.5 px-3">
+                            <div className="font-bold text-[#0B1C30]">{formatOutletCopy(exp.description)}</div>
                             <div className="text-[11px] text-[#5B403D]/70">Pencatat: {exp.recordedBy}</div>
                           </td>
-                          <td className="py-3.5 px-4">
+                          <td className="py-2.5 px-3">
                             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#475569]">
                               {exp.category}
                             </span>
                           </td>
-                          <td className="py-3.5 px-4 text-[12px] font-medium text-[#0B1C30]">
-                            {exp.source}
+                          <td className="py-2.5 px-3 text-[12px] font-medium text-[#0B1C30]">
+                            {formatOutletCopy(exp.source)}
                           </td>
-                          <td className="py-3.5 px-4 text-right font-extrabold text-[#BA1A1A]">
+                          <td className="py-2.5 px-3 text-right font-extrabold text-[#BA1A1A]">
                             Rp {exp.amount.toLocaleString('id-ID')}
                           </td>
-                          <td className="py-3.5 px-4 text-center">
+                          <td className="py-2.5 px-3 text-center">
                             {exp.hasReceipt ? (
                               <span className="text-[11px] font-bold text-[#16A34A] bg-[#DCFCE7] px-2 py-0.5 rounded-md">
                                 Ada Nota
@@ -293,7 +294,7 @@ export default function PengeluaranUsahaOwnerPage() {
                         <td colSpan={7} className="py-10 text-center text-[#5B403D]">
                           <p className="font-bold text-[14px] text-[#0B1C30]">Belum ada pencatatan pengeluaran</p>
                           <p className="text-[12px] text-[#5B403D] mt-1 max-w-sm mx-auto">
-                            Gunakan formulir cepat di samping untuk mencatat belanja bahan baku, operasional harian, atau kas kecil gerai.
+                            Gunakan formulir cepat di samping untuk mencatat belanja bahan baku, operasional harian, atau kas kecil OUTLET.
                           </p>
                         </td>
                       </tr>
@@ -323,7 +324,7 @@ export default function PengeluaranUsahaOwnerPage() {
                   Catat Pengeluaran Kas Kecil
                 </h2>
                 <p className="text-[12px] text-[#5B403D] mt-0.5">
-                  Input transaksi belanja mendadak di pasar atau pengeluaran harian gerai.
+                  Input transaksi belanja mendadak di pasar atau pengeluaran harian OUTLET.
                 </p>
               </div>
 
@@ -359,7 +360,7 @@ export default function PengeluaranUsahaOwnerPage() {
                     className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-semibold text-[#0B1C30]"
                   >
                     <option value="Bahan Baku">Bahan Baku Segar Pasar (Cabai, Bawang, Daun Bawang)</option>
-                    <option value="Operasional">Operasional Gerai (Gas, Listrik, Es Batu, Kemasan)</option>
+                    <option value="Operasional">Operasional OUTLET (Gas, Listrik, Es Batu, Kemasan)</option>
                     <option value="Gaji">Gaji &amp; Uang Makan Karyawan</option>
                     <option value="Lainnya">Lain-lain / Biaya Tak Terduga</option>
                   </select>
@@ -385,7 +386,7 @@ export default function PengeluaranUsahaOwnerPage() {
                     onChange={(e) => setFormSource(e.target.value as any)}
                     className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-semibold"
                   >
-                    <option value="Kas Tunai Gerai">Kas Laci Gerai (Uang Tunai Fisik)</option>
+                    <option value="Kas Tunai Gerai">Kas Laci OUTLET (Uang Tunai Fisik)</option>
                     <option value="Rekening Bank BRI">Rekening Bank BRI (Transfer / QRIS)</option>
                   </select>
                 </div>
@@ -420,55 +421,6 @@ export default function PengeluaranUsahaOwnerPage() {
               </form>
             </div>
 
-            {/* VISUAL ALOKASI BIAYA & FINANCIAL INSIGHT */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-[#CBD5E1] shadow-card space-y-4">
-              <div className="border-b border-[#F1F5F9] pb-2">
-                <span className="text-[11px] font-bold text-[#833E17] uppercase tracking-wider block">
-                  PROPORSI PENGELUARAN
-                </span>
-                <h3 className="text-sm font-extrabold text-[#0B1C30]">
-                  Alokasi Biaya Bulan Ini
-                </h3>
-              </div>
-
-              {/* Stacked Bar Visual */}
-              <div className="w-full h-4 rounded-full overflow-hidden flex">
-                <div style={{ width: '55%' }} className="bg-[#A24F9D]" title="Bahan Baku 55%" />
-                <div style={{ width: '23%' }} className="bg-[#3B82F6]" title="OPEX 23%" />
-                <div style={{ width: '22%' }} className="bg-[#F59E0B]" title="Gaji 22%" />
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-[#5B403D]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#A24F9D]" />
-                    <span>Bahan Baku (COGS)</span>
-                  </span>
-                  <span className="font-bold text-[#0B1C30]">55% (Rp 10.050.000)</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-[#5B403D]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#3B82F6]" />
-                    <span>Biaya Operasional (OPEX)</span>
-                  </span>
-                  <span className="font-bold text-[#0B1C30]">23% (Rp 4.200.000)</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-[#5B403D]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-                    <span>Gaji Tenaga Kerja</span>
-                  </span>
-                  <span className="font-bold text-[#0B1C30]">22% (Rp 4.000.000)</span>
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#FFF7ED] border border-[#CBD5E1] text-[11px] text-[#5B403D] space-y-1">
-                <span className="font-bold text-[#833E17] block">💡 Edukasi Insight Finansial UMKM:</span>
-                <p>
-                  Biaya bahan baku menyumbang 55% pengeluaran. Selalu pantau fluktuasi harga tepung tapioka dan minyak goreng di pasar agar margin keuntungan bersih produk olahan cireng tetap di atas 35%.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

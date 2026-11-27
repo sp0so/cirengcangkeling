@@ -8,6 +8,7 @@ import AppShell from '../../components/AppShell';
 import WordRevealHeading from '../../components/WordRevealHeading';
 import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
+import { businessInfo } from '../../lib/businessInfo';
 import { Product, Transaction } from '../../lib/types';
 import {
   IconSearch,
@@ -415,26 +416,7 @@ export default function PosKasirPage() {
               </div>
             </div>
 
-            {/* 2. CASHIER SOP NOTICE (Figma 127:2379) */}
-            <div className="bg-[#FFDAD6]/30 border border-[#E6BDB8]/40 rounded-[16px] p-4 text-xs text-[#565E74] space-y-2.5">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#A24F9D]" />
-                <h4 className="font-bold text-xs text-[#A24F9D]">Petunjuk Operasional Kasir</h4>
-              </div>
-              <ul className="space-y-1.5 leading-relaxed text-[11px] list-disc list-inside">
-                <li>
-                  Halaman ini difokuskan sebagai <strong className="text-[#191C1D]">katalog & rujukan pemesanan resmi</strong>.
-                </li>
-                <li>
-                  Pesanan diselesaikan melalui aplikasi delivery online (GoFood / ShopeeFood) atau kurir WhatsApp.
-                </li>
-                <li>
-                  Arahkan pelanggan langsung ke saluran pemesanan online resmi tanpa transaksi tunai di kasir fisik jika memungkinkan.
-                </li>
-              </ul>
-            </div>
-
-            {/* 3. POS CHECKOUT WORKBENCH (Interactive In-Store Order Panel) */}
+            {/* POS CHECKOUT WORKBENCH (Interactive In-Store Order Panel) */}
             <div className="bg-white border border-[#EDEEEF] rounded-[16px] shadow-xs p-5 space-y-4">
               <div className="flex items-center justify-between border-b border-[#EDEEEF] pb-3">
                 <div className="flex items-center gap-2">
@@ -442,7 +424,7 @@ export default function PosKasirPage() {
                     🛒
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-[#191C1D]">Keranjang Kasir Gerai</h3>
+                    <h3 className="font-bold text-sm text-[#191C1D]">Keranjang Kasir OUTLET</h3>
                     <span className="text-[11px] text-[#565E74]">{cartItemCount} item dipilih</span>
                   </div>
                 </div>
@@ -641,7 +623,7 @@ export default function PosKasirPage() {
                 <div className="p-3.5 rounded-xl bg-[#FFF7ED] border border-dashed border-[#CBD5E1] text-xs space-y-2 font-mono">
                   <div className="text-center border-b border-dashed border-[#CBD5E1] pb-2">
                     <p className="font-bold text-sm text-[#A24F9D]">CIRENG CANGKELING</p>
-                    <p className="text-[10px] text-[#565E74]">Pelopor Cireng Renyah Gurih</p>
+                    <p className="text-[10px] text-[#565E74]">{businessInfo.slogan}</p>
                     <p className="text-[10px] text-[#565E74]">Kasir: {completedTx.cashierName}</p>
                   </div>
 

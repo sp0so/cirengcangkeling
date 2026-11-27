@@ -105,7 +105,7 @@ export default function DashboardKasirPage() {
       refCode: tx.code,
       time: tx.date ? tx.date.split('T')[1]?.substring(0, 5) + ' WIB' : 'Hari ini',
       customerName: `Pelanggan #${tx.code.slice(-3)}`,
-      customerType: tx.paymentMethod === 'tunai' ? 'POS Gerai' : 'Order Digital',
+      customerType: tx.paymentMethod === 'tunai' ? 'POS OUTLET' : 'Order Digital',
       menuDescription: tx.items.map((it) => `${it.quantity}x ${it.productName}`).join(', '),
       platform: tx.paymentMethod === 'qris' ? 'ShopeeFood' : tx.paymentMethod === 'transfer' ? 'Shopee' : 'WhatsApp',
       platformLabel: tx.paymentMethod === 'qris' ? 'ShopeeFood' : tx.paymentMethod === 'transfer' ? 'Shopee Official' : 'WhatsApp Admin',

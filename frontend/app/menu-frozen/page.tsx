@@ -7,6 +7,7 @@ import { motion } from 'motion/react';
 import PageTransition from '../components/PageTransition';
 import WordRevealHeading from '../components/WordRevealHeading';
 import MotionCard from '../components/MotionCard';
+import { businessInfo } from '../lib/businessInfo';
 import {
   IconFlame,
   IconShield,
@@ -27,7 +28,6 @@ export default function MenuFrozenPage() {
       id: 'tanpa-isi',
       number: '01',
       title: 'CIRENG TANPA ISI (FROZEN PACK)',
-      subtitle: 'Tekstur super renyah luar, kenyal lembut di dalam lengkap dengan sambal cocolan khas sachet.',
       items: [
         {
           id: 'fr-mini-10',
@@ -71,7 +71,6 @@ export default function MenuFrozenPage() {
       id: 'isi',
       number: '02',
       title: 'CIRENG ISI (FROZEN PACK)',
-      subtitle: 'Isian melimpah berbalut adonan kenyal krispi, tersedia level orisinal dan pedas membara.',
       items: [
         {
           id: 'fr-isi-ayam',
@@ -141,8 +140,7 @@ export default function MenuFrozenPage() {
     {
       id: 'menu-lain',
       number: '03',
-      title: 'MENU LAIN (FROZEN PACK)',
-      subtitle: 'Variasi kudapan Nusantara beku siap kukus atau goreng untuk persediaan keluarga di rumah.',
+      title: 'MENU LAIN',
       items: [
         {
           id: 'fr-tahu-aci',
@@ -244,7 +242,7 @@ export default function MenuFrozenPage() {
                   Cireng Cangkeling
                 </span>
                 <span className="text-[10px] font-black text-[#FCD34D] tracking-[1px] block uppercase mt-0.5">
-                  PELOPOR CIRENG RENYAH GURIH
+                  {businessInfo.slogan}
                 </span>
               </div>
             </Link>
@@ -475,9 +473,6 @@ export default function MenuFrozenPage() {
                   <h2 className="font-bold text-lg sm:text-xl tracking-wide uppercase font-brand text-white">
                     {cat.title}
                   </h2>
-                  <p className="text-xs text-[#FF8F87] font-normal leading-tight hidden sm:block">
-                    {cat.subtitle}
-                  </p>
                 </div>
               </div>
               <span className="text-[11px] font-black text-[#FCD34D] bg-white/10 px-2.5 py-1 rounded uppercase tracking-wider">
@@ -507,9 +502,6 @@ export default function MenuFrozenPage() {
                         <span>{item.portion}</span>
                       </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-2 font-normal">
-                      {item.desc}
-                    </p>
                     <div className="flex items-center gap-3 text-xs text-[#64748B]">
                       <span className="inline-flex items-center gap-1">
                         <IconSnowflake size={13} className="text-[#0284C7]" />
@@ -665,7 +657,7 @@ export default function MenuFrozenPage() {
                   />
                 </div>
                 <span className="font-bold text-[#FCD34D] text-sm tracking-[0.7px] uppercase">
-                  GERAI YOGYAKARTA
+                  OUTLET YOGYAKARTA
                 </span>
               </div>
               <ul className="space-y-3">
@@ -680,28 +672,10 @@ export default function MenuFrozenPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-xs text-white leading-[18px]">
-                      Outlet Kaliurang KM 5.2
+                      {businessInfo.outletName}
                     </p>
                     <p className="text-[#FEE2E2] text-xs leading-[18px]">
-                      Jl. Kaliurang KM 5.2 No. 12, Sleman, D.I. Yogyakarta
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <div className="relative w-[11px] h-[15px] shrink-0 mt-0.5">
-                    <Image
-                      src="/icons/map-pin.svg"
-                      alt="Pin Icon"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-xs text-white leading-[18px]">
-                      Outlet Kaliurang KM 9.2
-                    </p>
-                    <p className="text-[#FEE2E2] text-xs leading-[18px]">
-                      Jl. Kaliurang KM 9.2, Sinduharjo, Ngaglik, Sleman
+                      {businessInfo.address}
                     </p>
                   </div>
                 </li>
@@ -726,18 +700,10 @@ export default function MenuFrozenPage() {
               <div className="space-y-2.5">
                 <div className="bg-black/20 border border-white/10 rounded-[4px] p-2.5">
                   <p className="font-semibold text-xs text-white leading-[18px]">
-                    Senin - Jumat
+                    Setiap Hari
                   </p>
                   <p className="text-[#FEE2E2] text-xs leading-[18px]">
-                    10.00 - 21.30 WIB
-                  </p>
-                </div>
-                <div className="bg-black/20 border border-white/10 rounded-[4px] p-2.5">
-                  <p className="font-semibold text-xs text-white leading-[18px]">
-                    Sabtu - Minggu
-                  </p>
-                  <p className="text-[#FEE2E2] text-xs leading-[18px]">
-                    09.00 - 22.00 WIB
+                    {businessInfo.hours}
                   </p>
                 </div>
               </div>

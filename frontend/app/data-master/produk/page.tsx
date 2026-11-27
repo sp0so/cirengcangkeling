@@ -195,7 +195,7 @@ export default function KelolaProdukOwnerPage() {
               className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] tracking-tight"
             />
             <p className="text-[13px] text-[#5B403D] mt-0.5">
-              Atur harga jual, estimasi HPP, margin laba, dan status tayang katalog POS kasir gerai.
+              Atur harga jual, estimasi HPP, margin laba, dan status tayang katalog POS kasir OUTLET.
             </p>
           </div>
 

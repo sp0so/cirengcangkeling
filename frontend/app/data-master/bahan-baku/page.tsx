@@ -443,7 +443,6 @@ export default function StokBahanBakuOwnerPage() {
                 <tr>
                   <th className="py-3 px-4 font-bold">NAMA BAHAN &amp; KODE</th>
                   <th className="py-3 px-4 font-bold">KATEGORI</th>
-                  <th className="py-3 px-4 font-bold">PEMASOK UTAMA</th>
                   <th className="py-3 px-4 font-bold text-center">STOK SAAT INI</th>
                   <th className="py-3 px-4 font-bold text-center">BATAS MINIMUM</th>
                   <th className="py-3 px-4 font-bold text-center">ESTIMASI HABIS</th>
@@ -466,11 +465,6 @@ export default function StokBahanBakuOwnerPage() {
                       <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#475569]">
                         {m.category}
                       </span>
-                    </td>
-
-                    {/* Supplier */}
-                    <td className="py-3.5 px-4 text-[#5B403D]">
-                      {m.supplierName || 'Pemasok Lokal'}
                     </td>
 
                     {/* Current Stock */}
@@ -548,7 +542,7 @@ export default function StokBahanBakuOwnerPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-[#5B403D]">
+                    <td colSpan={7} className="py-12 text-center text-[#5B403D]">
                       <div className="flex flex-col items-center justify-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-[#FFDAD6] text-[#BA1A1A] flex items-center justify-center">
                           <IconRawMaterial size={24} />

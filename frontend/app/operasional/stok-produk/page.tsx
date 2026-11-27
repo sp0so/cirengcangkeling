@@ -7,10 +7,10 @@ import AppShell from '../../components/AppShell';
 import WordRevealHeading from '../../components/WordRevealHeading';
 import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
+import { businessInfo } from '../../lib/businessInfo';
 import { Product } from '../../lib/types';
 import {
   IconProduct,
-  IconPlus,
   IconSearch,
   IconAlertTriangle,
   IconCheckCircle,
@@ -28,17 +28,11 @@ export default function InventarisProdukOwnerPage() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
   // Quick Production Entry State
-  const [selectedProdId, setSelectedProdId] = useState<string>(products[0]?.id || '');
-  const [prodDate, setProdDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [prodTime, setProdTime] = useState<string>('09:30');
-  const [prodQty, setProdQty] = useState<number>(20);
-  const [prodBatchNote, setProdBatchNote] = useState<string>('Batch Pagi - Dapur Utama');
-
   // Modal Stock Opname
   const [isOpnameModalOpen, setIsOpnameModalOpen] = useState(false);
   const [opnameProd, setOpnameProd] = useState<Product | null>(null);
   const [opnamePhysicalCount, setOpnamePhysicalCount] = useState<number>(0);
-  const [opnameReason, setOpnameReason] = useState<string>('Opname fisik harian freezer gerai');
+  const [opnameReason, setOpnameReason] = useState<string>('Opname fisik harian freezer OUTLET');
 
   // Extended product inventory data
   const inventoryItems = products.map((p) => {
@@ -94,26 +88,6 @@ export default function InventarisProdukOwnerPage() {
     return matchSearch && matchStatus && matchCat;
   });
 
-  const handleProductionEntrySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const prod = products.find((p) => p.id === selectedProdId);
-    if (!prod) return;
-
-    updateProduct(prod.id, {
-      stock: prod.stock + Number(prodQty),
-    });
-
-    addStockAdjustment(
-      prod.name,
-      'produk',
-      Number(prodQty),
-      prod.unit,
-      `Hasil Produksi: ${prodBatchNote} (${prodDate} ${prodTime})`
-    );
-
-    showToast(`Berhasil menambahkan +${prodQty} pack ${prod.name} ke stok siap jual!`, 'success');
-  };
-
   const handleOpenOpname = (item: Product) => {
     setOpnameProd(item);
     setOpnamePhysicalCount(item.stock);
@@ -159,13 +133,13 @@ export default function InventarisProdukOwnerPage() {
                 Sinkronisasi Inventaris Aktif
               </div>
               <p className="text-[12px] text-[#5B403D]">
-                Stok fisik terhubung langsung dengan sistem POS kasir kasir gerai. Setiap penjualan kasir otomatis memotong kuantitas stok di sini.
+                Stok fisik terhubung langsung dengan POS. Setiap penjualan otomatis memotong jumlah stok di sini.
               </p>
             </div>
           </div>
           <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-[#DCFCE7] text-[#15803D] border border-[#16A34A]/30 shrink-0 self-end sm:self-auto flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
-            <span>Terhubung POS Outlet 1</span>
+            <span>Terhubung POS {businessInfo.outletName}</span>
           </span>
         </div>
 
@@ -203,16 +177,12 @@ export default function InventarisProdukOwnerPage() {
               <span>Stock Opname Fisik</span>
             </button>
 
-            <button
-              onClick={() => {
-                const el = document.getElementById('production-entry-panel');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="px-4 py-2 rounded-xl bg-[#A24F9D] hover:bg-[#8F3D8A] text-white text-[13px] font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            <Link
+              href="/operasional/produksi"
+              className="px-4 py-2 rounded-xl bg-[#A24F9D] hover:bg-[#8F3D8A] text-white text-[13px] font-bold transition-all flex items-center gap-1.5 shadow-xs"
             >
-              <IconPlus size={15} />
-              <span>+ Catat Hasil Produksi</span>
-            </button>
+              <span>Manajemen Produksi</span>
+            </Link>
           </div>
         </div>
 
@@ -485,115 +455,9 @@ export default function InventarisProdukOwnerPage() {
         </div>
 
         {/* =========================================================================
-            6. DEDICATED QUICK ENTRY PANEL & STOCK FLOW VISUALIZER (Figma 6:1570)
+            6. STORAGE & CHILLER DISTRIBUTION INSIGHTS
            ========================================================================= */}
-        <div id="production-entry-panel" className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-          {/* Left Form: Production Entry (8 Cols) */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-[#CBD5E1] p-5 sm:p-6 shadow-card space-y-4">
-            <div className="border-b border-[#F1F5F9] pb-3">
-              <h2 className="text-lg font-extrabold text-[#0B1C30] flex items-center gap-2">
-                <span>⚡ Form Hasil Produksi Dapur (Real-Time)</span>
-              </h2>
-              <p className="text-[12px] text-[#5B403D] mt-0.5">
-                Gunakan form ini segera setelah produk selesai dikemas vakum atau digoreng untuk mengupdate stok siap jual.
-              </p>
-            </div>
-
-            <form onSubmit={handleProductionEntrySubmit} className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-[#334155] mb-1">
-                    Varian Produk Jadi *
-                  </label>
-                  <select
-                    value={selectedProdId}
-                    onChange={(e) => setSelectedProdId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-bold text-[#0B1C30] focus:outline-none focus:border-[#A24F9D]"
-                  >
-                    {products.length > 0 ? (
-                      products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} ({p.sku}) - Sisa: {p.stock} pack
-                        </option>
-                      ))
-                    ) : (
-                      <option value="">Belum ada produk - Tambah produk dahulu</option>
-                    )}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-[#334155] mb-1">
-                    Jumlah Pack Selesai Produksi *
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    required
-                    value={prodQty}
-                    onChange={(e) => setProdQty(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-extrabold text-[15px] text-[#16A34A] focus:outline-none focus:border-[#A24F9D]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-[#334155] mb-1">
-                    Tanggal Selesai *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={prodDate}
-                    onChange={(e) => setProdDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-[#334155] mb-1">
-                    Waktu Selesai (WIB) *
-                  </label>
-                  <input
-                    type="time"
-                    required
-                    value={prodTime}
-                    onChange={(e) => setProdTime(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1] font-semibold"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-[#334155] mb-1">
-                  Catatan Batch / Keterangan
-                </label>
-                <input
-                  type="text"
-                  value={prodBatchNote}
-                  onChange={(e) => setProdBatchNote(e.target.value)}
-                  placeholder="Contoh: Batch Pagi - Dapur Utama Kaliurang"
-                  className="w-full px-3 py-2 rounded-xl border border-[#CBD5E1]"
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-between border-t border-[#F1F5F9]">
-                <div className="text-[11px] text-[#5B403D]">
-                  Pencatat: <strong>Astriana (Owner)</strong>
-                </div>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#A24F9D] hover:bg-[#8F3D8A] text-white font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
-                >
-                  <IconPlus size={15} />
-                  <span>Simpan &amp; Sinkronkan ke POS</span>
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Right: Storage & Chiller Distribution Insights (5 Cols) */}
-          <div className="lg:col-span-5 bg-white rounded-2xl border border-[#CBD5E1] p-5 sm:p-6 shadow-card space-y-4">
+        <div className="bg-white rounded-2xl border border-[#CBD5E1] p-5 sm:p-6 shadow-card space-y-4">
             <div className="border-b border-[#F1F5F9] pb-3">
               <span className="text-[11px] font-bold text-[#833E17] tracking-wider uppercase block">
                 SEBARAN SUHU &amp; LOKASI SIMPAN
@@ -606,7 +470,7 @@ export default function InventarisProdukOwnerPage() {
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Deep Freezer Gudang */}
               <div>
                 <div className="flex items-center justify-between text-xs mb-1">
@@ -638,7 +502,7 @@ export default function InventarisProdukOwnerPage() {
               {/* Etalase Penghangat */}
               <div>
                 <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="font-bold text-[#0B1C30]">Etalase Hangat Gerai (Warm)</span>
+                  <span className="font-bold text-[#0B1C30]">Etalase Hangat OUTLET (Warm)</span>
                   <span className="font-bold text-[#D97706]">20 / 30 Porsi (66%)</span>
                 </div>
                 <div className="w-full h-3 rounded-full bg-[#E2E8F0] overflow-hidden">
@@ -657,8 +521,6 @@ export default function InventarisProdukOwnerPage() {
               </p>
             </div>
           </div>
-        </div>
-
         {/* =========================================================================
             7. MODAL STOCK OPNAME FISIK
            ========================================================================= */}
@@ -688,7 +550,7 @@ export default function InventarisProdukOwnerPage() {
 
                 <div>
                   <label className="block font-bold text-[#334155] mb-1">
-                    Hitungan Fisik Nyata di Freezer/Gerai *
+                    Hitungan Fisik Nyata di Freezer/OUTLET *
                   </label>
                   <input
                     type="number"

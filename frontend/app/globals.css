@@ -421,3 +421,65 @@ html.lenis body {
   }
 }
 
+@media print {
+  .report-print-shell {
+    display: block !important;
+    min-height: 0 !important;
+    background: #fff !important;
+  }
+
+  .report-print-shell > aside,
+  .report-print-shell > [role='complementary'],
+  .report-print-shell header,
+  .report-print-shell .report-print-hide {
+    display: none !important;
+  }
+
+  .report-print-shell > div {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .report-print-shell main {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .report-print-shell .print-report-content {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #111 !important;
+  }
+
+  .report-print-shell .print-report-content .shadow-card {
+    box-shadow: none !important;
+  }
+
+  .report-print-shell .print-report-content,
+  .report-print-shell .print-report-content * {
+    animation: none !important;
+    transition: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .report-print-shell .print-report-content h1,
+  .report-print-shell .print-report-content h2,
+  .report-print-shell .print-report-content h3,
+  .report-print-shell .print-report-content h4 {
+    break-after: avoid;
+  }
+
+  .report-print-shell .print-report-content .grid > * {
+    break-inside: avoid;
+  }
+}
+

@@ -157,7 +157,7 @@ export default function ShiftKasirPage() {
                 Shift Kasir Belum Dibuka
               </h3>
               <p className="text-xs text-[#5B403D] mt-1 leading-relaxed">
-                Sebelum melayani pembeli di gerai, silakan masukkan jumlah modal uang fisik di laci untuk memulai shift.
+                Sebelum melayani pembeli di OUTLET, silakan masukkan jumlah modal uang fisik di laci untuk memulai shift.
               </p>
             </div>
             <button

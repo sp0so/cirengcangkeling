@@ -12,6 +12,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { currentUser } = useApp();
+  const isBusinessReport = pathname === '/laporan/keuangan';
 
   // Role-Based Access Control as per design.md Section 6.3
   const isKasir = currentUser.role === 'kasir';
@@ -30,7 +31,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isRestrictedForKasir = isKasir && isOwnerRoute;
 
   return (
-    <div className="min-h-screen flex bg-[#FFF7ED]">
+    <div className={`min-h-screen flex bg-[#FFF7ED]${isBusinessReport ? ' report-print-shell' : ''}`}>
       {/* Sidebar (Width 288px / w-72 per Figma Spec) */}
       <Sidebar isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 

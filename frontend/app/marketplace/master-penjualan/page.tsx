@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import AppShell from '../../components/AppShell';
 import { useApp } from '../../lib/context';
+import { formatOutletCopy } from '../../lib/businessInfo';
 import {
   IconSearch,
   IconDownload,
@@ -61,7 +62,7 @@ export default function MasterLaporanPenjualanPage() {
               Master Laporan Penjualan (Terpadu)
             </h2>
             <p className="text-sm text-[#5B403D]">
-              Rekapitulasi omzet komprehensif mengintegrasikan kasir POS gerai fisik dan import marketplace online.
+              Rekapitulasi omzet komprehensif mengintegrasikan kasir POS OUTLET fisik dan import marketplace online.
             </p>
           </div>
 
@@ -90,7 +91,7 @@ export default function MasterLaporanPenjualanPage() {
 
           <div className="p-5 rounded-2xl bg-white border border-[#CBD5E1] shadow-card">
             <span className="text-[11px] font-bold uppercase text-[#5B403D] block mb-1">
-              Omzet Kasir Gerai Fisik (POS)
+              Omzet Kasir OUTLET Fisik (POS)
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30]">
               Rp {totalPosSales.toLocaleString('id-ID')}
@@ -133,7 +134,7 @@ export default function MasterLaporanPenjualanPage() {
                 : 'bg-white text-[#475569] border border-[#CBD5E1]'
             }`}
           >
-            Kasir Gerai POS ({posOrders.length})
+            Kasir OUTLET POS ({posOrders.length})
           </button>
           <button
             onClick={() => setFilterChannel('marketplace')}
@@ -176,7 +177,7 @@ export default function MasterLaporanPenjualanPage() {
                               : 'bg-[#FBF4F9] text-[#732662] border border-[#732662]/30'
                           }`}
                         >
-                          {ord.channel}
+                          {formatOutletCopy(ord.channel)}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-[#0B1C30] font-medium max-w-xs truncate">

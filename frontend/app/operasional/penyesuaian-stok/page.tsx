@@ -6,6 +6,7 @@ import AppShell from '../../components/AppShell';
 import WordRevealHeading from '../../components/WordRevealHeading';
 import MotionCard from '../../components/MotionCard';
 import { useApp } from '../../lib/context';
+import { formatOutletCopy } from '../../lib/businessInfo';
 import {
   IconPlus,
   IconClose,
@@ -342,35 +343,35 @@ export default function RiwayatPerubahanStokOwnerPage() {
             <table className="w-full text-left text-[13px]">
               <thead className="bg-[#FAF7F2] border-b border-[#CBD5E1] text-[#5B403D]">
                 <tr>
-                  <th className="py-3 px-4 font-bold">WAKTU &amp; TANGGAL</th>
-                  <th className="py-3 px-4 font-bold">KODE REF / ID LOG</th>
-                  <th className="py-3 px-4 font-bold">NAMA BARANG</th>
-                  <th className="py-3 px-4 font-bold">MODUL</th>
-                  <th className="py-3 px-4 font-bold text-center">MUTASI (+/-)</th>
-                  <th className="py-3 px-4 font-bold">OPERATOR / PENCATAT</th>
-                  <th className="py-3 px-4 font-bold">ALASAN &amp; KETERANGAN</th>
+                  <th className="py-2 px-3 font-bold">WAKTU &amp; TANGGAL</th>
+                  <th className="py-2 px-3 font-bold">KODE REF / ID LOG</th>
+                  <th className="py-2 px-3 font-bold">NAMA BARANG</th>
+                  <th className="py-2 px-3 font-bold">MODUL</th>
+                  <th className="py-2 px-3 font-bold text-center">MUTASI (+/-)</th>
+                  <th className="py-2 px-3 font-bold">OPERATOR / PENCATAT</th>
+                  <th className="py-2 px-3 font-bold">ALASAN &amp; KETERANGAN</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
                 {filteredLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-[#FFF7ED]/30 transition-colors">
                     {/* Date */}
-                    <td className="py-3.5 px-4 text-[12px] text-[#5B403D]">
+                    <td className="py-2.5 px-3 text-[12px] text-[#5B403D]">
                       {log.date.replace('T', ' ').substring(0, 16)} WIB
                     </td>
 
                     {/* Ref */}
-                    <td className="py-3.5 px-4 font-mono font-bold text-[12px] text-[#5B3765]">
-                      {log.reference}
+                    <td className="py-2.5 px-3 font-mono font-bold text-[12px] text-[#5B3765]">
+                      {formatOutletCopy(log.reference)}
                     </td>
 
                     {/* Item */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-2.5 px-3">
                       <span className="font-bold text-[#0B1C30]">{log.itemName}</span>
                     </td>
 
                     {/* Module */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-2.5 px-3">
                       <span
                         className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
                           log.itemType === 'produk'
@@ -383,7 +384,7 @@ export default function RiwayatPerubahanStokOwnerPage() {
                     </td>
 
                     {/* Mutation */}
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-2.5 px-3 text-center">
                       <span
                         className={`font-extrabold text-[14px] inline-flex items-center gap-1 ${
                           log.quantity > 0
@@ -405,13 +406,13 @@ export default function RiwayatPerubahanStokOwnerPage() {
                     </td>
 
                     {/* Actor */}
-                    <td className="py-3.5 px-4 text-[12px] font-semibold text-[#0B1C30]">
+                    <td className="py-2.5 px-3 text-[12px] font-semibold text-[#0B1C30]">
                       {log.actor}
                     </td>
 
                     {/* Reason */}
-                    <td className="py-3.5 px-4 text-[12px] text-[#5B403D]">
-                      <div>{log.reason}</div>
+                    <td className="py-2.5 px-3 text-[12px] text-[#5B403D]">
+                      <div>{formatOutletCopy(log.reason)}</div>
                       <span className="text-[10px] text-[#A24F9D] font-bold">
                         {log.mutationKind}
                       </span>
